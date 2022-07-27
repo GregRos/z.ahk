@@ -1,5 +1,6 @@
 ; Represents an entry in a stack trace.
-class z__gutils_StackFrame {
+#include 03.zstack.ah2
+class zzutils_StackFrame {
 
      __New(file, line) {
         frame := this
@@ -14,7 +15,7 @@ class z__gutils_StackFrame {
     }
 }
 
-z__gutils_parse(stack) {
+zzutils__parseStack(stack) {
     RegExMatch(stack, ".*")
     frames := StrSplit(stack, "`r`n")
     frameRegexp := "^(.*) \((\d+)\) :.*$"
@@ -30,7 +31,7 @@ z__gutils_parse(stack) {
         RegExMatch(frame, frameRegexp, &output)
         file := output.1
         line := output.2
-        trace.Push(z__gutils_StackFrame(file, line))
+        trace.Push(zzutils_StackFrame(file, line))
     }
     return trace
 }

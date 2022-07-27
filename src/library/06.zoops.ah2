@@ -1,22 +1,21 @@
-#include gstack.ah2
-
-global z__gutils_oopsSetup := False
-global z__gutils_currentError := ""
-global z__gutils_vsCodeProcess := ""
-global z__gutils_wmi := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2") 
-global z__gutils_errorBox := ""
+#include 03.zstack.ah2
+global zzutils__oopsSetup := False
+global zzutils__currentError := ""
+global zzutils__vsCodeProcess := ""
+global zzutils__wmi := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2") 
+global zzutils__errorBox := ""
 ; Get the current PID.
-gSys_Pid() {
+zSys_Pid() {
     return DllCall("GetCurrentProcessId")	
 }
 
 ; Returns info about process with `pid`, or the current process.
-gSys_GetProcessInfo(pid := "") {
+zSys_GetProcessInfo(pid := "") {
     if (pid = "") {
-        pid := gSys_Pid()
+        pid := zSys_Pid()
     }
     query := "Select * From Win32_Process where ProcessId = " pid
-    results := z__gutils_wmi.ExecQuery(query)._NewEnum()
+    results := zzutils__wmi.ExecQuery(query)._NewEnum()
     if results(&proc) {
         return {Name: proc.Name
             ,PID: proc.ProcessId
@@ -25,7 +24,7 @@ gSys_GetProcessInfo(pid := "") {
     }
 }
 
-z__gutils_formatError(error, trace) {
+zzutils__formatError(error, trace) {
     joinedTrace := ""
     for i, frame in trace {
         if (i != 1) {
@@ -43,26 +42,26 @@ z__gutils_formatError(error, trace) {
 )", A_ScriptName, Type(error), error.Message, joinedTrace)
 }
 
-z__gutils_detectVsCode() {
-    global z__gutils_vsCodeProcess
+zzutils__detectVsCode() {
+    global zzutils__vsCodeProcess
     ; We need to get the topmost vscode process...
-    processInfo := gSys_GetProcessInfo()
+    processInfo := zSys_GetProcessInfo()
     ; Find the outermost code.exe process that's the parent of this process
     Loop {
         last := processInfo
-        processInfo := gSys_GetProcessInfo(processInfo.ParentPid)
+        processInfo := zSys_GetProcessInfo(processInfo.ParentPid)
     } until (!(processInfo && processInfo.Name = "code.exe"))
-    z__gutils_vsCodeProcess := last
+    zzutils__vsCodeProcess := last
 }
 
-class ExceptionGui extends Gui {
+class zzutils__ExceptionGui extends Gui {
     _trace := ""
     _error := ""
     result := "pending"
     __New(error) {
         this._error := error
         super.__New(, "An error has occurred!", this)
-        this._trace := z__gutils_parse(error.Stack)
+        this._trace := zzutils__parseStack(error.Stack)
         this.Setup()
     }
 
@@ -87,9 +86,9 @@ class ExceptionGui extends Gui {
 
     clickedFrameRow(lv, row) {
         navigateVsCode() {
-            global z__gutils_vsCodeProcess
+            global zzutils__vsCodeProcess
             entry := this._trace[row]
-            WinActivate("ahk_pid " z__gutils_vsCodeProcess.Pid)
+            WinActivate("ahk_pid " zzutils__vsCodeProcess.Pid)
             sourceLocation := entry.File
             SendInput "^P{Backspace}" entry.File
             Sleep 150
@@ -99,15 +98,15 @@ class ExceptionGui extends Gui {
     }
 
     copyDetails(btn, empty) {
-        A_Clipboard := z__gutils_formatError(this._error, this._trace)
+        A_Clipboard := zzutils__formatError(this._error, this._trace)
     }
 
     Setup() {
         imageList := ""
-        if (z__gutils_vsCodeProcess) {
+        if (zzutils__vsCodeProcess) {
             imageList := IL_Create()
             Loop 10 {
-                IL_add(imageList, z__gutils_vsCodeProcess.Path, 1)
+                IL_add(imageList, zzutils__vsCodeProcess.Path, 1)
             }
         }
         this.Opt("+AlwaysOnTop")
@@ -145,13 +144,13 @@ class ExceptionGui extends Gui {
         }
     }
 }
-z_goops_openExceptionGui(ex, mode) {
-    global z__gutils_currentError, z__gutils_vsCodeProcess, z__gutils_errorBox
-    if (z__gutils_currentError) {
+zzutils__openExceptionGui(ex, mode) {
+    global zzutils__currentError, zzutils__vsCodeProcess, zzutils__errorBox
+    if (zzutils__currentError) {
         return
     }
-    z__gutils_currentError := ex
-    handler := ExceptionGui(z__gutils_currentError)
+    zzutils__currentError := ex
+    handler := zzutils__ExceptionGui(zzutils__currentError)
     handler.Show("w477 h505")
     WinWaitClose "ahk_id " handler.hwnd
     if handler.result == "exit" {
@@ -161,14 +160,14 @@ z_goops_openExceptionGui(ex, mode) {
     }
 }
 
-global z__gutils_oopsSetup := False
+global zzutils__oopsSetup := False
 
-gOops_Setup() {
-    global z__gutils_oopsSetup
-    if (z__gutils_oopsSetup) {
+zOops() {
+    global zzutils__oopsSetup
+    if (zzutils__oopsSetup) {
         return
     }
-    z__gutils_oopsSetup := True
-    z__gutils_detectVsCode()
-    OnError(z_goops_openExceptionGui)
+    zzutils__oopsSetup := True
+    zzutils__detectVsCode()
+    OnError(zzutils__openExceptionGui)
 }
