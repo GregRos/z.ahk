@@ -1,11 +1,7 @@
 #include 01.bootstrap.ah2
 
-exampleFallCallback(assertion, value) {
-
-}
-
 zzutils_equal(a, b, caseMode := False) {
-    is not IsObject(a) or not IsObject(b) {
+    if not (IsObject(a) and IsObject(b)) {
         return caseMode ? a == b : a = b
     }
     protoA := a.Base

@@ -1,5 +1,9 @@
 #Include 01.bootstrap.ah2
 
+zz_maybeGet(what, key) {
+    return HasProp(what, key) = True ? Some(what[key]) : None("Missing property")
+}
+
 class zNoValueError extends zUtilsError {
     __New(reason?) {
         reason := reason ?? "unknown"

@@ -60,8 +60,8 @@ class zzutils__ExceptionGui extends Gui {
     result := "pending"
     __New(error) {
         this._error := error
-        super.__New(, "An error has occurred!", this)
-        this._trace := zzutils__parseStack(error.Stack)
+        super.__New("-DPIScale -MinimizeBox -MaximizeBox", Format("Error in AHK script « {1} »", A_ScriptName), this)
+        this._trace := zz_stack_parse(error)
         this.Setup()
     }
 
@@ -79,7 +79,7 @@ class zzutils__ExceptionGui extends Gui {
         this.Destroy()
     }
 
-    cont(btn, empty) {
+    ignore(btn, empty) {
         this.result := "cont"
         this.Destroy()
     }
@@ -94,10 +94,14 @@ class zzutils__ExceptionGui extends Gui {
             Sleep 150
             SendInput ":" entry.Line "{Enter}"
         }
+        entry := this._trace[row]
+        if entry.IsReal {
+
+        }
         this.whileDisabled(navigateVsCode)
     }
 
-    copyDetails(btn, empty) {
+    copy(btn, empty) {
         A_Clipboard := zzutils__formatError(this._error, this._trace)
     }
 
@@ -110,37 +114,137 @@ class zzutils__ExceptionGui extends Gui {
             }
         }
         this.Opt("+AlwaysOnTop")
-        this.SetFont("S10 CDefault", "Verdana")
-        this.AddText("x12 y9 w240 h20", "An error has occurred in the script:")
-        this.AddEdit("x272 y9 w190 h20 ReadOnly", A_ScriptName)
-        this.AddText("x13 y33 w82 h20", "Error Type:")
-        this.AddEdit("x101 y34 w361 h20 ReadOnly", Type(this._error))
-        this.AddText("x12 y56 w68 h16", "Error Type:")
-        this.AddEdit("x11 y76 w453 h103 ReadOnly", this._error.Message)
-        btnOk := this.AddButton("x375 y466 w89 h25 Default", "Exit")
-        btnOk.OnEvent("Click", "stop")
-        btnContinue := this.AddButton("x280 y466 w89 h25", "Resume")
-        btnContinue.OnEvent("Click", "cont")
-        stackTraceLabel:="Stack Trace:"
-        if (A_IsCompiled) {
-            stackTraceLabel.= " (is compiled)"
-        }
-        this.AddText("x12 y293 w500 h17", stackTraceLabel)
-        cols := ["Pos", "File", "Ln#"]
-        lv := this.AddListView("x12 y313 w453 h146", cols)
-        lv.OnEvent("DoubleClick", "clickedFrameRow")
-        btnCopy := this.AddButton("x12 y466 w89 h25", "Copy Details")
-        btnCopy.OnEvent("Click", "copyDetails")
+        this.SetFont("S10 cTeal", "Segoe UI")
+        this.BackColor := 0xF89D07
+
+        this.AddText(
+            "x0 y8 w584 h42 ReadOnly", 
+            "AutoHotKey script had an unhandled error"
+        ).SetFont("s14 w600 q5 cNavy")
+
+        this.AddText(
+            "x0 y56 w78 h36",
+            "Script"
+        ).SetFont(
+            "s12 w600"
+        )
+        this.AddEdit(
+            "x80 y56 w616 h36 +ReadOnly BackgroundWhite",
+            A_ScriptFullPath
+        ).SetFont(
+            "s11 bold q5",
+            "Consolas"
+        )
+
+        this.AddText(
+            "x0 y96 w76 h32",
+            "Type"
+        ).SetFont(
+            "s12 w600"
+        )
+
+        this.AddEdit(
+            "x80 y96 w616 h36 +ReadOnly BackgroundWhite", 
+            Type(this._error)
+        ).Setfont(
+            "S11 bold q5",
+            "Consolas"
+        )
+
+        this.AddEdit(
+            "x0 y136 w648 h164 +ReadOnly +Multi -VScroll BackgroundWhite",
+            this._error.Message
+        ).SetFont(
+            "s9 q5",
+            "Consolas"
+        )
+
+        this.AddButton(
+            "x648 y136 w51 h43",
+            "📋"
+        ).OnEvent("Click", "copy")
+
+        this.AddButton(
+            "x648 y256 w51 h43",
+            "🌐"
+        ).OnEvent("Click", "search")
+
+        this.AddText(
+            "x0 y304 w56 h24",
+            "What"
+        ).SetFont(
+            "s10 w600"
+        )
+
+        this.AddEdit(
+            "x64 y304 w238 h30 +ReadOnly BackgroundWhite", 
+            this._error.What
+        ).SetFont(
+            "s10 norm",
+            "Consolas"
+        )
+
+        this.AddText(
+            "x312 y304 w56 h24",
+            "Extra"
+        ).SetFont(
+            "s10 w600"
+        )
+
+        this.AddEdit(
+            "x376 y304 w322 h31 +ReadOnly BackgroundWhite",
+            this._error.Extra
+        ).SetFont(
+            "s10 Norm",
+            "Consolas"
+        )
+
+        this.AddText(
+            "x0 y344 w152 h38",
+            "Call Stack"
+        ).SetFont(
+            "s14 w600 cNavy"
+        )
+
+        this.AddButton(
+            "x0 y752 w270 h67",
+            "Ignore"
+        ).OnEvent("Click", "ignore")
+
+        this.AddButton(
+            "x272 y752 w427 h66",
+            "Close"
+        ).OnEvent("Click", "stop")
+
+        lvCols := [
+            "#",
+            "Location",
+            "Code"
+        ]
+
+        lvStackTrace := this.AddListView("x0 y386 w696 h363 NoSortHdr +Grid -Multi +LV0x4000", lvCols)
+        lvStackTrace.SetFont(
+            "s10 q5",
+            "Consolas"
+        )
+        lvStackTrace.OnEvent("DoubleClick", "clickedFrameRow")
+
         if (imageList) {
-            lv.SetImageList(imageList)
+            lvStackTrace.SetImageList(imageList)
         }
 
-        for ix, entry in this._trace {
-            SplitPath(entry.File, &filename)
-            lv.Add("", ix, filename, entry.Line)
+        for ix, frame in this._trace {
+            if not frame.isScript {
+                lvStackTrace.Add("", ix, "Auto-execute")
+                continue
+            }
+            SplitPath(frame.File, &filename)
+            quote := frame.Quote and "> " frame.Quote or ""
+            lvStackTrace.Add("", ix, Format("{1}:{2}", filename, frame.Line), quote)
         }
-        Loop cols.Length {
-            lv.ModifyCol(A_Index, "AutoHdr")
+
+        Loop lvCols.Length {
+            lvStackTrace.ModifyCol(A_Index, "AutoHdr")
         }
     }
 }
@@ -151,7 +255,7 @@ zzutils__openExceptionGui(ex, mode) {
     }
     zzutils__currentError := ex
     handler := zzutils__ExceptionGui(zzutils__currentError)
-    handler.Show("w477 h505")
+    handler.Show("w696 h817")
     WinWaitClose "ahk_id " handler.hwnd
     if handler.result == "exit" {
         return 1

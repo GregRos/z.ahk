@@ -6,12 +6,8 @@
 zOops()
 #include library/13.zchecks.ah2
 #Include library/30.zarr.ah2
+#include library/11.ztest.ah2
 
-stuff() {
-    x := Map()
-    x.Set("a", "b")
-    return x.HasOwnProp("a")
-}
+#include xxx.ah2
 
-OutputDebug(stuff())
-
+stuff()
