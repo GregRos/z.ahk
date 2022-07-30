@@ -30,15 +30,28 @@ zzutils_equal(a, b, caseMode := False) {
     }
     return True
 }
+ 
+class zFailedAssertion {
+    __New(assertion, message, data) {
+        this.assertion := assertion
+        this.message := message
+        this.data := data
+    }
+}
 
 class zAssert {
     __New(onFailCallback) {
         this._onFailCallback := onFailCallback
     }
 
+    _fail(assertion, message, data) {
+        failure := zFailedAssertion(assertion, message, data)
+        this._onFailCallback(failure)
+    }
+
     isArray(input, each?) {
         if not input is Array {
-            this._onFailCallback("{input} is not an array", {
+            this._fail("isArray", "input is not an array", {
                 input: input
             })
         }
@@ -52,7 +65,7 @@ class zAssert {
 
     isInt(input) {
         if IsInteger(input) {
-            this._onFailCallback("{input} is not an integer", {
+            this._fail("isInt", "{input} is not an integer", {
                 input: input
             })
         }
@@ -60,7 +73,7 @@ class zAssert {
 
     isTrue(x) {
         if input != True {
-            this._onFailCallback("{input} is not True", {
+            this._fail("isTrue", "{input} is not True", {
                 input: input
             })
         }
@@ -68,7 +81,7 @@ class zAssert {
 
     isFalse(x) {
         if input != False {
-            this._onFailCallback("{input} is not False", {
+            this._fail("isFalse", "{input} is not False", {
                 input: input
             })
         }
@@ -76,7 +89,7 @@ class zAssert {
 
     isTruthy(x) {
         if not input {
-            this._onFailCallback("{input} is not truthy", {
+            this._fail("isTruthy", "{input} is not truthy", {
                 input: input
             })
         }
@@ -84,7 +97,7 @@ class zAssert {
 
     isFalsy(input) {
         if input {
-            this._onFailCallback("{input} is not falsy", {
+            this._fail("isFalsy", "{input} is not falsy", {
                 input: input
             })
         }
@@ -92,7 +105,7 @@ class zAssert {
 
     isEqual(real, expected, caseMode := False) {
         if not zzutils_equal(a, b, caseMode) {
-            this._onFailCallback("{real} is not equal to {expected}", {
+            this._fail("isEqual", "{real} is not equal to {expected}", {
                 real: real,
                 expected: expected
             })
@@ -101,7 +114,7 @@ class zAssert {
 
     isNotEqual(real, expected, caseMode := False) {
         if zzutils_equal(a, b, caseMode) {
-            this._onFailCallback("{real} is equal to {expected}", {
+            this._fail("isNotEqual", "{real} is equal to {expected}", {
                 real: real,
                 expected: expected
             })
@@ -110,7 +123,7 @@ class zAssert {
 
     atLeast(real, lowerBound) {
         if real < lowerBound {
-            this._onFailCallback("{real} is smaller than {lowerBound}", {
+            this._fail("atLeast", "{real} is smaller than {lowerBound}", {
                 real: real,
                 lowerBound: lowerBound
             })
@@ -119,7 +132,7 @@ class zAssert {
 
     atMost(real, upperBound) {
         if real > upperBound {
-            this._onFailCallback("{real} is greater than {upperBound}", {
+            this._fail("atMost", "{real} is greater than {upperBound}", {
                 real: real,
                 upperBound: upperBound
             })
@@ -133,7 +146,7 @@ class zAssert {
             }
             for x in haystack {
                 if caseMode ? x !== needle : x != needle {
-                    return this._onFailCallback("array {haystack} does not contain {needle}", {
+                    return this._fail("has", "array {haystack} does not contain {needle}", {
                         haystack: haystack,
                         needle: needle
                     })
@@ -141,7 +154,7 @@ class zAssert {
             }
         } else {
             if not InStr(haystack, needle, caseMode) {
-                return this._onFailCallback("string {haystack} doesn't contain {needle}", {
+                return this._fail("has", "string {haystack} doesn't contain {needle}", {
                     haystack: haystack,
                     needle: needle
                 })

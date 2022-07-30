@@ -1,30 +1,36 @@
 #include 03.zstack.ah2
 global zzutils__oopsSetup := False
 global zzutils__currentError := ""
-global zzutils__vsCodeProcess := ""
+global zz_vsCodeProcess := ""
 global zzutils__wmi := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2") 
 global zzutils__errorBox := ""
 ; Get the current PID.
-zSys_Pid() {
-    return DllCall("GetCurrentProcessId")	
+
+zz_getCurrentPid() {
+    DetectHiddenWindows True
+    pid := WinGetPID("ahk_id " A_ScriptHwnd)
+    DetectHiddenWindows False
+    return pid
 }
 
 ; Returns info about process with `pid`, or the current process.
-zSys_GetProcessInfo(pid := "") {
-    if (pid = "") {
-        pid := zSys_Pid()
+zz_queryProcessInfo(pid := unset) {
+    if not IsSet(pid) {
+        pid := zz_getCurrentPid()
     }
     query := "Select * From Win32_Process where ProcessId = " pid
     results := zzutils__wmi.ExecQuery(query)._NewEnum()
     if results(&proc) {
-        return {Name: proc.Name
-            ,PID: proc.ProcessId
-            ,ParentPID: proc.ParentProcessId
-            ,Path: proc.ExecutablePath}
+        return {
+            Name: proc.Name,
+            PID: proc.ProcessId,
+            ParentPID: proc.ParentProcessId,
+            Path: proc.ExecutablePath
+        }
     }
 }
 
-zzutils__formatError(error, trace) {
+zz_formatFullError(error, trace) {
     joinedTrace := ""
     for i, frame in trace {
         if (i != 1) {
@@ -38,29 +44,42 @@ zzutils__formatError(error, trace) {
 {3}
 # Trace
 {4}
-@{1}    
+at {1}    
 )", A_ScriptName, Type(error), error.Message, joinedTrace)
 }
 
-zzutils__detectVsCode() {
-    global zzutils__vsCodeProcess
+zz_detectVscode() {
+    global zz_vsCodeProcess
     ; We need to get the topmost vscode process...
-    processInfo := zSys_GetProcessInfo()
+    processInfo := zz_queryProcessInfo()
     ; Find the outermost code.exe process that's the parent of this process
     Loop {
         last := processInfo
-        processInfo := zSys_GetProcessInfo(processInfo.ParentPid)
+        processInfo := zz_queryProcessInfo(processInfo.ParentPid)
     } until (!(processInfo && processInfo.Name = "code.exe"))
-    zzutils__vsCodeProcess := last
+    zz_vsCodeProcess := last
 }
 
-class zzutils__ExceptionGui extends Gui {
+zz_oops_formatPanicMessage(error) {
+    message := error.Message
+    extra := HasProp(error, "Extra") ? error.Extra : ""
+    what := HasProp(error, "What") ? error.What : ""
+    if extra {
+        message .= "`r`nExtra: " extra
+    } 
+    if what {
+        message .= "`r`nWhat: " what
+    }
+    return message
+}
+
+class zz_PanicGui extends Gui {
     _trace := ""
     _error := ""
     result := "pending"
     __New(error) {
         this._error := error
-        super.__New("-DPIScale -MinimizeBox -MaximizeBox", Format("Error in AHK script « {1} »", A_ScriptName), this)
+        super.__New("-DPIScale -MinimizeBox -MaximizeBox -0x20000 -0x30000", Format("Error in AHK script « {1} »", A_ScriptName), this)
         this._trace := zz_stack_parse(error)
         this.Setup()
     }
@@ -86,65 +105,59 @@ class zzutils__ExceptionGui extends Gui {
 
     clickedFrameRow(lv, row) {
         navigateVsCode() {
-            global zzutils__vsCodeProcess
+            global zz_vsCodeProcess
             entry := this._trace[row]
-            WinActivate("ahk_pid " zzutils__vsCodeProcess.Pid)
+            WinActivate("ahk_pid " zz_vsCodeProcess.Pid)
             sourceLocation := entry.File
             SendInput "^P{Backspace}" entry.File
             Sleep 150
             SendInput ":" entry.Line "{Enter}"
         }
         entry := this._trace[row]
-        if entry.IsReal {
-
+        if not entry.isScript {
+            return
         }
         this.whileDisabled(navigateVsCode)
     }
 
     copy(btn, empty) {
-        A_Clipboard := zzutils__formatError(this._error, this._trace)
+        A_Clipboard := zz_formatFullError(this._error, this._trace)
     }
 
     Setup() {
         imageList := ""
-        if (zzutils__vsCodeProcess) {
+        if (zz_vsCodeProcess) {
             imageList := IL_Create()
             Loop 10 {
-                IL_add(imageList, zzutils__vsCodeProcess.Path, 1)
+                IL_add(imageList, zz_vsCodeProcess.Path, 1)
             }
         }
         this.Opt("+AlwaysOnTop")
-        this.SetFont("S10 cTeal", "Segoe UI")
-        this.BackColor := 0xF89D07
+        this.SetFont("S10", "Segoe UI")
 
         this.AddText(
-            "x0 y8 w584 h42 ReadOnly", 
-            "AutoHotKey script had an unhandled error"
-        ).SetFont("s14 w600 q5 cNavy")
+            "x144 y8 w517 h42", 
+            "An AHK script encountered an error."
+        ).SetFont("s14 w600 q5 cred")
 
         this.AddText(
-            "x0 y56 w78 h36",
-            "Script"
-        ).SetFont(
-            "s12 w600"
-        )
+            "x0 y-8 w140 h135 cred",
+            "❌"
+        ).SetFont("s55 cred")
+        this.AddText(
+            "x144 y48 w526 h23",
+            "Path:"
+        ).SetFont("s10 w600 cBlack")
         this.AddEdit(
-            "x80 y56 w616 h36 +ReadOnly BackgroundWhite",
+            "x144 y80 w529 h37 +ReadOnly BackgroundWhite",
             A_ScriptFullPath
         ).SetFont(
             "s11 bold q5",
             "Consolas"
         )
 
-        this.AddText(
-            "x0 y96 w76 h32",
-            "Type"
-        ).SetFont(
-            "s12 w600"
-        )
-
         this.AddEdit(
-            "x80 y96 w616 h36 +ReadOnly BackgroundWhite", 
+            "x24 y144 w652 h33 +ReadOnly BackgroundWhite", 
             Type(this._error)
         ).Setfont(
             "S11 bold q5",
@@ -152,69 +165,43 @@ class zzutils__ExceptionGui extends Gui {
         )
 
         this.AddEdit(
-            "x0 y136 w648 h164 +ReadOnly +Multi -VScroll BackgroundWhite",
-            this._error.Message
+            "x24 y184 w595 h225 +ReadOnly +Multi -VScroll BackgroundWhite",
+            zz_oops_formatPanicMessage(this._error)
         ).SetFont(
             "s9 q5",
             "Consolas"
         )
 
-        this.AddButton(
-            "x648 y136 w51 h43",
+        btnCopy := this.AddButton(
+            "x624 y184 w51 h43",
             "📋"
-        ).OnEvent("Click", "copy")
+        )
+        btnCopy.OnEvent("Click", "copy")
 
-        this.AddButton(
-            "x648 y256 w51 h43",
-            "🌐"
-        ).OnEvent("Click", "search")
+        ; this.AddButton(
+        ;     "x624 y232 w51 h43",
+        ;     "🌐"
+        ; ).OnEvent("Click", "search")
 
         this.AddText(
-            "x0 y304 w56 h24",
-            "What"
-        ).SetFont(
-            "s10 w600"
-        )
-
-        this.AddEdit(
-            "x64 y304 w238 h30 +ReadOnly BackgroundWhite", 
-            this._error.What
-        ).SetFont(
-            "s10 norm",
-            "Consolas"
-        )
-
-        this.AddText(
-            "x312 y304 w56 h24",
-            "Extra"
-        ).SetFont(
-            "s10 w600"
-        )
-
-        this.AddEdit(
-            "x376 y304 w322 h31 +ReadOnly BackgroundWhite",
-            this._error.Extra
-        ).SetFont(
-            "s10 Norm",
-            "Consolas"
-        )
-
-        this.AddText(
-            "x0 y344 w152 h38",
+            "x24 y413 w152 h34",
             "Call Stack"
         ).SetFont(
             "s14 w600 cNavy"
         )
 
-        this.AddButton(
-            "x0 y752 w270 h67",
+        btnIgnore := this.AddButton(
+            "x24 y738 w270 h57",
             "Ignore"
-        ).OnEvent("Click", "ignore")
-
-        this.AddButton(
-            "x272 y752 w427 h66",
+        )
+        btnIgnore.OnEvent("Click", "ignore")
+        btnIgnore.SetFont("s12 w600")
+        btnStop := this.AddButton(
+            "x304 y738 w374 h56",
             "Close"
-        ).OnEvent("Click", "stop")
+        )
+        btnStop.OnEvent("Click", "stop")
+        btnStop.SetFont("s12 w600")
 
         lvCols := [
             "#",
@@ -222,9 +209,9 @@ class zzutils__ExceptionGui extends Gui {
             "Code"
         ]
 
-        lvStackTrace := this.AddListView("x0 y386 w696 h363 NoSortHdr +Grid -Multi +LV0x4000", lvCols)
+        lvStackTrace := this.AddListView("x24 y448 w651 h283 NoSortHdr +Grid -Multi +LV0x4000", lvCols)
         lvStackTrace.SetFont(
-            "s10 q5",
+            "s9 q5",
             "Consolas"
         )
         lvStackTrace.OnEvent("DoubleClick", "clickedFrameRow")
@@ -248,13 +235,13 @@ class zzutils__ExceptionGui extends Gui {
         }
     }
 }
-zzutils__openExceptionGui(ex, mode) {
-    global zzutils__currentError, zzutils__vsCodeProcess, zzutils__errorBox
+zz_createPanicGui(ex, mode) {
+    global zzutils__currentError, zz_vsCodeProcess, zzutils__errorBox
     if (zzutils__currentError) {
         return
     }
     zzutils__currentError := ex
-    handler := zzutils__ExceptionGui(zzutils__currentError)
+    handler := zz_PanicGui(zzutils__currentError)
     handler.Show("w696 h817")
     WinWaitClose "ahk_id " handler.hwnd
     if handler.result == "exit" {
@@ -264,14 +251,12 @@ zzutils__openExceptionGui(ex, mode) {
     }
 }
 
-global zzutils__oopsSetup := False
-
 zOops() {
-    global zzutils__oopsSetup
-    if (zzutils__oopsSetup) {
+    static oopsSetup := False
+    if oopsSetup {
         return
     }
-    zzutils__oopsSetup := True
-    zzutils__detectVsCode()
-    OnError(zzutils__openExceptionGui)
+    oopsSetup := True
+    zz_detectVscode()
+    OnError(zz_createPanicGui)
 }
