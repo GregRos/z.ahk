@@ -1,63 +1,41 @@
 #include 03.zstack.ah2
-global zzutils__oopsSetup := False
-global zzutils__currentError := ""
-global zz_vsCodeProcess := ""
-global zzutils__wmi := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2") 
-global zzutils__errorBox := ""
+#include 05.zprocess.ah2
+#include 07.ztemplate.ah2
+
+zz_oops_currentError := ""
+zz_oops_vsCodeProcess := ""
 ; Get the current PID.
-
-zz_getCurrentPid() {
-    DetectHiddenWindows True
-    pid := WinGetPID("ahk_id " A_ScriptHwnd)
-    DetectHiddenWindows False
-    return pid
-}
-
-; Returns info about process with `pid`, or the current process.
-zz_queryProcessInfo(pid := unset) {
-    if not IsSet(pid) {
-        pid := zz_getCurrentPid()
-    }
-    query := "Select * From Win32_Process where ProcessId = " pid
-    results := zzutils__wmi.ExecQuery(query)._NewEnum()
-    if results(&proc) {
-        return {
-            Name: proc.Name,
-            PID: proc.ProcessId,
-            ParentPID: proc.ParentProcessId,
-            Path: proc.ExecutablePath
-        }
-    }
-}
-
-zz_formatFullError(error, trace) {
-    joinedTrace := ""
-    for i, frame in trace {
-        if (i != 1) {
-            joinedTrace .= "`n"
-        }
-        joinedTrace .= "at " frame.ToString()
-    }
-    return Format("
+zz_error_template := zTemplate("
 (
-# {2}
-{3}
-# Trace
-{4}
-at {1}    
-)", A_ScriptName, Type(error), error.Message, joinedTrace)
-}
+|{type}|
+{message}
 
-zz_detectVscode() {
-    global zz_vsCodeProcess
+{stack}
+)")
+
+zz_error_print(err) {
+    stack := []
+    for frame in zz_StackTrace.Parse(err) {
+        stack.Push(String(frame))
+    }
+    result := zz_error_template({
+            type: Type(err),
+            message: err.message,
+            stack: zz_str_join(stack, "`n")
+        })
+
+    return result
+}
+zz_oops_detectVsCode() {
+    global zz_oops_vsCodeProcess
     ; We need to get the topmost vscode process...
-    processInfo := zz_queryProcessInfo()
+    processInfo := zProcess.current
     ; Find the outermost code.exe process that's the parent of this process
     Loop {
         last := processInfo
-        processInfo := zz_queryProcessInfo(processInfo.ParentPid)
+        processInfo := processInfo.Parent
     } until (!(processInfo && processInfo.Name = "code.exe"))
-    zz_vsCodeProcess := last
+    zz_oops_vsCodeProcess := last
 }
 
 zz_oops_formatPanicMessage(error) {
@@ -73,14 +51,14 @@ zz_oops_formatPanicMessage(error) {
     return message
 }
 
-class zz_PanicGui extends Gui {
+class zz_oops_PanicGui extends Gui {
     _trace := ""
     _error := ""
-    result := "pending"
+    result := "exit"
     __New(error) {
         this._error := error
         super.__New("-DPIScale -MinimizeBox -MaximizeBox -0x20000 -0x30000", Format("Error in AHK script « {1} »", A_ScriptName), this)
-        this._trace := zz_stack_parse(error)
+        this._trace := zz_StackTrace.Parse(error)
         this.Setup()
     }
 
@@ -105,13 +83,18 @@ class zz_PanicGui extends Gui {
 
     clickedFrameRow(lv, row) {
         navigateVsCode() {
-            global zz_vsCodeProcess
+            global zz_oops_vsCodeProcess
             entry := this._trace[row]
-            WinActivate("ahk_pid " zz_vsCodeProcess.Pid)
+            WinActivate("ahk_pid " zz_oops_vsCodeProcess.Pid)
+            Sleep 100
             sourceLocation := entry.File
-            SendInput "^P{Backspace}" entry.File
-            Sleep 150
-            SendInput ":" entry.Line "{Enter}"
+            SendInput "^p{Backspace}"
+            Sleep 100
+            SendInput entry.File
+            Sleep 250
+            SendInput ":" entry.Line
+            Sleep 250
+            SendInput "{Enter}"
         }
         entry := this._trace[row]
         if not entry.isScript {
@@ -126,13 +109,12 @@ class zz_PanicGui extends Gui {
 
     Setup() {
         imageList := ""
-        if (zz_vsCodeProcess) {
+        if (zz_oops_vsCodeProcess) {
             imageList := IL_Create()
             Loop 10 {
-                IL_add(imageList, zz_vsCodeProcess.Path, 1)
+                IL_add(imageList, zz_oops_vsCodeProcess.Path, 1)
             }
         }
-        this.Opt("+AlwaysOnTop")
         this.SetFont("S10", "Segoe UI")
 
         this.AddText(
@@ -236,12 +218,12 @@ class zz_PanicGui extends Gui {
     }
 }
 zz_createPanicGui(ex, mode) {
-    global zzutils__currentError, zz_vsCodeProcess, zzutils__errorBox
-    if (zzutils__currentError) {
+    global zz_oops_currentError, zz_oops_vsCodeProcess
+    if (zz_oops_currentError) {
         return
     }
-    zzutils__currentError := ex
-    handler := zz_PanicGui(zzutils__currentError)
+    zz_oops_currentError := ex
+    handler := zz_oops_PanicGui(zz_oops_currentError)
     handler.Show("w696 h817")
     WinWaitClose "ahk_id " handler.hwnd
     if handler.result == "exit" {
@@ -257,6 +239,20 @@ zOops() {
         return
     }
     oopsSetup := True
-    zz_detectVscode()
+    zz_oops_detectVsCode()
     OnError(zz_createPanicGui)
+}
+
+
+zz_oops_test() {
+    f() {
+        g() {
+            h() {
+                throw zInvalidCallError("zOops exception test")
+            }
+            h()
+        }
+        g()
+    }
+    f()
 }

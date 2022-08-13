@@ -1,7 +1,7 @@
-#include 01.bootstrap.ah2
+#include 01.zinit.ah2
 #include 13.zchecks.ah2
-#include 02.zmaybe.ah2
-#include 20.zstr.ah2
+#include 20.zmaybe.ah2
+#include 30.zstr.ah2
 
 
 ; Takes any number of arguments and joins them up into an array.
@@ -62,7 +62,7 @@ zArr_Filter(self, predicate) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("predicate", predicate)
     newArr := []
-    predicate := zzutils_normFunc(predicate, 2)
+    predicate := zz_normFunc(predicate, 2)
     for index, item in self {
         if predicate(item, index) {
             newArr.Push(item,)
@@ -74,7 +74,7 @@ zArr_Filter(self, predicate) {
 zArr_Map(self, project) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("project", project)
-    project := zzutils_normFunc(project, 2)
+    project := zz_normFunc(project, 2)
     newArr := []
     for index, item in self {
         if predicate(item, index) {
@@ -105,7 +105,7 @@ zArr_FlatMap(self, projection) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("projection", projection)
     arr := []
-    projection := zzutils_normFunc(projection, 2)
+    projection := zz_normFunc(projection, 2)
     for index, item in self {
         result := projection(item, index)
         if result is Array {
@@ -137,19 +137,13 @@ zArr_Slice(self, start := 1, end := 0) {
     zzutils_checkArray("self", self)
     zzutils_checkInt("start", start)
     zzutils_checkInt("end", end)
-    start := zzutils_normIndex(start, self.Length)
-    end := zzutils_normIndex(end, self.Length)
-    newArr := []
-    Loop end - start + 1 {
-        newArr.Push(self[A_Index + start - 1])
-    }
-    return newArr
+
 }
 
 zArr_Reduce(self, accumulator, initial) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("accumulator", accumulator, 2)
-    accumulator := zzutils_normFunc(accumulator, 3)
+    accumulator := zz_normFunc(accumulator, 3)
     current := initial
     for index, item in self {
         current := accumulator(current, item, index)

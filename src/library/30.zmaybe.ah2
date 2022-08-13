@@ -1,4 +1,4 @@
-#Include 01.bootstrap.ah2
+#Include 01.zinit.ah2
 
 zz_maybeGet(what, key) {
     return HasProp(what, key) = True ? Some(what[key]) : None("Missing property")

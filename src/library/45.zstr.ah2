@@ -121,7 +121,7 @@ zStr_LastIndexOf(self, what, cs := false, pos := 1) {
     return indexes[indexes.Length]
 }
 
-zzutils_normIndex(index, len) {
+zz_normIndex(index, len) {
     if index <= 0 {
         return len - index + 1
     }
@@ -134,16 +134,16 @@ zStr_Slice(self, start := 1, end := unset) {
     if end < 0 {
         return SubStr(self, start, end)
     }
-    end := zzutils_normIndex(end, StrLen(self))
-    start := zzutils_normIndex(start, StrLen(self))
-    return SubStr(self, start, zzutils_normIndex(end, StrLen(self)) - zzutils_normIndex(start, StrLen(self)))
+    end := zz_normIndex(end, StrLen(self))
+    start := zz_normIndex(start, StrLen(self))
+    return SubStr(self, start, zz_normIndex(end, StrLen(self)) - zz_normIndex(start, StrLen(self)))
 }
 
 ; Splits `self` in two at `pos` and returns the two parts.
 zStr_SplitAt(self, pos) {
     zzutils_checkStr("self", self)
     zzutils_checkInt("pos", pos)
-    pos := zzutils_normIndex(pos, StrLen(self))
+    pos := zz_normIndex(pos, StrLen(self))
     first := zStr_Slice(self, pos - 1)
     last := zStr_Slice(self, pos + 1)
     return [first, last]

@@ -1,15 +1,29 @@
-#SingleInstance Force
+#SingleInstance Off
+#ErrorStdOut 'UTF-8'
 #Warn All, Off
-#include library/01.bootstrap.ah2
-
-#include library/06.zoops.ah2
+#include library/07.ztemplate.ah2
+#include library/19.ztest.ah2
+#include library/10.zoops.ah2
+#include library/05.zprocess.ah2
+#include library/06.zcolor.ah2
 zOops()
 zOops()
 #include library/13.zchecks.ah2
-#Include library/30.zarr.ah2
-#include library/11.ztest.ah2
 
-#include xxx.ah2
+class Example_tests extends zTestSuite {
+    test_throws() {
+        throw zInvalidCallError("This is a test error")
+    }
+    test_fails() {
+        this.isFalse(True)
+    }
+    test_passes() {
+        this.isTrue(True)
+    }
+}
 
-stuff()
+zHighlander()
 
+zTest({
+    reporter: "debug"
+})
