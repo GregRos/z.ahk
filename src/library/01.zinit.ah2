@@ -251,6 +251,7 @@ zz_normIndex(index, len) {
     if index <= 0 {
         return len + index + 1
     }
+    return index
 }
 
 zz_str_slice(self, start := 1, end := 0) {
@@ -280,6 +281,16 @@ zz_array_slice(arr, start := 1, count := -1) {
         newArr.Push(arr[start + A_Index - 1])
     }
     return newArr
+}
+
+zz_array_hasUnsetItems(arr) {
+    lastIndex := 0
+    for index, item in arr {
+        if index != lastIndex + 1 {
+            return True
+        }
+    }
+    return False
 }
 
 zz_regex_split(haystack, needle, matchAction := False, startingPos := 1, omitEmpty := False) {

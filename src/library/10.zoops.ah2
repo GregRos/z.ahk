@@ -15,7 +15,7 @@ zz_error_template := zTemplate("
 
 zz_error_print(err) {
     stack := []
-    for frame in zz_StackTrace.Parse(err) {
+    for frame in zz_stack_parseTrace(err) {
         stack.Push(String(frame))
     }
     result := zz_error_template({
@@ -58,7 +58,7 @@ class zz_oops_PanicGui extends Gui {
     __New(error) {
         this._error := error
         super.__New("-DPIScale -MinimizeBox -MaximizeBox -0x20000 -0x30000", Format("Error in AHK script « {1} »", A_ScriptName), this)
-        this._trace := zz_StackTrace.Parse(error)
+        this._trace := zz_stack_parseTrace(error)
         this.Setup()
     }
 
@@ -81,7 +81,16 @@ class zz_oops_PanicGui extends Gui {
         this.Destroy()
     }
 
+
     clickedFrameRow(lv, row) {
+        static typeLikeAPerson(str) {
+            blockSize := Integer(StrLen(str)) ** 0.75
+            loop strLen(str) {
+                SendInput(SubStr(str, A_Index, blockSize))
+                A_Index += blockSize - 1
+                Sleep 30
+            }
+        }
         navigateVsCode() {
             global zz_oops_vsCodeProcess
             entry := this._trace[row]
@@ -89,11 +98,9 @@ class zz_oops_PanicGui extends Gui {
             Sleep 100
             sourceLocation := entry.File
             SendInput "^p{Backspace}"
-            Sleep 100
-            SendInput entry.File
+            typeLikeAPerson(entry.File)
             Sleep 250
             SendInput ":" entry.Line
-            Sleep 250
             SendInput "{Enter}"
         }
         entry := this._trace[row]
