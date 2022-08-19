@@ -1,23 +1,26 @@
-zz_cim_query(query, projection) {
-    static cimv2 := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
-    query := cimv2.ExecQuery(query)
-    newEnum(this, vars) {
-        checkEnumeratorArity(vars, 1)
-        enum := query._NewEnum()
-        next(out) {
-            for comOut in enum {
-                %out% := projection(comOut)
-                return 1
-            }
-            return 0
+class zz_cim {
+    static Query(query, projection) {
+        static cimv2 := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
+            query := cimv2.ExecQuery(query)
+            newEnum(this, vars) {
+            checkEnumeratorArity(vars, 1)
+            enum := query._NewEnum()
+            next(out) {
+                for comOut in enum {
+                    %out% := projection(comOut)
+                    return 1
+                }
+                return 0
 
+            }
+            return next
         }
-        return next
-    }
-    return {
-        __Enum: newEnum
+        return {
+            __Enum: newEnum
+        }
     }
 }
+
 
 class zProcess {
     __New(comInput) {
@@ -37,7 +40,7 @@ class zProcess {
     }
 
     static Query(query) {
-        return zz_cim_query(query, com => zProcess(com))
+        return zz_cim.Query(query, com => zProcess(com))
     }
 
     static QueryOne(query) {

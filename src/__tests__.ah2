@@ -10,23 +10,14 @@
 zOops()
 zOops()
 #include library/13.zchecks.ah2
-
-OutputDebug(zP)
-
-class Example_tests extends zTestSuite {
-    test_throws() {
-        throw zInvalidCallError("This is a test error")
-    }
-    test_fails() {
-        this.isFalse(True)
-    }
-    test_passes() {
-        this.isTrue(True)
-    }
+class Blah {
+    a := 1
 }
-
-zHighlander()
-
-zTest({
-    reporter: "debug"
-})
+OutputDebug(zPrint({
+    a: {
+        b: 1,
+        c: [1, 2, 3],
+        d: Blah()
+    },
+    x: Map("a", "a")
+}))

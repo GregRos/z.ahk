@@ -18,7 +18,7 @@ zz_test_classToSuite(cls) {
 
 class zTestSuite extends zAssert {
     __New() {
-        stack := zz_stack_capture()
+        stack := zz_stack.capture()
         z := 1
         raise(failure) {
             throw zz_TestAssertionFailed(failure.assertion, failure.data)

@@ -3,27 +3,7 @@
 #include 07.ztemplate.ah2
 #include 08.zwriter.ah2
 zz_test_expandReporter(reporter) {
-    stdout(text) {
-        FileAppend(text, "*", "`n UTF-8")
-    }
-    stderr(text) {
-        FileAppend(text, "**", "`n UTF-8")
-    }
-
-    if reporter = "debug" {
-        textWriterImpl := OutputDebug
-    } else if reporter = "stderr" {
-        textWriterImpl := stderr
-    } else if reporter = "stdout" {
-        textWriterImpl := stdout
-    } else if zz_isCallable(reporter) {
-        textWriterImpl := reporter
-    } else if HasProp(reporter, "WriteLine") {
-        return reporter
-    } else {
-        throw zNotImplementedError("Reporter: " reporter)
-    }
-    return zz_TestReporter(zTextWriter(textWriterImpl))
+    return zz_TestReporter(zTextWriter(reporter))
 }
 
 class zz_TestReporter {
@@ -133,7 +113,7 @@ writeError(writer, err) {
         type: Type(err),
         message: err.message
     })).WriteLine()
-    frames := zz_stack_parseTrace(err)
+    frames := zz_stack.parseTrace(err)
     infraRegexp := "i)zz_.*\.zzRun$|Func.Prototype.Call$"
     writeTrace(writer, frames)
 }

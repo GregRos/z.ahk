@@ -72,6 +72,13 @@ zz_strArray_clean(arr) {
     return newArr
 }
 
+zz_str_splitWithEmpty(str, delims, omit, max) {
+    if str = "" {
+        return [""]
+    }
+    
+}
+
 zz_normFunc(f, wantedParams) {
     if not f is Func {
         f := f.Call
@@ -289,6 +296,7 @@ zz_array_hasUnsetItems(arr) {
         if index != lastIndex + 1 {
             return True
         }
+        lastIndex := index
     }
     return False
 }

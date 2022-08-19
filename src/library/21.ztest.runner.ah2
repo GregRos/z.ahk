@@ -9,7 +9,7 @@ class zz_TestAssertionFailed {
     __New(assertion, data) {
         this.Assertion := assertion
         this.Data := data
-        frames := this.Stack := zz_stack_capture(1)
+        frames := this.Stack := zz_stack.capture(1)
 
     }
 

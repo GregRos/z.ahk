@@ -82,6 +82,10 @@ class zStringTemplate {
     }
 
     Call(argsKeyed := {}, argsIndexed*) {
+        if not IsObject(argsKeyed) {
+            argsIndexed.InsertAt(1, argsKeyed)
+            argsKeyed := {}
+        }
         allArgs := Map()
         allArgs.CaseSense := False
         for key, value in ObjOwnProps(argsKeyed) {

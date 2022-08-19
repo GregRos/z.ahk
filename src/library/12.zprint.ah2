@@ -1,9 +1,24 @@
 #include 07.ztemplate.ah2
 #include 09.zset.ah2
 #include 08.zwriter.ah2
-zz_print(formatter, writer := zTextWriter()) {
+zz_print(writer, v) {
     stack := zSet()
-    writer := zTextWriter("debug")
+    static tmpltProperty := zTemplate("[!key]{1}[!operator]:[!][!] ")
+    static tmpltGui := zTemplate("[!type]Gui '{title}' (0x{hwnd:x})[!]")
+    static tmpltGuiControl := zTemplate("[!type]GuiControl '{name}' (0x{hwnd:x})[!]")
+    static tmpltBuffer := zTemplate("[!type]Buffer 0x{ptr:x}, Length={size}[!]")
+    static tmpltClass := zTemplate("[!type]Class '{name}'[!]")
+    static tmpltMenu := zTemplate("[!type]Menu 0x{handle:x}[!]")
+    static tmpltMenuBar := zTemplate("[!type]MenuBar 0x{handle:x}[!]")
+    static tmpltRegExMatchInfo := zTemplate("[!type]RegExMatch [{count}][!]")
+    static tmpltFile := zTemplate("[!type]File 0x{Handle:x}[!]")
+    static tmpltInputHook := zTemplate("[!type]InputHook[!]")
+    static tmpltEmptyObject := zTemplate("[!object]{{}{}}[!]")
+    static tmpltEmptyArray := zTemplate("[!object][][!]")
+    static tmpltEmptyMap := zTemplate("[!object]Map {{}{}}[!]")
+    static tmpltProto := zTemplate("[!type]|{1}|[!]")
+    static keyEntry := zTemplate("[!key]{1}[!] [!operator]🡲[!] ")
+    static propGetError := zTemplate("[!error]‼ {1} ‼[!]")
     static tryScalar(v, writer) {
         if not IsSet(v) {
             writer.Write "[!kw]unset[!]"
@@ -21,23 +36,9 @@ zz_print(formatter, writer := zTextWriter()) {
         }
         return True
     }
-
     static tryLeafType(v, writer) {
         ; Current state of writer - after 
-        static tmpltGui := zTemplate("[!type]Gui '{title}' (0x{hwnd:x})[!]")
-        static tmpltGuiControl := zTemplate("[!type]GuiControl '{name}' (0x{hwnd:x})[!]")
-        static tmpltBuffer := zTemplate("[!type]Buffer 0x{ptr:x}, Length={size}[!]")
-        static tmpltClass := zTemplate("[!type]Class '{name}'[!]")
-        static tmpltMenu := zTemplate("[!type]Menu 0x{handle:x}[!]")
-        static tmpltMenuBar := zTemplate("[!type]MenuBar 0x{handle:x}[!]")
-        static tmpltRegExMatchInfo := zTemplate("[!type]RegExMatch [{count}][!]")
-        static tmpltFile := zTemplate("[!type]File 0x{Handle:x}[!]")
-        static tmpltInputHook := zTemplate("[!type]InputHook[!]")
-        static tmpltEmptyObject := zTemplate("[!object]{}[!]")
-        static tmpltEmptyArray := zTemplate("[!array][][!]")
-        static tmpltEmptyMap := zTemplate("[!object]Map {}[!]")
-        static tmpltProperty := zTemplate("[!property]{1}[!] = ")
-        static proto := zTemplate("|[!type]{1}[!]|")
+
 
         if v is VarRef
             or v is Func
@@ -78,8 +79,8 @@ zz_print(formatter, writer := zTextWriter()) {
         if tryLeafType(v, writer) {
             return
         }
-        writer.Write(proto(Type(v)))
-        return True
+        writer.Write(tmpltProto(Type(v)))
+        return False
     }
 
     static getPropValueOrError(obj, key, &value, &errString) {
@@ -98,62 +99,86 @@ zz_print(formatter, writer := zTextWriter()) {
             writer.Write(tmpltEmptyArray(v))
             return True
         }
-        stack.Push(v)
-        static indexedArrayItem := zTemplate("({index}) ‣ ")
+        stack.Add(v)
+        static indexedArrayItem := zTemplate("({index}) ➤ ")
         hasUnsetItems := zz_array_hasUnsetItems(v)
-        writer.Indent()
-        for index, value in v {
+        if stack.Count != 1 {
             writer.Indent()
+            writer.WriteLine()
+        }
+        for index, value in v {
+            if index != 1 {
+                writer.WriteLine()
+            }
             if hasUnsetItems {
                 writer.Write(indexedArrayItem(value))
             } else {
-                writer.Write("‣ ")
+                writer.Write("• ")
             }  
-            print(v)
+            print(value)
         }
-        writer.Unindent()
-        stack.Pop()
+        if not stack.Count = 1 {
+            writer.Unindent()
+        }
+        
+        stack.Delete(v)
+        return True
     }
 
     tryMap(v) {
         if not v is Map {
             return False
         }
-        if v.Length = 0 {
+        if v.Count = 0 {
             writer.Write(tmpltEmptyMap(v))
             return True
         }
-        static keyEntry := zTemplate("[!key]{1}[!] 🡲 ")
-        stack.Push(v)
-        writer.Indent()
+        
+        stack.Add(v)
+        if not stack.Count = 1 {
+            writer.Indent()
+            writer.WriteLine()
+        }
         for key, value in v {
-            writer.Write(keyEntry(key))
+            if A_Index != 1 {
+                writer.WriteLine()
+            }
+            printShort(key, writer)
+            writer.Write(" 🡲 ")
             print(value)
         }
-        writer.Unindent()
-        stack.Pop()
+        if not stack.Count = 1 {
+            writer.Unindent()
+        }
+        stack.Delete(v)
         return True
     }
 
     tryObject(v) {
-        static keyedItem := zTemplate("{key} = ")
-        static propGetError := zTemplate("[!error]‼ {1} ‼[!]")
         count := ObjOwnPropCount(v)
         if not count {
-            writer.Write proto(, Type(v))
+            writer.Write tmpltProto(, Type(v))
             return True
         }
-        stack.Push(v)
-        writer.Indent()
-        writer.WriteLine()
-        writer.WriteLine proto(, Type(v))
+        stack.Add(v)
+        if not stack.Count = 1 {
+            writer.Indent()
+            writer.WriteLine()
+        }
+        
+        if Type(v) != "Object" {
+            writer.WriteLine tmpltProto(, Type(v))
+        }
         for key in ObjOwnProps(v) {
+            if A_Index != 1 {
+                writer.WriteLine()
+            }
             desc := v.GetOwnPropDesc(key)
             if HasProp(desc, "Value") {
-                writer.Write(keyedItem(key))
+                writer.Write(tmpltProperty(key))
                 print(desc.Value)
             } else if HasProp(desc, "Get") {
-                writer.Write(keyedItem(key))
+                writer.Write(tmpltProperty(key))
                 getPropValueOrError(v, key, &value, &err)
                 if IsSet(value) {
                     print(value)
@@ -162,7 +187,10 @@ zz_print(formatter, writer := zTextWriter()) {
                 }
             }
         }
-        stack.Pop()
+        if not stack.Count = 1 {
+            writer.Unindent()
+        }
+        stack.Delete(v)
         return True
     }
 
@@ -170,20 +198,47 @@ zz_print(formatter, writer := zTextWriter()) {
         if tryScalar(v, writer) {
             return
         }
-        if tryLeafType(v, writer) {
+        else if tryLeafType(v, writer) {
             return
         }
-        if tryArray(v) {
+        else if tryArray(v) {
             return
         }
-        if tryMap(v) {
+        else if tryMap(v) {
+            return
+        }
+        else if tryObject(v) {
             return
         }
     }
-
+    print(v)
 }
 
+
+
 zPrint(v) {
+    static configureRenderer() {
+        renderer := zColor()
+        renderer := renderer.Aliases({
+            type: "bgBlueBright whiteBright",
+            error: "bgRed",
+            key: "black",
+            int: "blue",
+            float: "green",
+            string: "grey",
+            kw: "blue",
+            key: "bold",
+            index: "bold",
+            print: "black",
+            operator: "blue"
+        })
+        return renderer
+    }
+    static renderer := configureRenderer()
+    writeObject(writer) {
+        zz_print(writer, v)
+        writer.WriteLine()
+    }
     
-    zz_print()
+    return renderer(zTextWriter_String(writeObject))
 }
