@@ -1,6 +1,8 @@
 #include 07.ztemplate.ah2
 #include 09.zset.ah2
 #include 08.zwriter.ah2
+
+
 zz_print(writer, v) {
     stack := zSet()
     static tmpltProperty := zTemplate("[!key]{1}[!operator]:[!][!] ")
@@ -21,18 +23,18 @@ zz_print(writer, v) {
     static propGetError := zTemplate("[!error]‼ {1} ‼[!]")
     static tryScalar(v, writer) {
         if not IsSet(v) {
-            writer.Write "[!kw]unset[!]"
+            writer.Put "[!kw]unset[!]"
             return True
         }
         if IsObject(v) {
             return False
         }
         if IsInteger(v) {
-            writer.Write Format("[!int]{1}[!]", v)
+            writer.Put Format("[!int]{1}[!]", v)
         } else if IsFloat(v) {
-            writer.Write Format("[!float]{1}[!]", v)
+            writer.Put Format("[!float]{1}[!]", v)
         } else {
-            writer.Write Format('[!string]"{1}"[!]', v)
+            writer.Put Format('[!string]"{1}"[!]', v)
         }
         return True
     }
@@ -45,27 +47,27 @@ zz_print(writer, v) {
             or v is BoundFunc
             or v is Closure
             or v is Enumerator {
-            writer.Write Format("[!type]{1}[!]", Type(v))
+            writer.Put Format("[!type]{1}[!]", Type(v))
             return True
         }
         else if v is Gui {
-            writer.Write tmpltGui(v)
+            writer.Put tmpltGui(v)
         } else if v is Gui.Control {
-            writer.Write(tmpltGuiControl(v))
+            writer.Put(tmpltGuiControl(v))
         } else if v is Buffer {
-            writer.Write(tmpltBuffer(v))
+            writer.Put(tmpltBuffer(v))
         } else if v is Class {
-            writer.Write(tmpltClass(v))
+            writer.Put(tmpltClass(v))
         } else if v is RegExMatchInfo {
-            writer.Write(tmpltRegExMatchInfo(v))
+            writer.Put(tmpltRegExMatchInfo(v))
         } else if v is Menu {
-            writer.Write(tmpltMenu(v))
+            writer.Put(tmpltMenu(v))
         } else if v is MenuBar {
-            writer.Write(tmpltMenuBar(v))
+            writer.Put(tmpltMenuBar(v))
         } else if v is InputHook {
-            writer.Write(tmpltInputHook(v))
+            writer.Put(tmpltInputHook(v))
         } else if v is File {
-            writer.Write(tmpltFile(v))
+            writer.Put(tmpltFile(v))
         } else {
             return False
         }
@@ -79,7 +81,7 @@ zz_print(writer, v) {
         if tryLeafType(v, writer) {
             return
         }
-        writer.Write(tmpltProto(Type(v)))
+        writer.Put(tmpltProto(Type(v)))
         return False
     }
 
@@ -96,7 +98,7 @@ zz_print(writer, v) {
             return False
         }
         if v.Length = 0 {
-            writer.Write(tmpltEmptyArray(v))
+            writer.Put(tmpltEmptyArray(v))
             return True
         }
         stack.Add(v)
@@ -104,18 +106,18 @@ zz_print(writer, v) {
         hasUnsetItems := zz_array_hasUnsetItems(v)
         if stack.Count != 1 {
             writer.Indent()
-            writer.WriteLine()
+            writer.PutLn()
         }
         for index, value in v {
             if index != 1 {
-                writer.WriteLine()
+                writer.PutLn()
             }
             if hasUnsetItems {
-                writer.Write(indexedArrayItem(value))
+                writer.Put(indexedArrayItem(value))
             } else {
-                writer.Write("• ")
+                writer.Put("• ")
             }  
-            print(value)
+            recursivePrint(value)
         }
         if not stack.Count = 1 {
             writer.Unindent()
@@ -130,22 +132,22 @@ zz_print(writer, v) {
             return False
         }
         if v.Count = 0 {
-            writer.Write(tmpltEmptyMap(v))
+            writer.Put(tmpltEmptyMap(v))
             return True
         }
         
         stack.Add(v)
         if not stack.Count = 1 {
             writer.Indent()
-            writer.WriteLine()
+            writer.PutLn()
         }
         for key, value in v {
             if A_Index != 1 {
-                writer.WriteLine()
+                writer.PutLn()
             }
             printShort(key, writer)
-            writer.Write(" 🡲 ")
-            print(value)
+            writer.Put(" 🡲 ")
+            recursivePrint(value)
         }
         if not stack.Count = 1 {
             writer.Unindent()
@@ -157,33 +159,33 @@ zz_print(writer, v) {
     tryObject(v) {
         count := ObjOwnPropCount(v)
         if not count {
-            writer.Write tmpltProto(, Type(v))
+            writer.Put tmpltProto(, Type(v))
             return True
         }
         stack.Add(v)
         if not stack.Count = 1 {
             writer.Indent()
-            writer.WriteLine()
+            writer.PutLn
         }
         
         if Type(v) != "Object" {
-            writer.WriteLine tmpltProto(, Type(v))
+            writer.PutLn tmpltProto(, Type(v))
         }
         for key in ObjOwnProps(v) {
             if A_Index != 1 {
-                writer.WriteLine()
+                writer.PutLn()
             }
             desc := v.GetOwnPropDesc(key)
             if HasProp(desc, "Value") {
-                writer.Write(tmpltProperty(key))
-                print(desc.Value)
+                writer.Put(tmpltProperty(key))
+                recursivePrint(desc.Value)
             } else if HasProp(desc, "Get") {
-                writer.Write(tmpltProperty(key))
+                writer.Put(tmpltProperty(key))
                 getPropValueOrError(v, key, &value, &err)
                 if IsSet(value) {
-                    print(value)
+                    recursivePrint(value)
                 } else {
-                    writer.Write(propGetError(, err))
+                    writer.Put(propGetError(, err))
                 }
             }
         }
@@ -194,51 +196,36 @@ zz_print(writer, v) {
         return True
     }
 
-    print(v) {
-        if tryScalar(v, writer) {
+    recursivePrint(v) {
+        if tryScalar(v, writer) or tryLeafType(v, writer) or tryArray(v) or tryMap(v) or tryObject(v) {
             return
         }
-        else if tryLeafType(v, writer) {
-            return
-        }
-        else if tryArray(v) {
-            return
-        }
-        else if tryMap(v) {
-            return
-        }
-        else if tryObject(v) {
-            return
-        }
+        throw zBadInputError("The input for zPrint is invalid.")
     }
-    print(v)
+    recursivePrint(v)
+    writer.Flush()
 }
 
-
-
-zPrint(v) {
-    static configureRenderer() {
-        renderer := zColor()
-        renderer := renderer.Aliases({
-            type: "bgBlueBright whiteBright",
-            error: "bgRed",
-            key: "black",
-            int: "blue",
-            float: "green",
-            string: "grey",
-            kw: "blue",
-            key: "bold",
-            index: "bold",
-            print: "black",
-            operator: "blue"
-        })
-        return renderer
+zPrint(v, options := "") {
+    static renderer := zColor({
+        type: "bgBlueBright whiteBright",
+        error: "bgRed",
+        key: "black",
+        int: "blue",
+        float: "green",
+        string: "grey",
+        kw: "blue",
+        key: "bold",
+        index: "bold",
+        print: "black",
+        operator: "blue",
+        error: "bgBrightRed"
+    })
+    options := zz_options_parse(options)
+    zz_print(zTextWriter(&result), v)
+    if options["color"] = -1 {
+        return zColor_Strip(result)
+    } else {
+        return renderer(result)
     }
-    static renderer := configureRenderer()
-    writeObject(writer) {
-        zz_print(writer, v)
-        writer.WriteLine()
-    }
-    
-    return renderer(zTextWriter_String(writeObject))
 }

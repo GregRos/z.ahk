@@ -271,6 +271,17 @@ zz_str_slice(self, start := 1, end := 0) {
     return newArr
 }
 
+zz_str_join(arr, delim := "") {
+    result := ""
+    for i, x in arr {
+        if i != 1 {
+            result .= delim
+        }
+        result .= x
+    }
+    return result
+}
+
 zz_ownKvps(obj) {
     results := []
     for key in ObjOwnProps(obj) {

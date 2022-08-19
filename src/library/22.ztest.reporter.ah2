@@ -15,7 +15,7 @@ class zz_TestReporter {
         onEnd() {
         }
         static suiteLine := zz_test_colorTemplate("[!bold black]📁 {suite}[!]")
-        this._writer.WriteLine(suiteLine(event))
+        this._writer.PutLn(suiteLine(event))
         return zz_TestStatusReporter(this._writer, onEnd)
     }
 }
@@ -52,21 +52,21 @@ class zz_TestStatusReporter {
 
     result(event) {
         _writer := this._writer
-        _writer.WriteLine(this._oneLiner(event))
+        _writer.PutLn(this._oneLiner(event))
     }
 
     finish(results) {
         static passKeyword := zColor("[!bgGreen b black] PASS [!]")
         static failKeyword := zColor("[!bgBrightRed b black] FAIL [!]")
         _writer := this._writer
-        _writer.WriteLine(" ")
+        _writer.PutLn(" ")
         anyFails := False
         for r in results {
             if r.isOk {
                 continue
             }
             anyFails := True
-            _writer.WriteLine(zColor("[!b i]" this._oneLiner(r) "[!]"))
+            _writer.PutLn(zColor("[!b i]" this._oneLiner(r) "[!]"))
             _writer.Indent()
             if r.isError {
                 writeError(_writer, r.result)
@@ -76,9 +76,9 @@ class zz_TestStatusReporter {
 
         }
         if anyFails {
-            _writer.WriteLine(failKeyword)
+            _writer.PutLn(failKeyword)
         } else {
-            _writer.WriteLine(passKeyword)
+            _writer.PutLn(passKeyword)
         }
     }
 }
@@ -95,9 +95,9 @@ writeTrace(writer, frames) {
     static traceAutoExecEntry := zz_test_colorTemplate("[!b red]➜ Auto-execute[!]")
     for frame in frames {
         if frame.isScript {
-            writer.WriteLine(traceFileEntry(frame))
+            writer.PutLn(traceFileEntry(frame))
         } else {
-            writer.WriteLine(traceAutoExecEntry(frame))
+            writer.PutLn(traceAutoExecEntry(frame))
         }
     }
 }
@@ -109,10 +109,10 @@ writeError(writer, err) {
         "{message}",
         ""
     )
-    writer.WriteLine(errorBody({
+    writer.PutLn(errorBody({
         type: Type(err),
         message: err.message
-    })).WriteLine()
+    })).PutLn()
     frames := zz_stack.parseTrace(err)
     infraRegexp := "i)zz_.*\.zzRun$|Func.Prototype.Call$"
     writeTrace(writer, frames)

@@ -110,7 +110,7 @@ class zz_oops {
         }
 
         copy(btn, empty) {
-            A_Clipboard := zz_formatFullError(this._error, this._trace)
+            throw zNotImplementedError("Operation not implemented")
         }
 
         Setup() {

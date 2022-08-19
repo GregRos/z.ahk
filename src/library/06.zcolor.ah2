@@ -69,6 +69,22 @@ class zz_color {
         return zz_color.Run(finalRunKids, [])
     }
 
+    static strip(text) {
+        static stripRun(run) {
+            result := ""
+            for kid in run.Kids {
+                if IsObject(kid) {
+                    result .= stripRun(kid)
+                } else {
+                    result .= kid
+                }
+            }
+            return result
+        }
+        run := zz_color.parse(text)
+        return stripRun(run)
+    }
+
     static ansi16escape(code) {
         esc := Chr(0x001b)
         return esc "[" code "m"
@@ -302,10 +318,16 @@ class zz_color {
 }
 
 
-zColor(text?) {
-    if IsSet(text) {
-        return zz_color.Default(text)
-    } else {
+zColor(textOrObject?) {
+    if not IsSet(textOrObject) {
         return zz_color.MakeDefault()
+    } else if IsObject(textOrObject) {
+        return zz_color.Default.Aliases(textOrObject)
+    } else {
+        return zz_color.Default.Call(textOrObject)
     }
+}
+
+zColor_Strip(text) {
+    return zz_color.strip(text)
 }

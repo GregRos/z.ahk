@@ -1,62 +1,69 @@
 #include 01.zinit.ah2
+class zz_writer {
+    class Sink {
+        PutLn(text) {
+            this.Put(text "`n")
+        }
 
-class zz_Sinks {
-     class Debug extends zTextSink {
-            __New() {
+        Call(text) {
+            this.PutLn(text)
+        }
 
-            }
-         WriteLine(text) {
-             OutputDebug(text)
-         }
-     }
-
-     class StdOut extends zTextSink {
-    __New() {
-
+        Put(text) {
+            throw zNotImplementedError("The 'Put' method must be implemented.")
+        }
     }
-         WriteLine(text) {
-             FileAppend(text, "*", "`n UTF-8")
-         }
-     }
-
-     class StdErr extends zTextSink {
-            __New() {
-
-            }
-         WriteLine(text) {
-             FileAppend(text, "**", "`n UTF-8")
-         }
-     }
-
-     class Memory extends zTextSink {
-            __New() {
-
-            }
-        _buffer := ""
-         WriteLine(text) {
-            this._buffer .= text "`n"
-         }
-
-         Buffer {
-             get =>this._buffer
-         }
-     }
-}
-
-class zTextSink {
-    __New(args*) {
-        throw zInvalidCallError("This class is abstract.")
+    
+    class DebugSink extends zz_writer.Sink {
+        Put(text) {
+            OutputDebug(text)
+        }
     }
 
-    WriteLine(text) {
-        throw zNotImplementedError("You must override this method.")
+    class StdSink extends zz_writer.Sink {
+        __New(type) {
+            if type = "stderr" {
+                this._out := "**"
+            } else if type = "stdout" {
+                this._out := "*"
+            } else {
+                throw zBadInputError("Invalid std sink type '" type "'. Expected 'stdout' or 'stderr'.")
+            }
+        }
+
+        Put(text) {
+            FileAppend(text, this._out, "`n UTF-8")
+        }
+    }
+
+    class MemorySink extends zz_writer.Sink {
+        __New(ref) {
+            this._ref := ref
+        }
+
+        Put(text) {
+            %this._ref% .= text
+        }
     }
 }
 
-class zz_TextWriter {
+class zTextWriter {
     _indents := []
     _line := ""
-    __New(sink, defaultIndent, indents) {
+    __New(sink, defaultIndent := "  ", indents := 0) {
+        indents := IsObject(indents) ? indents : zz_array_repeat(defaultIndent, indents)
+        switch sink {
+            case "stdout", "stderr":
+                sink := zz_writer.StdSink(sink)
+            case "debug":
+                sink := zz_writer.DebugSink()
+        }
+        if sink is VarRef {
+            sink := zz_writer.MemorySink(sink)
+        }
+        if not IsObject(sink) {
+            throw new zBadInputError("Parameter 'sink' must be a sink or the name of a sink.")
+        }
         this._sink := sink
         this._defaultIndent := defaultIndent
         this._indents := indents
@@ -79,52 +86,24 @@ class zz_TextWriter {
         return this
     }
 
-    Write(text) {
+    Put(text) {
         lines := StrSplit(text, "`n")
         loop lines.Length - 1 {
             curLine := lines[A_Index]
-            this._sink.WriteLine(curLine)
+            buildLine := this._line curLine
+            this._sink.PutLn(buildLine)
+            this._line := zz_str_join(this._indents)
         }
         this._line .= lines[lines.Length]
         return this
     }
- 
-    WriteLine(text := "") {
-        lines := text = "" ? [""] : StrSplit(text, "`n")
-        loop lines.Length {
-            line := lines[A_Index]
-            buildLine := this._line line
-            this._sink.WriteLine(buildLine)
-            this._line := zz_str_join(this._indents)
-        }
-        return this
-    }
-}
 
-zTextWriter(sink, defaultIndent := "  ", indents := 0) {
-    static stdout := zz_Sinks.StdOut()
-    static stderr := zz_Sinks.StdErr()
-    static debug := zz_Sinks.Debug()
-    if not IsObject(indents) {
-        indents := zz_array_repeat(defaultIndent, indents)
+    Flush() {
+        this._sink.Put(this._line)
+        this._line := zz_str_join(this._indents)
     }
-    switch sink {
-        case "stdout":
-            sink := stdout
-        case "stderr":
-            sink := stderr
-        case "debug":
-            sink := debug
-    }
-    if not sink is zTextSink {
-        throw zBadInputError("Parameter 'sink' must be a valid sink name or a sink object.")
-    }
-    return zz_TextWriter(sink, defaultIndent, indents)
-}
 
-zTextWriter_String(withTextWriter, defaultIndent := "  ", indents := 0) {
-    sink := zz_Sinks.Memory()
-    writer := zTextWriter(sink, defaultIndent, indents)
-    withTextWriter(writer)
-    return sink.Buffer
+    PutLn(text := "") {
+        this.Put(text "`n")
+    }
 }

@@ -13,11 +13,6 @@ class zz_TestAssertionFailed {
 
     }
 
-    
-
-    _findAssertCallFrame() {
-
-    }
 
 }
 
