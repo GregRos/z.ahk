@@ -14,7 +14,7 @@ class zNotImplementedError extends zUtilsError {
 
 }
 
-zz_emptyPlaceholder := {}
+zz_none := {}
 
 errInvalidParameter(name, needed, value) {
     return zBadInputError(Format("Parameter {1} is invalid. Expected {2}.", parameterName, needed))
@@ -380,6 +380,14 @@ zz_array_has(arr, item, caseMode := False) {
         }
     }
     return False
+}
+
+zz_isUndef(v) {
+    return v == zz_none
+}
+
+zz_array_oneof(value, options*) {
+    return zz_array_has(options, value, False)
 }
 
 zz_array_filter(arr, predicate) {

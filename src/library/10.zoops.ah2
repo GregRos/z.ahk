@@ -20,10 +20,10 @@ class zz_oops {
             stack.Push(String(frame))
         }
         result := zz_oops.errorTemplate({
-                type: Type(err),
-                message: err.message,
-                stack: zz_str_join(stack, "`n")
-            })
+            type: Type(err),
+            message: err.message,
+            stack: zz_str_join(stack, "`n")
+        })
 
         return result
     }
@@ -262,4 +262,12 @@ zz_oops_test() {
         g()
     }
     f()
+}
+
+zz_oops_test_test() {
+    try {
+        zz_oops_test()
+    } catch Error as err {
+        return err
+    }
 }

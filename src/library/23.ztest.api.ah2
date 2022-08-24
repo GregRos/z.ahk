@@ -41,6 +41,17 @@ zTest(config) {
     config := zz_defaults(config, {
         reporter: "debug"
     })
+    config.reporter := zz_reporter.TestReporter(
+        zz_writer.GetSink(config.reporter), 
+        zColor({
+            fail: "bgBrightRed black",
+            lineFail: "brightRed",
+            pass: "bgBrightGreen black",
+            linePass: "brightGreen",
+            failClause: "b",
+            suiteHeader: "u"
+            
+    }))
 
     zz_test_runner.zzRun(config)
 }

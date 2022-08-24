@@ -96,7 +96,6 @@ class zz_stack {
                 continue
             }
             output := ""
-            OutputDebug(frame)
             if not RegExMatch(frame, frameRegexp, &output) {
                 break
             }

@@ -20,7 +20,7 @@ zz_print(writer, v) {
     static tmpltEmptyMap := zTemplate("[!object]Map {{}{}}[!]")
     static tmpltProto := zTemplate("[!type]|{1}|[!]")
     static keyEntry := zTemplate("[!key]{1}[!] [!operator]🡲[!] ")
-    static propGetError := zTemplate("[!error]‼ {1} ‼[!]")
+    static propGetError := zTemplate("[!getterError]‼ {1} ‼[!]")
     static tryScalar(v, writer) {
         if not IsSet(v) {
             writer.Put "[!kw]unset[!]"
@@ -105,8 +105,7 @@ zz_print(writer, v) {
         static indexedArrayItem := zTemplate("({index}) ➤ ")
         hasUnsetItems := zz_array_hasUnsetItems(v)
         if stack.Count != 1 {
-            writer.Indent()
-            writer.PutLn()
+            writer.Indent().PutLn()
         }
         for index, value in v {
             if index != 1 {
@@ -138,8 +137,7 @@ zz_print(writer, v) {
         
         stack.Add(v)
         if not stack.Count = 1 {
-            writer.Indent()
-            writer.PutLn()
+            writer.Indent().PutLn()
         }
         for key, value in v {
             if A_Index != 1 {
@@ -154,6 +152,69 @@ zz_print(writer, v) {
         }
         stack.Delete(v)
         return True
+    }
+
+    tryError(v) {
+        if not v is Error {
+            return False
+        }
+        static errorBody := zTemplate(
+            "[!errorTitle]💥 {type} 💥[!]`n"
+            "[!errorMessage]{message}[!]"
+        )
+        static traceFileEntry := zTemplate(
+            "[!errorFrame][!arrow]➜[!] [!location]{File}:{Line}[!][!] @ [!function]{Function.Display}[!]`n" 
+            "[!quote]    >  {Quote}[!]"
+        )
+        static traceAutoExecEntry := zTemplate("[!errorFrame][!arrow]➜[!] [!location]Auto-execute[!][!]")
+        stack.Add(v)
+        if not stack.Count = 1 {
+            writer.Indent().PutLn()
+        }
+        writer.Put(errorBody({
+            type: Type(v),
+            message: v.Message
+        }))
+        writer.Indent()
+        frames := zz_stack.parseTrace(v)
+        for frame in frames {
+            writer.Putln()
+            if frame.isScript {
+                writer.Put(traceFileEntry(frame))
+            } else {
+                writer.Put(traceAutoExecEntry(frame))
+            }
+        }
+        writer.Unindent().PutLn()
+        fst := True
+        for key in ObjOwnProps(v) {
+            if zz_array_oneof(key, "message", "stack", "file", "line") {
+                continue
+            }
+            if not fst {
+                writer.PutLn()
+            }
+            fst := False
+            writeProperty(v, key)
+        }
+        stack.Delete(v)
+        return True
+    }
+
+    writeProperty(target, key) {
+        desc := target.GetOwnPropDesc(key)
+        if HasProp(desc, "Value") {
+            writer.Put(tmpltProperty(key))
+            recursivePrint(desc.Value)
+        } else if HasProp(desc, "Get") {
+            writer.Put(tmpltProperty(key))
+            getPropValueOrError(v, key, &value, &err)
+            if IsSet(value) {
+                recursivePrint(value)
+            } else {
+                writer.Put(propGetError(, err))
+            }
+        }
     }
 
     tryObject(v) {
@@ -175,19 +236,7 @@ zz_print(writer, v) {
             if A_Index != 1 {
                 writer.PutLn()
             }
-            desc := v.GetOwnPropDesc(key)
-            if HasProp(desc, "Value") {
-                writer.Put(tmpltProperty(key))
-                recursivePrint(desc.Value)
-            } else if HasProp(desc, "Get") {
-                writer.Put(tmpltProperty(key))
-                getPropValueOrError(v, key, &value, &err)
-                if IsSet(value) {
-                    recursivePrint(value)
-                } else {
-                    writer.Put(propGetError(, err))
-                }
-            }
+            writeProperty(v, key)
         }
         if not stack.Count = 1 {
             writer.Unindent()
@@ -197,7 +246,7 @@ zz_print(writer, v) {
     }
 
     recursivePrint(v) {
-        if tryScalar(v, writer) or tryLeafType(v, writer) or tryArray(v) or tryMap(v) or tryObject(v) {
+        if tryScalar(v, writer) or tryLeafType(v, writer) or tryError(v) or tryArray(v) or tryMap(v) or tryObject(v) {
             return
         }
         throw zBadInputError("The input for zPrint is invalid.")
@@ -219,7 +268,14 @@ zPrint(v, options := "") {
         index: "bold",
         print: "black",
         operator: "blue",
-        error: "bgBrightRed"
+        getterError: "bgBrightRed",
+        errorTitle: "bold bgBrightRed brightWhite",
+        errorMessage: "i",
+        errorFrame: "brightBlue",
+        location: "u",
+        function: "i green",
+        quote: "d black",
+        arrow: "b"
     })
     options := zz_options_parse(options)
     zz_print(zTextWriter(&result), v)

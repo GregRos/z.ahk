@@ -12,8 +12,6 @@ class zz_TestAssertionFailed {
         frames := this.Stack := zz_stack.capture(1)
 
     }
-
-
 }
 
 class zz_TestResult {
@@ -78,7 +76,6 @@ class zz_TestRunner {
     }
 
     zzRun(config) {
-        config.reporter := zz_test_expandReporter(config.reporter)
         for suite in this._suites {
             suiteReporter := config.reporter
             suite.zzRun(suiteReporter.suite({

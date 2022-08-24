@@ -25,9 +25,9 @@ class zz_color {
 
     static parse(input) {
         static lex(input) {
-            return zz_regex_split(input, "\[!([^\]]+)]|(\[!])", m => m.1 ? zz_color.OpenRunToken(m.Pos, m.1) : zz_emptyPlaceholder, , True)
+            return zz_regex_split(input, "\[!([^\]]+)]|(\[!])", m => m.1 ? zz_color.OpenRunToken(m.Pos, m.1) : zz_none, , True)
         }
-        static reduceUntilOpener(stack) {
+        reduceUntilOpener(stack) {
             pos := 0
             loop stack.Length {
                 cur := stack[-A_Index]
@@ -42,14 +42,14 @@ class zz_color {
                 }
             }
             ; We reached the end of the stack, but no run opener
-            throw zBadInputError("Found run terminator [!] at but no matching run opener [!...].")
+            throw zBadInputError("Found run terminator [!] at but no matching run opener [!...].", input)
         }
         stack := []
         ; apply the lexers to get tokens
         tokens := lex(input)
         ; Go over the tokens
         for t in tokens {
-            if t != zz_emptyPlaceholder {
+            if t != zz_none {
                 ; If it's not an end token, push to stack (shift)
                 stack.Push(t)
             } else {
@@ -321,11 +321,11 @@ class zz_color {
 zColor(textOrObject?) {
     if not IsSet(textOrObject) {
         return zz_color.MakeDefault()
+    } else if not IsObject(textOrObject) {
+        return zz_color.Default.Call(textOrObject)
     } else if IsObject(textOrObject) {
         return zz_color.Default.Aliases(textOrObject)
-    } else {
-        return zz_color.Default.Call(textOrObject)
-    }
+    } 
 }
 
 zColor_Strip(text) {
