@@ -15,13 +15,13 @@ class Blah {
 }
 
 class Example_tests extends zTestSuite {
-    test_throws() {
+    should_throw() {
         throw zInvalidCallError("This is a test error")
     }
-    test_fails() {
+    should_fail() {
         this.isFalse(True)
     }
-    test_passes() {
+    should_pass() {
         this.isTrue(True)
     }
 }

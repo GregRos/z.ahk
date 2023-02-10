@@ -1,8 +1,5 @@
 #include 01.zinit.ah2
 
-
-
-
 class zTemplate {
     static replaceOpen := "[~[["
     static replaceClose := "]~]]"

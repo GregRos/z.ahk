@@ -269,7 +269,7 @@ zPrint(v, options := "") {
         print: "black",
         operator: "blue",
         getterError: "bgBrightRed",
-        errorTitle: "bold bgBrightRed brightWhite",
+        errorTitle: "bold bgBrightRed black",
         errorMessage: "i",
         errorFrame: "brightBlue",
         location: "u",

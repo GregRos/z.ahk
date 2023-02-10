@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "ahk2",
+            "type": "autohotkey",
             "request": "launch",
             "name": "AutoHotkey Debugger",
             "program": "${workspaceFolder}/src/__tests__.ah2",
-            "stopOnEntry": true
+            "stopOnEntry": false
         }
     ]
 }

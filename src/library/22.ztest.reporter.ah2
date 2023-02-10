@@ -11,7 +11,10 @@ class zz_reporter {
         }
 
         PutLn(text) {
-            this.inner.PutLn(this.renderer.Call(text))
+            split := StrSplit(text, "`n")
+            for line in split {
+                this.inner.PutLn(this.renderer.Call(line))
+            }
         }
 
         Put(text) {
@@ -70,16 +73,19 @@ class zz_reporter {
                 if r.isOk {
                     continue
                 }
+                                if anyFails {
+                                    _writer.PutLn()
+                                }
                 anyFails := True
-                _writer.Put("[!failClause]" this._statusLine(r) "[!]")
-                _writer.Indent("▐  ").PutLn()
+                _writer.PutLn("[!failClause]" this._statusLine(r) "[!]")
+                _writer.Indent("▐  ")
                 if r.isError {
                     _writer.PutLn("Test threw an exception!`n`n" zPrint(r.result))
                 } else {
                     _writer.PutLn("Failed!!")
                 }
                 _writer.Unindent().PutLn()
-
+                
             }
         }
     }

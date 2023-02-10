@@ -44,13 +44,12 @@ zTest(config) {
     config.reporter := zz_reporter.TestReporter(
         zz_writer.GetSink(config.reporter), 
         zColor({
-            fail: "bgBrightRed black",
+            fail: "bgRed black bold",
             lineFail: "brightRed",
-            pass: "bgBrightGreen black",
+            pass: "bgGreen black bold",
             linePass: "brightGreen",
             failClause: "b",
-            suiteHeader: "u"
-            
+            suiteHeader: "u bold"
     }))
 
     zz_test_runner.zzRun(config)

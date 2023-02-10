@@ -39,7 +39,7 @@ class zz_writer {
         }
 
         PutLn(text) {
-            return this.Put(text)
+            return this.Put(text "`n")
         }
 
         Put(text) {
@@ -79,7 +79,7 @@ class zz_writer {
 class zTextWriter {
     _indents := []
     _prefix := ""
-    _line := zz_none
+    _line := ""
     __New(sink, defaultIndent := "  ", indents := 0) {
         indents := IsObject(indents) ? indents : zz_array_repeat(defaultIndent, indents)
         this._sink := zz_writer.GetSink(sink)
@@ -110,29 +110,40 @@ class zTextWriter {
     }
 
     Put(text) {
-        lines := StrSplit(text, "`n")
-        if not lines.Length {
+        joined := this._line text
+        if not joined {
+            return this
+        }
+        lines := StrSplit(joined, "`n")
+        if lines.Length = 1 {
+            this._line := joined
             return this
         }
         loop lines.Length - 1 {
             curLine := lines[A_Index]
-            buildLine := this._line curLine
-            this._sink.PutLn(buildLine)
-            this._newLine()
+            curLine := zz_str_join(this._indents) curLine
+            this._sink.PutLn(curLine)
         }
-        this._line .= lines[lines.Length]
+        lastLine := lines[-1]
+        if lastLine {
+            this._line .= zz_str_join(this._indents) lastLine
+        } else {
+            this._line := ""
+        }
+        
         return this
     }
 
     Flush() {
-        this._sink.Put(this._line)
-        this._newLine()
+        if this._line {
+            this._sink.Put(this._line)
+        }
+        this._line := ""
     }
 
     PutLn(text := "") {
-        this.Put(text)
-        this._sink.PutLn(this._line)
-        this._newLine()
+        this.Put(text "`n")
+        this._line := ""
         return this
     }
 }

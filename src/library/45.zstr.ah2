@@ -121,12 +121,6 @@ zStr_LastIndexOf(self, what, cs := false, pos := 1) {
     return indexes[indexes.Length]
 }
 
-zz_normIndex(index, len) {
-    if index <= 0 {
-        return len - index + 1
-    }
-}
-
 zStr_Slice(self, start := 1, end := unset) {
     if not IsSet(end) or end == 0 {
         return SubStr(self, start)

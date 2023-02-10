@@ -3,7 +3,7 @@ class zUtilsError extends Error {
 }
 
 class zInvalidCallError extends zUtilsError {
-    
+
 }
 
 class zBadInputError extends zUtilsError {
@@ -16,8 +16,32 @@ class zNotImplementedError extends zUtilsError {
 
 zz_none := {}
 
+class zz_throw {
+    errInvalidParameter(name, needed, value) {
+        return zBadInputError(Format("Parameter {1} is invalid. Expected {2}.", needed, value))
+    }
+
+    errInvalidParamCount(name, expected, received) {
+        return zInvalidCallError(Format("Invalid call to {1}. Expected {2} parameters, received {3}.", name, expected, received))
+    }
+
+    errInvalidCall(name, expected, received) {
+        throw zInvalidCallError()
+    }
+
+    errAbstract(name) {
+        return zNotImplementedError(Format("The property or method {1} needs to be overriden.", name))
+    }
+
+    checkEnumeratorArity(real, expected) {
+        if real != expected {
+            throw zInvalidCallError(Format("Requested {1} variable enumerator, but this supports only {2} variables.", real, expected))
+        }
+    }
+}
+
 errInvalidParameter(name, needed, value) {
-    return zBadInputError(Format("Parameter {1} is invalid. Expected {2}.", parameterName, needed))
+    return zBadInputError(Format("Parameter {1} is invalid. Expected {2}.", needed, value))
 }
 
 errInvalidParamCount(name, expected, received) {
@@ -37,9 +61,6 @@ checkEnumeratorArity(real, expected) {
         throw zInvalidCallError(Format("Requested {1} variable enumerator, but this supports only {2} variables.", real, expected))
     }
 }
-
-
-
 
 
 class zBadStateError extends zUtilsError {
@@ -76,7 +97,7 @@ zz_str_splitWithEmpty(str, delims, omit, max) {
     if str = "" {
         return [""]
     }
-    
+
 }
 
 zz_normFunc(f, wantedParams) {
@@ -337,7 +358,7 @@ zz_regex_split(haystack, needle, matchAction := False, startingPos := 1, omitEmp
         oldMatchEnd := matchStart + match.Len
     }
     results.Push(SubStr(haystack, oldMatchEnd))
-    
+
     return results
 }
 
@@ -479,7 +500,7 @@ zz_refArgs_to_arrayReturn(f, count) {
                 if f(&r1, &r2, &r3, &r4, &r5) {
                     arr.Push(r1, r2, r3, r4, r5)
                 }
-            default:
+default:
                 throw zNotImplementedError("Iter(args*) for more than 5 arguments")
         }
         if arr.Length = 0 {
