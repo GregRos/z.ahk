@@ -4,7 +4,7 @@ zz_maybeGet(what, key) {
     return HasProp(what, key) = True ? Some(what[key]) : None("Missing property")
 }
 
-class zNoValueError extends zUtilsError {
+class zNoValueError extends zError {
     __New(reason?) {
         reason := reason ?? "unknown"
         super.__New("Option has no value. Reason: " reason ".")

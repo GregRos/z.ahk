@@ -106,7 +106,7 @@ class zAssert {
     isEqual(real, expected) {
         static pass := this._relationAssertion("is equal to", "$expected")
         static fail := this._relationAssertion("isn't equal to", "$expected")
-        this._result(zz_equal(real, expected, False), pass, fail, {
+        this._result(zz_obj.equal(real, expected, False), pass, fail, {
             real: real,
             expected: expected
         })
@@ -140,7 +140,7 @@ class zAssert {
     arrayHas(real, element, caseMode := False) {
         static pass := this._relationAssertion("has array element", "$element")
         static fail := this._relationAssertion("doesn't have array element", "$element")
-        this._result(zz_array_has(real, element, caseMode).Length, pass, fail, {
+        this._result(zz_arr.has(real, element, caseMode).Length, pass, fail, {
             real: real,
             element: item,
             caseMode: caseMode

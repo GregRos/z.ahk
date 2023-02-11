@@ -22,7 +22,7 @@ zz_errIteratorNope(count) {
 class zMappingEnumerator {
     __New(iter, projection, inputCount?) {
         inputCount := zz_negotiateIterCount(iter, projection, inputCount?)
-        this._iter := zz_refArgs_to_arrayReturn(iter, inputCount)
+        this._iter := zz_func..refArgsToArrayReturn(iter, inputCount)
         this._projection := projection
     }
 
@@ -66,12 +66,12 @@ class zFilteringEnumerator {
             }
         }
         count := zz_negotiateIterCount(iter, predicate, count)
-        this.Call :=  zz_func_wrapVariadic(next, count + 1)
+        this.Call :=  zz_func.wrapVariadic(next, count + 1)
     }
 
     makeInvoker() {
 
-        return zz_func_wrapVariadic
+        return zz_func.wrapVariadic
         
     }
 

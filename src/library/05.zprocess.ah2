@@ -3,7 +3,7 @@ class zz_cim {
         static cimv2 := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
             query := cimv2.ExecQuery(query)
             newEnum(this, vars) {
-            checkEnumeratorArity(vars, 1)
+            zz_throw.checkEnumeratorArity(vars, 1)
             enum := query._NewEnum()
             next(out) {
                 for comOut in enum {
@@ -60,7 +60,7 @@ class zProcess {
     }
 
     static Current {
-        get => this.ByPid(zz_getCurrentPid())
+        get => this.ByPid(zz_sys.getCurrentPid())
     }
 }
 

@@ -103,7 +103,7 @@ zz_print(writer, v) {
         }
         stack.Add(v)
         static indexedArrayItem := zTemplate("({index}) ➤ ")
-        hasUnsetItems := zz_array_hasUnsetItems(v)
+        hasUnsetItems := zz_arr.hasUnsetItems(v)
         if stack.Count != 1 {
             writer.Indent().PutLn()
         }
@@ -188,7 +188,7 @@ zz_print(writer, v) {
         writer.Unindent().PutLn()
         fst := True
         for key in ObjOwnProps(v) {
-            if zz_array_oneof(key, "message", "stack", "file", "line") {
+            if zz_arr.hasAny(key, "message", "stack", "file", "line") {
                 continue
             }
             if not fst {
@@ -251,7 +251,7 @@ zz_print(writer, v) {
         }
         throw zBadInputError("The input for zPrint is invalid.")
     }
-    recursivePrint(v)
+        recursivePrint(v)
     writer.Flush()
 }
 

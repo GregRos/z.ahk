@@ -62,7 +62,7 @@ zArr_Filter(self, predicate) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("predicate", predicate)
     newArr := []
-    predicate := zz_normFunc(predicate, 2)
+    predicate := zz_func.normalize(predicate, 2)
     for index, item in self {
         if predicate(item, index) {
             newArr.Push(item,)
@@ -74,7 +74,7 @@ zArr_Filter(self, predicate) {
 zArr_Map(self, project) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("project", project)
-    project := zz_normFunc(project, 2)
+    project := zz_func.normalize(project, 2)
     newArr := []
     for index, item in self {
         if predicate(item, index) {
@@ -105,7 +105,7 @@ zArr_FlatMap(self, projection) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("projection", projection)
     arr := []
-    projection := zz_normFunc(projection, 2)
+    projection := zz_func.normalize(projection, 2)
     for index, item in self {
         result := projection(item, index)
         if result is Array {
@@ -143,7 +143,7 @@ zArr_Slice(self, start := 1, end := 0) {
 zArr_Reduce(self, accumulator, initial) {
     zzutils_checkIter("self", self)
     zzutils_checkFunc("accumulator", accumulator, 2)
-    accumulator := zz_normFunc(accumulator, 3)
+    accumulator := zz_func.normalize(accumulator, 3)
     current := initial
     for index, item in self {
         current := accumulator(current, item, index)

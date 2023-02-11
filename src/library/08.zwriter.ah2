@@ -81,11 +81,11 @@ class zTextWriter {
     _prefix := ""
     _line := ""
     __New(sink, defaultIndent := "  ", indents := 0) {
-        indents := IsObject(indents) ? indents : zz_array_repeat(defaultIndent, indents)
+        indents := IsObject(indents) ? indents : zz_arr.repeat(defaultIndent, indents)
         this._sink := zz_writer.GetSink(sink)
         this._defaultIndent := defaultIndent
         this._indents := indents
-        this._prefix := zz_str_join(this._indents)
+        this._prefix := zz_str.join(this._indents)
     }
 
     Indent(str := unset) {
@@ -121,12 +121,12 @@ class zTextWriter {
         }
         loop lines.Length - 1 {
             curLine := lines[A_Index]
-            curLine := zz_str_join(this._indents) curLine
+            curLine := zz_str.join(this._indents) curLine
             this._sink.PutLn(curLine)
         }
         lastLine := lines[-1]
         if lastLine {
-            this._line .= zz_str_join(this._indents) lastLine
+            this._line .= zz_str.join(this._indents) lastLine
         } else {
             this._line := ""
         }

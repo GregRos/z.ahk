@@ -1,6 +1,6 @@
 #include 01.zinit.ah2
 
-class zz_color {
+class zColor {
     class Run {
         __New(kids, directives) {
             newKids := []
@@ -11,32 +11,32 @@ class zz_color {
     class OpenRunToken {
         __New(pos, directives) {
             this.Pos := pos
-            this.Directives := zz_strArray_clean(StrSplit(directives, " "))
+            this.Directives := zz_str.trimEach(StrSplit(directives, " "))
         }
 
         ToString() {
-            return Format("[!{1}]", zz_str_join(this.Directives, " "))
+            return Format("[!{1}]", zz_str.join(this.Directives, " "))
         }
 
         Wrap(kids) {
-            return zz_color.Run(kids, this.Directives)
+            return zColor.Run(kids, this.Directives)
         }
     }
 
     static parse(input) {
         static lex(input) {
-            return zz_regex_split(input, "\[!([^\]]+)]|(\[!])", m => m.1 ? zz_color.OpenRunToken(m.Pos, m.1) : zz_none, , True)
+            return zz_str.split(input, "\[!([^\]]+)]|(\[!])", m => m.1 ? zColor.OpenRunToken(m.Pos, m.1) : zz_none, , True)
         }
         reduceUntilOpener(stack) {
             pos := 0
             loop stack.Length {
                 cur := stack[-A_Index]
-                if cur is zz_color.Run or not IsObject(cur) {
+                if cur is zColor.Run or not IsObject(cur) {
                     pos := A_Index
-                } else if cur is zz_color.OpenRunToken {
+                } else if cur is zColor.OpenRunToken {
                     ; We found the open run token
                     ; Trim all the tokens we've scanned
-                    slice := zz_array_slice(stack, -A_Index + 1)
+                    slice := zz_arr.slice(stack, -A_Index + 1)
                     stack.Length -= A_Index
                     return cur.Wrap(slice)
                 }
@@ -60,16 +60,16 @@ class zz_color {
         }
         finalRunKids := []
         for item in stack {
-            if item is zz_color.Run or not IsObject(item) {
+            if item is zColor.Run or not IsObject(item) {
                 finalRunKids.Push(item)
-            } else if item is zz_color.OpenRunToken {
+            } else if item is zColor.OpenRunToken {
                 throw zBadInputError(Format("Expected [!] run terminator for run token '{1}' at position {2}.", item.ToString(), item.Pos))
             }
         }
-        return zz_color.Run(finalRunKids, [])
+        return zColor.Run(finalRunKids, [])
     }
 
-    static strip(text) {
+    static Strip(text) {
         static stripRun(run) {
             result := ""
             for kid in run.Kids {
@@ -81,19 +81,24 @@ class zz_color {
             }
             return result
         }
-        run := zz_color.parse(text)
+        run := zColor.parse(text)
         return stripRun(run)
     }
 
     static ansi16escape(code) {
         esc := Chr(0x001b)
-        return esc "[" code "m"
+        return Chr(0x001b) "[" code "m"
     }
 
     class Ansi16 {
+
+        static _getEscapeSeq(code) {
+            return Chr(0x001b) "[" code "m"
+        }
+
         __New(open, close) {
-            this.Open := zz_color.ansi16escape(open)
-            this.Close := zz_color.ansi16escape(close)
+            this.Open := zColor.Ansi16._getEscapeSeq(open)
+            this.Close := zColor.Ansi16._getEscapeSeq(close)
         }
 
         Call(text) {
@@ -106,7 +111,7 @@ class zz_color {
         __New(kids) {
             merged := []
             for kid in kids {
-                if kid is zz_color.Combined {
+                if kid is zColor.Combined {
                     for subKid in kid {
                         merged.Push(subKid)
                     }
@@ -131,7 +136,7 @@ class zz_color {
 
     class Renderer {
         __New(formatters) {
-            this._formatters := zz_objToMap(formatters)
+            this._formatters := zz_obj.toMap(formatters)
 
             ; Process aliases:
             for key, value in this._formatters {
@@ -164,16 +169,16 @@ class zz_color {
                 return formatters[1]
             }
             if formatters.Length = 0 {
-                return zz_identity
+                return zz_func.id
             }
-            return zz_color.Combined(formatters)
+            return zColor.Combined(formatters)
         }
 
         Call(text) {
             if not InStr(text, "[!]") {
                 return text
             }
-            run := zz_color.parse(text)
+            run := zColor.parse(text)
             return this._renderRun(run)
         }
 
@@ -181,7 +186,7 @@ class zz_color {
             text := ""
             for kid in run.kids {
                 curText := kid
-                if kid is zz_color.Run {
+                if kid is zColor.Run {
                     ; Recursively render children
                     curText := this._renderRun(kid)
                 }
@@ -194,7 +199,7 @@ class zz_color {
         }
 
         Keys {
-            get =>zz_map_getKeys(this._formatters)
+            get => zz_map.keys(this._formatters)
         }
 
         __Enum(x) {
@@ -214,7 +219,7 @@ class zz_color {
         }
 
         Clone() {
-            return zz_color.Renderer(this._formatters.Clone())
+            return zColor.Renderer(this._formatters.Clone())
         }
 
         Aliases(aliases) {
@@ -227,56 +232,62 @@ class zz_color {
         }
     }
 
-    static MakeDefault() {
-        renderer := zz_color.Renderer({
+    static Call(textOrObject) {
+        if not IsSet(textOrObject) {
+            return zColor._makeDefault()
+        } else if not IsObject(textOrObject) {
+            return zColor._default.Call(textOrObject)
+        } else if IsObject(textOrObject) {
+            return zColor._default.Aliases(textOrObject)
+        }
+    }
+
+    static _makeDefault() {
+        renderer := zColor.Renderer({
             ; MODIFIERS
-            reset: zz_color.Ansi16(0, 0),
-            bold: zz_color.Ansi16(1, 22),
-            dim: zz_color.Ansi16(2, 22),
-            italic: zz_color.Ansi16(3, 23),
-            underline: zz_color.Ansi16(4, 24),
-            overline: zz_color.Ansi16(53, 55),
-            inverse: zz_color.Ansi16(7, 27),
-            hidden: zz_color.Ansi16(8, 28),
-            strikethrough: zz_color.Ansi16(9, 29),	
-            
+            reset: zColor.Ansi16(0, 0),
+            bold: zColor.Ansi16(1, 22),
+            dim: zColor.Ansi16(2, 22),
+            italic: zColor.Ansi16(3, 23),
+            underline: zColor.Ansi16(4, 24),
+            overline: zColor.Ansi16(53, 55),
+            inverse: zColor.Ansi16(7, 27),
+            hidden: zColor.Ansi16(8, 28),
+            strikethrough: zColor.Ansi16(9, 29),
             ; FG COLOR
-            black: zz_color.Ansi16(30, 39),
-            red: zz_color.Ansi16(31, 39),
-            green: zz_color.Ansi16(32, 39),
-            yellow: zz_color.Ansi16(33, 39),
-            blue: zz_color.Ansi16(34, 39),
-            magenta: zz_color.Ansi16(35, 39),
-            cyan: zz_color.Ansi16(36, 39),
-            white: zz_color.Ansi16(37, 39),
-            blackBright: zz_color.Ansi16(90, 39),
-            redBright: zz_color.Ansi16(91, 39),
-            greenBright: zz_color.Ansi16(92, 39),
-            yellowBright: zz_color.Ansi16(93, 39),
-            blueBright: zz_color.Ansi16(94, 39),
-            magentaBright: zz_color.Ansi16(95, 39),
-            cyanBright: zz_color.Ansi16(96, 39),
-            whiteBright: zz_color.Ansi16(97, 39),	
-            
+            black: zColor.Ansi16(30, 39),
+            red: zColor.Ansi16(31, 39),
+            green: zColor.Ansi16(32, 39),
+            yellow: zColor.Ansi16(33, 39),
+            blue: zColor.Ansi16(34, 39),
+            magenta: zColor.Ansi16(35, 39),
+            cyan: zColor.Ansi16(36, 39),
+            white: zColor.Ansi16(37, 39),
+            blackBright: zColor.Ansi16(90, 39),
+            redBright: zColor.Ansi16(91, 39),
+            greenBright: zColor.Ansi16(92, 39),
+            yellowBright: zColor.Ansi16(93, 39),
+            blueBright: zColor.Ansi16(94, 39),
+            magentaBright: zColor.Ansi16(95, 39),
+            cyanBright: zColor.Ansi16(96, 39),
+            whiteBright: zColor.Ansi16(97, 39),
             ; BG COLOR
-            bgBlack: zz_color.Ansi16(40, 49),
-            bgRed: zz_color.Ansi16(41, 49),
-            bgGreen: zz_color.Ansi16(42, 49),
-            bgYellow: zz_color.Ansi16(43, 49),
-            bgBlue: zz_color.Ansi16(44, 49),
-            bgMagenta: zz_color.Ansi16(45, 49),
-            bgCyan: zz_color.Ansi16(46, 49),
-            bgWhite: zz_color.Ansi16(47, 49),
-
-            bgBlackBright: zz_color.Ansi16(100, 49),
-            bgRedBright: zz_color.Ansi16(101, 49),
-            bgGreenBright: zz_color.Ansi16(102, 49),
-            bgYellowBright: zz_color.Ansi16(103, 49),
-            bgBlueBright: zz_color.Ansi16(104, 49),
-            bgMagentaBright: zz_color.Ansi16(105, 49),
-            bgCyanBright: zz_color.Ansi16(106, 49),
-            bgWhiteBright: zz_color.Ansi16(107, 49),
-
+            bgBlack: zColor.Ansi16(40, 49),
+            bgRed: zColor.Ansi16(41, 49),
+            bgGreen: zColor.Ansi16(42, 49),
+            bgYellow: zColor.Ansi16(43, 49),
+            bgBlue: zColor.Ansi16(44, 49),
+            bgMagenta: zColor.Ansi16(45, 49),
+            bgCyan: zColor.Ansi16(46, 49),
+            bgWhite: zColor.Ansi16(47, 49),
+            bgBlackBright: zColor.Ansi16(100, 49),
+            bgRedBright: zColor.Ansi16(101, 49),
+            bgGreenBright: zColor.Ansi16(102, 49),
+            bgYellowBright: zColor.Ansi16(103, 49),
+            bgBlueBright: zColor.Ansi16(104, 49),
+            bgMagentaBright: zColor.Ansi16(105, 49),
+            bgCyanBright: zColor.Ansi16(106, 49),
+            bgWhiteBright: zColor.Ansi16(107, 49),
             ; Aliases
             uline: "underline",
             oline: "overline",
@@ -314,20 +325,5 @@ class zz_color {
         return renderer
     }
 
-    static Default := zz_color.MakeDefault()
-}
-
-
-zColor(textOrObject?) {
-    if not IsSet(textOrObject) {
-        return zz_color.MakeDefault()
-    } else if not IsObject(textOrObject) {
-        return zz_color.Default.Call(textOrObject)
-    } else if IsObject(textOrObject) {
-        return zz_color.Default.Aliases(textOrObject)
-    } 
-}
-
-zColor_Strip(text) {
-    return zz_color.strip(text)
+    static _default := zColor._makeDefault()
 }

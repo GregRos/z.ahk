@@ -108,7 +108,7 @@ class zz_stack {
         if head.isScript and (head.File != error.File or head.Line != error.Line) {
             trace.Push(zz_stack.CallFrame(error.File, error.Line))
         }
-        trace := zz_array_slice(trace, skip + 1)
+        trace := zz_arr.slice(trace, skip + 1)
         return trace
     }
 

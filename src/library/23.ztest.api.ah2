@@ -8,7 +8,7 @@ zz_test_classToSuite(cls) {
     inst := cls()
     for key in ObjOwnProps(cls.Prototype) {
         value := inst.%key%
-        if zz_isCallable(value) {
+        if zz_func.isCallable(value) {
             bound := ObjBindMethod(inst, key)
             tests.Push(zz_Test(key, bound))
         }
@@ -38,7 +38,7 @@ class zTestSuite extends zAssert {
 }
 
 zTest(config) {
-    config := zz_defaults(config, {
+    config := zz_obj.defaults(config, {
         reporter: "debug"
     })
     config.reporter := zz_reporter.TestReporter(

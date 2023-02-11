@@ -22,7 +22,7 @@ class zz_oops {
         result := zz_oops.errorTemplate({
             type: Type(err),
             message: err.message,
-            stack: zz_str_join(stack, "`n")
+            stack: zz_str.join(stack, "`n")
         })
 
         return result

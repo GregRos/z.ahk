@@ -19,7 +19,7 @@ class zTemplate {
         }
 
         Call(value) {
-            result := zz_evaluatePath(value, this.Path)
+            result := zz_obj.evalPath(value, this.Path)
             return Format(this.FormatTK, result)
         }
     }
