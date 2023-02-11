@@ -7,17 +7,16 @@ class zAssertFailureInfo {
     }
 }
 
-zz_assert_quote(str) {
-    return Format("'{1}'", str)
-}
-
 class zAssert {
+    static _quote(str) {
+        Format("'{1}'", str)
+    }
     _notMode := False
     __New(onFailCallback) {
         this._onFailCallback := onFailCallback
     }
 
-    _kwTypeAssertion(kw,type) {
+    _kwTypeAssertion(kw, type) {
         static template := zTemplate("[!real]$real[!] [!kw]{kw}[!] [!type]{type}[!]")
         return template({
             kw: kw,
@@ -90,7 +89,7 @@ class zAssert {
     isTruthy(real) {
         static pass := this._relationAssertion("is", "Truthy")
         static fail := this._relationAssertion("isn't", "Truthy")
-            this._result(real == True, pass, fail, {
+        this._result(real == True, pass, fail, {
             real: real
         })
     }
@@ -129,8 +128,8 @@ class zAssert {
     }
 
     strHas(real, needle, caseMode := False) {
-        pass := this._relationAssertion("has substring", zz_assert_quote(needle))
-        fail := this._relationAssertion("doesn't have substring", zz_assert_quote(needle))
+        pass := this._relationAssertion("has substring", zAssert._quote(needle))
+        fail := this._relationAssertion("doesn't have substring", zAssert._quote(needle))
         this._result(InStr(real, needle, caseMode), pass, fail, {
             real: real,
             caseMode: caseMode

@@ -1,9 +1,10 @@
 #include 13.zchecks.ah2
 #include 50.zmap.ah2
 
+
 zObj_Props(self, inherited := False) {
-    zzutils_checkObjectLike("self", self)
-    zzutils_checkBool("inherited", inherited)
+    zz_checks.isObjectLike("self", self)
+    zz_checks.isBool("inherited", inherited)
     keys := []
     while (IsObject(self)) {
         for k in ObjOwnProps(self) {
@@ -18,8 +19,8 @@ zObj_Props(self, inherited := False) {
 }
 
 zObj_GetOwnDescs(self) {
-    zzutils_checkObjectLike("self", self)
-    descs = {}
+    zz_checks.isObjectLike("self", self)
+    descs := {}
     for k in self.OwnProps() {
         descs[k] := self.GetOwnPropDesc(k)
     }
@@ -27,8 +28,8 @@ zObj_GetOwnDescs(self) {
 }
 
 zObj_GetDescsDownTo(self, stopPrototype := Object.Prototype) {
-    zzutils_checkObjectLike("self", self)
-    zzutils_checkObjectLike("stopPrototype", stopPrototype)
+    zz_checks.isObjectLike("self", self)
+    zz_checks.isObjectLike("stopPrototype", stopPrototype)
     descList := []
     while IsObject(self) and self != stopPrototype {
         curDescs := zObj_GetOwnDescs(self)
@@ -39,9 +40,9 @@ zObj_GetDescsDownTo(self, stopPrototype := Object.Prototype) {
 
 ; Returns a Map consisting of the object's property descriptors
 zObj_GetDescriptors(self, stopCondition := True) {
-    zzutils_checkObjectLike("self", self)
-    zzutils_checkBool("inherited", inherited)
-    descs = Map()
+    zz_checks.isObjectLike("self", self)
+    zz_checks.isBool("inherited", inherited)
+    descs := Map()
     while IsObject(self) and self != stopPrototype {
         for k in self.OwnProps() {
             descs[k] := self.GetOwnPropDesc()
@@ -56,12 +57,11 @@ zObj_GetDescriptors(self, stopCondition := True) {
 
 ; Returns a subset of `self` including only keys from `keys`.
 zObj_Pick(self, keys*) {
-    zzutils_checkObjectLike("self", self)
+    zz_checks.isObjectLike("self", self)
     result := {}
     for i, k in keys {
 
         result.DefineProp(k, {
-            
         })
     }
     return result
@@ -69,7 +69,7 @@ zObj_Pick(self, keys*) {
 
 ; Creates an object with all the keys in `keys`, all having the value `value`.
 zObj_FromKeys(keys, value := True) {
-    zzutils_checkInstanceOf("keys", Array, keys)
+    zz_checks.isInstanceOf("keys", Array, keys)
     result := {}
     for i, k in keys {
         result[k] := value
@@ -98,13 +98,13 @@ zObj_Assign(self, sources*) {
     }
 }
 
-; Returns a new object with defaults from `sources`. 
+; Returns a new object with defaults from `sources`.
 zObj_Defaults(self, sources*) {
     for i, source in sources {
         for key, value in source {
             if not self.HasKey()
         }
     }
-    
+
     return self
 }

@@ -4,7 +4,7 @@
 #include 08.zwriter.ah2
 
 class zz_reporter {
-    class ColoringSink extends zz_writer.Sink {
+    class ColoringSink extends zTextWriter.Sink {
         __New(inner, renderer) {
             this.inner := inner
             this.renderer := renderer

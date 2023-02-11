@@ -3,19 +3,6 @@
 
 zz_test_runner := zz_TestRunner()
 
-zz_test_classToSuite(cls) {
-    tests := []
-    inst := cls()
-    for key in ObjOwnProps(cls.Prototype) {
-        value := inst.%key%
-        if zz_func.isCallable(value) {
-            bound := ObjBindMethod(inst, key)
-            tests.Push(zz_Test(key, bound))
-        }
-    }
-    return zz_TestSuite(inst.Name, tests)
-}
-
 class zTestSuite extends zAssert {
     __New() {
         stack := zz_stack.capture()
@@ -27,12 +14,25 @@ class zTestSuite extends zAssert {
     }
 
     Name {
-        get =>Type(this)
+        get => Type(this)
+    }
+
+    static fromClass(cls) {
+        tests := []
+        inst := cls()
+        for key in ObjOwnProps(cls.Prototype) {
+            value := inst.%key%
+            if zz_func.isCallable(value) {
+                bound := ObjBindMethod(inst, key)
+                tests.Push(zz_Test(key, bound))
+            }
+        }
+        return zz_TestSuite(inst.Name, tests)
     }
 
     static __New() {
         if (this != zTestSuite) {
-            zz_test_runner.AddSuite(zz_test_classToSuite(this))
+            zz_test_runner.AddSuite(zTestSuite.fromClass(this))
         }
     }
 }
@@ -42,7 +42,7 @@ zTest(config) {
         reporter: "debug"
     })
     config.reporter := zz_reporter.TestReporter(
-        zz_writer.GetSink(config.reporter), 
+        zTextWriter.GetSink(config.reporter),
         zColor({
             fail: "bgRed black bold",
             lineFail: "brightRed",
@@ -50,7 +50,7 @@ zTest(config) {
             linePass: "brightGreen",
             failClause: "b",
             suiteHeader: "u bold"
-    }))
+        }))
 
     zz_test_runner.zzRun(config)
 }

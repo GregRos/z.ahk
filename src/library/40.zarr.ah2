@@ -24,7 +24,7 @@ zArr(items*) {
 }
 
 zArr_From(iterable) {
-    zzutils_checkIter("iterable", iterable)
+    zz_checks.isIter("iterable", iterable)
     arr := []
     for x in iterable {
         arr.Push(x)
@@ -43,8 +43,8 @@ zArr_Repeat(self, count) {
 
 ; Returns the position of the first occurence of `what` in `self`.
 zArr_IndexOf(self, what, caseSensitive := False) {
-    zzutils_checkIter("self", self)
-    zzutils_checkBool("caseSensitive", caseSensitive)
+    zz_checks.isIter("self", self)
+    zz_checks.isBool("caseSensitive", caseSensitive)
     for ix, value in self {
         if (!caseSensitive and what = value) or what == value {
             return ix
@@ -54,13 +54,13 @@ zArr_IndexOf(self, what, caseSensitive := False) {
 }
 
 zArr_Has(self, what) {
-    zzutils_checkIter("self", self)
+    zz_checks.isIter("self", self)
     return gArr_IndexOf(self, what) > 0
 }
 
 zArr_Filter(self, predicate) {
-    zzutils_checkIter("self", self)
-    zzutils_checkFunc("predicate", predicate)
+    zz_checks.isIter("self", self)
+    zz_checks.isFunc("predicate", predicate)
     newArr := []
     predicate := zz_func.normalize(predicate, 2)
     for index, item in self {
@@ -72,8 +72,8 @@ zArr_Filter(self, predicate) {
 }
 
 zArr_Map(self, project) {
-    zzutils_checkIter("self", self)
-    zzutils_checkFunc("project", project)
+    zz_checks.isIter("self", self)
+    zz_checks.isFunc("project", project)
     project := zz_func.normalize(project, 2)
     newArr := []
     for index, item in self {
@@ -102,8 +102,8 @@ zArr_Every(self, predicate) {
 }
 
 zArr_FlatMap(self, projection) {
-    zzutils_checkIter("self", self)
-    zzutils_checkFunc("projection", projection)
+    zz_checks.isIter("self", self)
+    zz_checks.isFunc("projection", projection)
     arr := []
     projection := zz_func.normalize(projection, 2)
     for index, item in self {
@@ -122,27 +122,27 @@ zArr_Flat(self) {
 }
 
 zArr_Reverse(self) {
-    zzutils_checkArray("self", self)
+    zz_checks.isArray("self", self)
     newArr := []
     Loop newArr.Length {
         newArr.Push(self[self.Length - A_Index + 1])
     }
 }
 zArr_Prepend(self, items*) {
-    zzutils_checkArray("self", self)
+    zz_checks.isArray("self", self)
     self.InsertAt(0, items*)
 }
 
 zArr_Slice(self, start := 1, end := 0) {
-    zzutils_checkArray("self", self)
-    zzutils_checkInt("start", start)
-    zzutils_checkInt("end", end)
+    zz_checks.isArray("self", self)
+    zz_checks.isInt("start", start)
+    zz_checks.isInt("end", end)
 
 }
 
 zArr_Reduce(self, accumulator, initial) {
-    zzutils_checkIter("self", self)
-    zzutils_checkFunc("accumulator", accumulator, 2)
+    zz_checks.isIter("self", self)
+    zz_checks.isFunc("accumulator", accumulator, 2)
     accumulator := zz_func.normalize(accumulator, 3)
     current := initial
     for index, item in self {
@@ -152,7 +152,7 @@ zArr_Reduce(self, accumulator, initial) {
 }
 
 zArr_Pull(self, values*) {
-    zzutils_checkArray("self", self)
+    zz_checks.isArray("self", self)
     Loop self.Length {
         cur := self[A_Index]
         if zArr_Has(values, cur) {
@@ -205,33 +205,33 @@ zzutils_keyComparer(getKey) {
 }
 
 zArr_Sort(self, comparer := zzutils_defaultComparer) {
-    zzutils_checkArray("self", self)
+    zz_checks.isArray("self", self)
     work := self.Clone()
     zzutils_mergeSort(work, self, comparer)
     return self
 }
 
 zArr_Order(self, comparer := zzutils_defaultComparer) {
-    zzutils_checkArray("self", self)
+    zz_checks.isArray("self", self)
     work := []
     work.Capacity := self.Length
     return zzutils_mergeSort(self, work, comparer)
 }
 
 zArr_OrderBy(self, getKey) {    
-    zzutils_checkArray("self", self)
-    zzutils_checkFunc("getKey", getKey, 1)
+    zz_checks.isArray("self", self)
+    zz_checks.isFunc("getKey", getKey, 1)
     return zArr_Order(self, zzutils_keyComparer(getKey))
 }
 
 zArr_SortBy(self, getKey) {
-    zzutils_checkArray("self", self)
-    zzutils_checkFunc("getKey", getKey, 1)
+    zz_checks.isArray("self", self)
+    zz_checks.isFunc("getKey", getKey, 1)
     return zArr_Sort(self, zzutils_keyComparer(getKey))
 }
 
 zArr_Uniq(self) {
-    zzutils_checkIter("self", self)
+    zz_checks.isIter("self", self)
     map := Map()
     for x in self {
         map.Set(x, x)
@@ -244,8 +244,8 @@ zArr_Uniq(self) {
 }
 
 zArr_UniqBy(self, getKey) {
-    zzutils_checkIter("self", self)
-    zzutils_checkFunc("getKey", getKey, 1)
+    zz_checks.isIter("self", self)
+    zz_checks.isFunc("getKey", getKey, 1)
     map := Map()
     for x in self {
         map.set(getKey(x), x)
@@ -259,7 +259,7 @@ zArr_UniqBy(self, getKey) {
 
 zArr_Zip(sources*) {
     for source in sources {
-        zzutils_checkIter("sources" A_Index, source)
+        zz_checks.isIter("sources" A_Index, source)
     }
     iterators := zArr_Map(sources, x => x.__Enum())
     cont := True

@@ -1,5 +1,6 @@
 #include 01.zinit.ah2
-class zz_writer {
+
+class zTextWriter {
     class Sink {
         PutLn(text) {
             return this.Put(text "`n")
@@ -14,7 +15,7 @@ class zz_writer {
         }
     }
 
-    class DebugSink extends zz_writer.Sink {
+    class DebugSink extends zTextWriter.Sink {
         Put(text) {
             OutputDebug(text)
             return this
@@ -24,10 +25,10 @@ class zz_writer {
             OutputDebug(text)
             return this
         }
-        
+
     }
 
-    class StdSink extends zz_writer.Sink {
+    class StdSink extends zTextWriter.Sink {
         __New(type) {
             if type = "stderr" {
                 this._out := "**"
@@ -48,7 +49,7 @@ class zz_writer {
         }
     }
 
-    class MemorySink extends zz_writer.Sink {
+    class MemorySink extends zTextWriter.Sink {
         __New(ref) {
             this._ref := ref
         }
@@ -62,27 +63,24 @@ class zz_writer {
     static GetSink(nameOrObject) {
         switch nameOrObject {
             case "stdout", "stderr":
-                return zz_writer.StdSink(nameOrObject)
+                return zTextWriter.StdSink(nameOrObject)
             case "debug":
-                return zz_writer.DebugSink()
+                return zTextWriter.DebugSink()
         }
         if nameOrObject is VarRef {
-            return zz_writer.MemorySink(nameOrObject)
+            return zTextWriter.MemorySink(nameOrObject)
         }
         if not IsObject(nameOrObject) {
             throw zBadInputError("Parameter 'sink' must be a sink or the name of a sink.")
         }
         return nameOrObject
     }
-}
-
-class zTextWriter {
     _indents := []
     _prefix := ""
     _line := ""
     __New(sink, defaultIndent := "  ", indents := 0) {
         indents := IsObject(indents) ? indents : zz_arr.repeat(defaultIndent, indents)
-        this._sink := zz_writer.GetSink(sink)
+        this._sink := zTextWriter.GetSink(sink)
         this._defaultIndent := defaultIndent
         this._indents := indents
         this._prefix := zz_str.join(this._indents)
@@ -130,7 +128,7 @@ class zTextWriter {
         } else {
             this._line := ""
         }
-        
+
         return this
     }
 

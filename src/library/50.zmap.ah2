@@ -3,7 +3,7 @@
 #include 45.zstr.ah2
 
 zMap_FromKeys(keys) {
-    zzutils_checkIter("keys", keys)
+    zz_checks.isIter("keys", keys)
     myMap := Map()
     for x in keys {
         myMap.set(x, True)
@@ -12,9 +12,9 @@ zMap_FromKeys(keys) {
 }
 
 zMap_Assign(target, maps, assignValues) {
-    zzutils_checkInstanceOf("target", Map, target)
+    zz_checks.isInstanceOf("target", Map, target)
     for cur in maps {
-        zzutils_checkInstanceOf("maps" A_Index, Map, cur)
+        zz_checks.isInstanceOf("maps" A_Index, Map, cur)
     }
     if mergeValues == True {
         mergeValues := (old, new) => new
@@ -22,7 +22,7 @@ zMap_Assign(target, maps, assignValues) {
     if mergeValues == False {
         mergeValues := (old, new) => old
     }
-    zzutils_checkFunc("assignValues", assignValues, 2)
+    zz_checks.isFunc("assignValues", assignValues, 2)
     for curMap in maps {
         for k, v in curMap {
             merged := target.Has(k) ? mergeValues(target.Get(k), v) : v
