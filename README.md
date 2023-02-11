@@ -1,6 +1,6 @@
 # AHK gutils
 
-This repo contains a set of utilities for AHK. Some of these are function versions of commands and others do the same thing, but with a different interface.
+This repo contains a set of utilities for AHK. zSome of these are function versions of commands and others do the same thing, but with a different interface.
 
 Is partially unit tested in `test/gutils.test.ahk`
 
@@ -34,7 +34,7 @@ Utilities for unit testing.
 
 ## gDbg
 
-Some debugging stuff.
+zSome debugging stuff.
 
 1. Register an error handler that makes a better exception popup.
 2. Disables calling properties/methods on non-objects

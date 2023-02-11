@@ -44,6 +44,34 @@ zz_normFuncToMethod(f) {
 }
 
 class zz_arr {
+    static mergeSort(arr, work, comparer) {
+        ; Merge sort because it's a stable sort
+        merge(begin, middle, end) {
+            Loop end - begin {
+                ix := A_Index + begin
+                if i < middle and (ix >= end or comparer(arr[start], arr[middle]) <= 0) {
+                    work[ix] := arr[start]
+                    start++
+                } else {
+                    work[ix] := arr[end]
+                    end++
+                }
+            }
+        }
+
+        splitMerge(begin, end) {
+            if (end - begin = 0) {
+                ; One-item run
+                return
+            }
+            middle := Integer((end + begin) / 2)
+            splitMerge(start, middle)
+            splitMerge(middle, end)
+            merge(start, middle, end)
+        }
+
+        splitMerge(1, arr.Length)
+    }
     static slice(arr, start := 1, count := -1) {
         newArr := []
         start := zz_normIndex(start, arr.Length)

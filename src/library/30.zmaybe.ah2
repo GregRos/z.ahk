@@ -1,9 +1,5 @@
 #Include 01.zinit.ah2
 
-zz_maybeGet(what, key) {
-    return HasProp(what, key) = True ? Some(what[key]) : None("Missing property")
-}
-
 class zNoValueError extends zError {
     __New(reason?) {
         reason := reason ?? "unknown"
@@ -12,7 +8,7 @@ class zNoValueError extends zError {
 
 }
 
-class None {
+class zNone {
     __New(reason?) {
         if IsSet(reason) {
             this.reason := reason
@@ -46,7 +42,7 @@ class None {
     }
 }
 
-class Some {
+class zSome {
     __New(value) {
         this.value := value
     }
@@ -59,21 +55,21 @@ class Some {
     }
 
     map(projection) {
-        return Some(projection(this.value))
+        return zSome(projection(this.value))
     }
 
     filter(predicate) {
         if predicate(this.value) {
             return this
         }
-        return None("filtered out")
+        return zNone("filtered out")
     }
 
     flatMap(projection) {
         result := projection(this.value)
-        if result is None or result is Some {
+        if result is zNone or result is zSome {
             return result
         }
-        return Some(result)
+        return zSome(result)
     }
 }

@@ -1,6 +1,6 @@
 #include 01.zinit.ah2
 
-class zTextWriter {
+class zz_sink {
     class Sink {
         PutLn(text) {
             return this.Put(text "`n")
@@ -15,7 +15,7 @@ class zTextWriter {
         }
     }
 
-    class DebugSink extends zTextWriter.Sink {
+    class DebugSink extends zz_sink.Sink {
         Put(text) {
             OutputDebug(text)
             return this
@@ -28,7 +28,7 @@ class zTextWriter {
 
     }
 
-    class StdSink extends zTextWriter.Sink {
+    class StdSink extends zz_sink.Sink {
         __New(type) {
             if type = "stderr" {
                 this._out := "**"
@@ -49,7 +49,7 @@ class zTextWriter {
         }
     }
 
-    class MemorySink extends zTextWriter.Sink {
+    class MemorySink extends zz_sink.Sink {
         __New(ref) {
             this._ref := ref
         }
@@ -63,24 +63,36 @@ class zTextWriter {
     static GetSink(nameOrObject) {
         switch nameOrObject {
             case "stdout", "stderr":
-                return zTextWriter.StdSink(nameOrObject)
+                return zz_sink.StdSink(nameOrObject)
             case "debug":
-                return zTextWriter.DebugSink()
+                return zz_sink.DebugSink()
         }
         if nameOrObject is VarRef {
-            return zTextWriter.MemorySink(nameOrObject)
+            return zz_sink.MemorySink(nameOrObject)
         }
         if not IsObject(nameOrObject) {
             throw zBadInputError("Parameter 'sink' must be a sink or the name of a sink.")
         }
         return nameOrObject
     }
+
+}
+
+zWriter_Sink(nameOrObject) {
+    return zz_sink.GetSink(nameOrObject)
+}
+
+zWriter(sink, defaultIndent := "  ", indents := 0) {
+    return zTextWriter(sink, defaultIndent, indents)
+}
+
+class zTextWriter {
     _indents := []
     _prefix := ""
     _line := ""
     __New(sink, defaultIndent := "  ", indents := 0) {
         indents := IsObject(indents) ? indents : zz_arr.repeat(defaultIndent, indents)
-        this._sink := zTextWriter.GetSink(sink)
+        this._sink := zz_sink.GetSink(sink)
         this._defaultIndent := defaultIndent
         this._indents := indents
         this._prefix := zz_str.join(this._indents)

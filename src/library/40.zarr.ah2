@@ -3,7 +3,6 @@
 #include 30.zmaybe.ah2
 #include 45.zstr.ah2
 
-
 ; Takes any number of arguments and joins them up into an array.
 ; A non-array argument 
 zArr(items*) {
@@ -88,9 +87,9 @@ zArr_Map(self, project) {
 zArr_Find(self, predicate) {
     result := zArr_Filter(self, predicate)
     if result.Length = 0 {
-        return Some(result[1])
+        return zSome(result[1])
     }
-    return None("no element matching predicate")
+    return zNone("no element matching predicate")
 }
 
 zArr_Exists(self, predicate) {
@@ -162,72 +161,45 @@ zArr_Pull(self, values*) {
     }
 }
 
-zzutils_mergeSort(arr, work, comparer) {
-    ; Merge sort because it's a stable sort
-    merge(begin, middle, end) {
-        Loop end - begin {
-            ix := A_Index + begin
-            if i < middle and (ix >= end or comparer(arr[start], arr[middle]) <= 0) {
-                work[ix] := arr[start]
-                start++
-            } else {
-                work[ix] := arr[end]
-                end++
-            }
-        }
-    }
-    
-    splitMerge(begin, end) {
-        if (end - begin = 0) {
-            ; One-item run
-            return
-        }
-        middle := Integer((end + begin) / 2)
-        splitMerge(start, middle)
-        splitMerge(middle, end)
-        merge(start, middle, end)
-    }
 
-    splitMerge(1, arr.Length)
-}
 
-zzutils_defaultComparer(a, b) {
+zz_defaultComparer(a, b) {
     return a = b ? 0 : a < b ? -1 : 1
 }
 
-zzutils_keyComparer(getKey) {
+zz_keyComparer(getKey) {
     comparer(a, b) {
         kA := getKey(a)
         kB := getKey(b)
-        return zzutils_defaultComparer(kA, kB)
+        return zz_defaultComparer(kA, kB)
     }
     return comparer
 }
 
-zArr_Sort(self, comparer := zzutils_defaultComparer) {
+zArr_Sort(self, comparer :=zz_defaultComparer) {
     zz_checks.isArray("self", self)
     work := self.Clone()
-    zzutils_mergeSort(work, self, comparer)
+    zz_arr.mergeSort(work, self, comparer)
     return self
 }
 
-zArr_Order(self, comparer := zzutils_defaultComparer) {
+zArr_Order(self, comparer :=zz_defaultComparer) {
     zz_checks.isArray("self", self)
     work := []
     work.Capacity := self.Length
-    return zzutils_mergeSort(self, work, comparer)
+    return zz_arr.mergeSort(self, work, comparer)
 }
 
 zArr_OrderBy(self, getKey) {    
     zz_checks.isArray("self", self)
     zz_checks.isFunc("getKey", getKey, 1)
-    return zArr_Order(self, zzutils_keyComparer(getKey))
+    return zArr_Order(self, zz_keyComparer(getKey))
 }
 
 zArr_SortBy(self, getKey) {
     zz_checks.isArray("self", self)
     zz_checks.isFunc("getKey", getKey, 1)
-    return zArr_Sort(self, zzutils_keyComparer(getKey))
+    return zArr_Sort(self, zz_keyComparer(getKey))
 }
 
 zArr_Uniq(self) {
@@ -277,4 +249,3 @@ zArr_Zip(sources*) {
     }
     return output
 }
-

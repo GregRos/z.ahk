@@ -42,7 +42,7 @@ zTest(config) {
         reporter: "debug"
     })
     config.reporter := zz_reporter.TestReporter(
-        zTextWriter.GetSink(config.reporter),
+        zz_sink.GetSink(config.reporter),
         zColor({
             fail: "bgRed black bold",
             lineFail: "brightRed",

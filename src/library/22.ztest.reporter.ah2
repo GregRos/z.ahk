@@ -4,7 +4,7 @@
 #include 08.zwriter.ah2
 
 class zz_reporter {
-    class ColoringSink extends zTextWriter.Sink {
+    class ColoringSink extends zz_sink.Sink {
         __New(inner, renderer) {
             this.inner := inner
             this.renderer := renderer
@@ -73,9 +73,9 @@ class zz_reporter {
                 if r.isOk {
                     continue
                 }
-                                if anyFails {
-                                    _writer.PutLn()
-                                }
+                if anyFails {
+                    _writer.PutLn()
+                }
                 anyFails := True
                 _writer.PutLn("[!failClause]" this._statusLine(r) "[!]")
                 _writer.Indent("▐  ")
@@ -85,14 +85,11 @@ class zz_reporter {
                     _writer.PutLn("Failed!!")
                 }
                 _writer.Unindent().PutLn()
-                
+
             }
         }
     }
 }
-
-
-
 
 
 ; AHK Quick Object Format
@@ -102,23 +99,23 @@ class zz_reporter {
 ;   arrow = 123
 ;   bigone = 1000
 ;   haha = blah
-;   Array = 
+;   Array =
 ;       * Item1
 ;       * Item2
-;   abcde = 
+;   abcde =
 ;       |Test|
-;       Stuff happening        
+;       Stuff happening
 ;   @inherited() {...}
 
 ; key = value
 ; prop = !! EXCEPTION !!
-; 
+;
 
 ; We want something to output lots of information about failed tests
 ; In case of failure:
 ;   X ${assertion}
 ;   real     = ....
-;   expected = ....   
+;   expected = ....
 ;
 ;       5 | hello.whatever()
 ;       6|| hello.nope()

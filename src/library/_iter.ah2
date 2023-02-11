@@ -223,7 +223,7 @@ class zEnumerableBase {
 
     ; Returns True if one of the elements in the Seq fulfills `predicate`.
     ; @param predicate `(in₁, in₂, ...) => Bool` A predicate to fulfill.
-    Some(predicate) {
+    zSome(predicate) {
 
     }
 

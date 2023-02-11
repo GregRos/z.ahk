@@ -39,7 +39,7 @@ zObj_GetDescsDownTo(self, stopPrototype := Object.Prototype) {
 }
 
 ; Returns a Map consisting of the object's property descriptors
-zObj_GetDescriptors(self, stopCondition := True) {
+zObj_GetDescs(self, stopCondition := True) {
     zz_checks.isObjectLike("self", self)
     zz_checks.isBool("inherited", inherited)
     descs := Map()
