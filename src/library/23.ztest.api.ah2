@@ -48,8 +48,16 @@ zTest(config) {
             lineFail: "brightRed",
             pass: "bgGreen black bold",
             linePass: "brightGreen",
-            failClause: "b",
-            suiteHeader: "u bold"
+            lineErr: "brightYellow",
+            failClause: "",
+            err: "bgBrightYellow black b",
+            errClause: "b",
+            suiteHeader: "brightBlue bold",
+            real: "brightRed",
+            expected: "brightGreen",
+            operator: "brightBlue",
+            kw: "brightBlue",
+            type: "green"
         }))
 
     zz_test_runner.zzRun(config)

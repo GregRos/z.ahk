@@ -16,20 +16,26 @@ class zAssert {
         this._onFailCallback := onFailCallback
     }
 
-    _kwTypeAssertion(kw, type) {
-        static template := zTemplate("[!real]$real[!] [!kw]{kw}[!] [!type]{type}[!]")
+    _kwTypeAssertion(real, kw, type) {
+        static template := zTemplate("[!real]Real[!] [!kw]{.kw}[!] [!type]{.Type}[!]")
         return template({
             kw: kw,
             type: type
         })
     }
-
-    _relationAssertion(relation, other) {
-        static template := zTemplate("[!real]$real[!] [!operator]{relation}[!] [!value]{other}[!]")
-        return template({
-            relation: relation,
-            other: other
+ 
+    _relationAssertion(real, relation, expected) {
+        out := ""
+        writer := zWriter(&out)
+        writer.PutLn("[!real]🟥 real[!] [!operator]{.relation}[!] [!expected]🟢 expected[!]", {
+            relation: relation
         })
+        writer.Put("[!real]🟥 ")
+        writer.PutLn(zPrint(real) "[!]")
+        writer.Put("[!expected]🟢 ")
+        writer.Put(zPrint(expected) "[!]")
+        writer.Flush()
+        return out
     }
 
     not {
@@ -43,9 +49,9 @@ class zAssert {
         notMode := this._notMode
         this._notMode := False
         if not success and not notMode {
-            this._fail(passText, data)
-        } else if success and notMode {
             this._fail(failText, data)
+        } else if success and notMode {
+            this._fail(passText, data)
         }
     }
 
@@ -55,95 +61,81 @@ class zAssert {
     }
 
     isArray(real) {
-        static pass := this._kwTypeAssertion("is", "Array")
-        static fail := this._kwTypeAssertion("is not", "Array")
-        this._result(real is Array, pass, fail, {
-            real: real
-        })
+        pass := this._kwTypeAssertion(real, "is", "Array")
+        fail := this._kwTypeAssertion(real, "is not", "Array")
+        this._result(real is Array, pass, fail, {})
     }
 
     isInt(real) {
-        static pass := this._kwTypeAssertion("is an", "Integer")
-        static fail := this._kwTypeAssertion("isn't an", "Integer")
-        this._result(IsInteger(real), pass, fail, {
-            real: real
-        })
+        pass := this._kwTypeAssertion(real, "is an", "Integer")
+        fail := this._kwTypeAssertion(real, "isn't an", "Integer")
+        this._result(IsInteger(real), pass, fail, {})
     }
 
     isTrue(real) {
-        static pass := this._kwTypeAssertion("is", "True")
-        static fail := this._kwTypeAssertion("isn't", "True")
-        this._result(real == True, pass, fail, {
-            real: real
-        })
+        pass := this._kwTypeAssertion(real, "is", "True")
+        fail := this._kwTypeAssertion(real, "isn't", "True")
+        this._result(real == True, pass, fail, {})
     }
 
     isFalse(real) {
-        static pass := this._kwTypeAssertion("is", "False")
-        static fail := this._kwTypeAssertion("isn't", "False")
-        this._result(real == False, pass, fail, {
-            real: real
-        })
+        pass := this._kwTypeAssertion(real, "is", "False")
+        fail := this._kwTypeAssertion(real, "isn't", "False")
+        this._result(real == False, pass, fail, {})
     }
 
     isTruthy(real) {
-        static pass := this._relationAssertion("is", "Truthy")
-        static fail := this._relationAssertion("isn't", "Truthy")
-        this._result(real == True, pass, fail, {
-            real: real
-        })
+        pass := this._relationAssertion(real, "is", "Truthy")
+        fail := this._relationAssertion(real, "isn't", "Truthy")
+        this._result(real == True, pass, fail, {})
+    }
+
+    throws(function) {
+        ex := ""
+        try {
+            function()
+        } catch as e {
+            ex := e
+        }
+        this._result(!!ex, "function threw", "function didn't throw", {})
     }
 
     isFalsy(real) {
-        static pass := this._relationAssertion("is", "Falsy")
-        static fail := this._relationAssertion("isn't", "Falsy")
-        this._result(real == True, pass, fail, {
-            real: real
-        })
+        pass := this._relationAssertion(real, "is", "Falsy")
+        fail := this._relationAssertion(real, "isn't", "Falsy")
+        this._result(real == True, pass, fail, {})
     }
 
     isEqual(real, expected) {
-        static pass := this._relationAssertion("is equal to", "$expected")
-        static fail := this._relationAssertion("isn't equal to", "$expected")
-        this._result(zz_obj.equal(real, expected, False), pass, fail, {
-            real: real,
-            expected: expected
-        })
+        pass := this._relationAssertion(real, "is equal to", expected)
+        fail := this._relationAssertion(real, "isn't equal to", expected)
+        this._result(zz_obj.equal(real, expected, False), pass, fail, {})
     }
 
     atLeast(real, lowerBound) {
-        pass := this._relationAssertion("is at least", lowerBound)
-        fail := this._relationAssertion("isn't at least", lowerBound)
+        pass := this._relationAssertion(real, "is at least", lowerBound)
+        fail := this._relationAssertion(real, "isn't at least", lowerBound)
         this._result(real >= lowerBound, pass, fail, {
             real: real
         })
     }
 
     atMost(real, upperBound) {
-        pass := this._relationAssertion("is at most", lowerBound)
-        fail := this._relationAssertion("isn't at most", lowerBound)
-        this._result(real <= upperBound, pass, fail, {
-            real: real
-        })
+        pass := this._relationAssertion(real, "is at most", upperBound)
+        fail := this._relationAssertion(real, "isn't at most", upperBound)
+        this._result(real <= upperBound, pass, fail, {})
     }
 
     strHas(real, needle, caseMode := False) {
-        pass := this._relationAssertion("has substring", zAssert._quote(needle))
-        fail := this._relationAssertion("doesn't have substring", zAssert._quote(needle))
-        this._result(InStr(real, needle, caseMode), pass, fail, {
-            real: real,
-            caseMode: caseMode
-        })
+        pass := this._relationAssertion(real, "has substring", zAssert._quote(needle))
+        fail := this._relationAssertion(real, "doesn't have substring", zAssert._quote(needle))
+        this._result(InStr(real, needle, caseMode), pass, fail, {})
     }
 
     arrayHas(real, element, caseMode := False) {
-        static pass := this._relationAssertion("has array element", "$element")
-        static fail := this._relationAssertion("doesn't have array element", "$element")
-        this._result(zz_arr.has(real, element, caseMode).Length, pass, fail, {
-            real: real,
-            element: item,
-            caseMode: caseMode
-        })
+        pass := this._relationAssertion(real, "has array element", zAssert._quote(element))
+        fail := this._relationAssertion(real, "doesn't have array element", zAssert._quote(element))
+        this._result(zz_arr.has(real, element, caseMode).Length, pass, fail, {})
     }
 
 }

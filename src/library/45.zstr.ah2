@@ -3,7 +3,7 @@
 zStr_Join(delim, arr) {
     zz_checks.isString("delim", delim)
     zz_checks.isArray("arr", arr)
-
+    return zz_str.join(arr, delim)
 }
 
 ; zStr(x) - Stringifies 
@@ -37,14 +37,7 @@ zStr_Repeat(self, count, delim := "") {
     zz_checks.isString("self", self)
     zz_checks.isInt("count", count)
     zz_checks.isString("delim", delim)
-    result := ""
-    Loop count {
-        if (A_Index != 1) {
-            result .= delim
-        }
-        result.= self
-    }
-    return result
+    return zz_str.repeat(self, count, delim)
 }
 
 ; Returns a new string that's padded to the end, to the width toWidth, using the padding `padding`.
@@ -133,6 +126,8 @@ zStr_Slice(self, start := 1, end := unset) {
     return SubStr(self, start, zz_normIndex(end, StrLen(self)) - zz_normIndex(start, StrLen(self)))
 }
 
+
+
 ; Splits `self` in two at `pos` and returns the two parts.
 zStr_SplitAt(self, pos) {
     zz_checks.isString("self", self)
@@ -172,6 +167,8 @@ zStr_Has(self, what, caseSensitive := false, start := 1) {
     return zStr_IndexOf(self, what, caseSensitive, start) > 0
 }
 
+; Returns the character at position `pos`.
 zStr_At(self, pos) {
     return SubStr(self, pos, 1)
 }
+

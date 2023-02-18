@@ -51,12 +51,12 @@ class zProcess {
 
     static ByExe(path) {
         static query := zTemplate('Select * From Win32_Process where ExecutablePath = "{1}"')
-        return this.Query(query(, path))
+        return this.Query(query(path))
     }
 
     static ByPid(pid) {
         static query := zTemplate("Select * From Win32_Process where ProcessId = {1}")
-        return this.QueryOne(query(, pid))
+        return this.QueryOne(query(pid))
     }
 
     static Current {
@@ -65,7 +65,7 @@ class zProcess {
 }
 
 
-zHighlander() {
+zSystem_Highlander() {
     exe := A_AhkPath
     processes := zProcess.ByExe(exe)
     for proc in processes {

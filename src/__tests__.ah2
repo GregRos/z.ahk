@@ -7,26 +7,28 @@
 #include library/05.zprocess.ah2
 #include library/06.zcolor.ah2
 #include library/12.zprint.ah2
-zOops()
-zOops()
+zSystem_Oops()
+
 #include library/13.zchecks.ah2
+#include tests\14.zmaybe.ah2
+#include tests\zarr.test.ah2
 class Blah {
     a := 1
 }
 
-class Example_tests extends zTestSuite {
-    should_throw() {
-        throw zInvalidCallError("This is a test error")
-    }
-    should_fail() {
-        this.isFalse(True)
-    }
-    should_pass() {
-        this.isTrue(True)
-    }
-}
+; class Example_tests extends zTestSuite {
+;     should_throw() {
+;         throw zInvalidCallError("This is a test error")
+;     }
+;     should_fail() {
+;         this.isFalse(True)
+;     }
+;     should_pass() {
+;         this.isTrue(True)
+;     }
+; }
 
-zHighlander()
+zSystem_Highlander()
 
 zTest({
     reporter: "stdout"

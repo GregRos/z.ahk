@@ -6,12 +6,30 @@ class zInvalidTestError extends Error {
 }
 
 class zz_TestAssertionFailed {
+    ; The assertion that failed.
+    Assertion := ""
+
+    ; Data included with the assertion.
+    Data := ""
+
+    ; Call stack when the assertion failed.
+    Stack := ""
     __New(assertion, data) {
         this.Assertion := assertion
         this.Data := data
-        frames := this.Stack := zz_stack.capture(1)
 
+        frames := zz_stack.capture(1)
+        ; This will find the last frame in the class zAssert. All assertions are defined on it,
+        ; so the frame above that is the one with user code.
+        lastFrameworkFrameIndex := zz_arr.findLastIndex(frames, frm => frm.Function.Class == "zAssert")
+        
+        this.Stack := zz_arr.slice(frames, lastFrameworkFrameIndex + 1)
     }
+
+    Bottom {
+        get => this.Stack[1]
+    }
+
 }
 
 class zz_TestResult {
@@ -19,18 +37,22 @@ class zz_TestResult {
         this.suite := suite
         this.Test := test
         this.result := result
+        if this.isError {
+            this.Result.Stack := zz_stack.Frame.parse(this.Result)
+        }
+        
     }
 
     isOk {
-        get =>this.result = True
+        get => this.result = True
     }
 
     isFail {
-        get =>this.result is zz_AssertionFailed
+        get => this.result is zz_TestAssertionFailed
     }
 
     isError {
-        get =>this.result is Error
+        get => this.result is Error
     }
 }
 

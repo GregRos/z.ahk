@@ -6,14 +6,14 @@
 zz_print(writer, v) {
     stack := zSet()
     static tmpltProperty := zTemplate("[!key]{1}[!operator]:[!][!] ")
-    static tmpltGui := zTemplate("[!type]Gui '{title}' (0x{hwnd:x})[!]")
-    static tmpltGuiControl := zTemplate("[!type]GuiControl '{name}' (0x{hwnd:x})[!]")
-    static tmpltBuffer := zTemplate("[!type]Buffer 0x{ptr:x}, Length={size}[!]")
-    static tmpltClass := zTemplate("[!type]Class '{name}'[!]")
-    static tmpltMenu := zTemplate("[!type]Menu 0x{handle:x}[!]")
-    static tmpltMenuBar := zTemplate("[!type]MenuBar 0x{handle:x}[!]")
-    static tmpltRegExMatchInfo := zTemplate("[!type]RegExMatch [{count}][!]")
-    static tmpltFile := zTemplate("[!type]File 0x{Handle:x}[!]")
+    static tmpltGui := zTemplate("[!type]Gui '{.title}' (0x{.hwnd:x})[!]")
+    static tmpltGuiControl := zTemplate("[!type]GuiControl '{.name}' (0x{.hwnd:x})[!]")
+    static tmpltBuffer := zTemplate("[!type]Buffer 0x{.ptr:x}, Length={.size}[!]")
+    static tmpltClass := zTemplate("[!type]Class '{.name}'[!]")
+    static tmpltMenu := zTemplate("[!type]Menu 0x{.handle:x}[!]")
+    static tmpltMenuBar := zTemplate("[!type]MenuBar 0x{.handle:x}[!]")
+    static tmpltRegExMatchInfo := zTemplate("[!type]RegExMatch [{.count}][!]")
+    static tmpltFile := zTemplate("[!type]File 0x{.Handle:x}[!]")
     static tmpltInputHook := zTemplate("[!type]InputHook[!]")
     static tmpltEmptyObject := zTemplate("[!object]{{}{}}[!]")
     static tmpltEmptyArray := zTemplate("[!object][][!]")
@@ -30,7 +30,7 @@ zz_print(writer, v) {
             return False
         }
         if IsInteger(v) {
-            writer.Put Format("[!int]{1}[!]", v)
+            writer.Put(Format("[!int]{1}[!]", v))
         } else if IsFloat(v) {
             writer.Put Format("[!float]{1}[!]", v)
         } else {
@@ -39,7 +39,7 @@ zz_print(writer, v) {
         return True
     }
     static tryLeafType(v, writer) {
-        ; Current state of writer - after 
+        ; Current state of writer - after
 
 
         if v is VarRef
@@ -101,27 +101,27 @@ zz_print(writer, v) {
             writer.Put(tmpltEmptyArray(v))
             return True
         }
+        
+        if zz_arr.hasUnsetItems(v) {
+            return this.tryObject(v)
+        }
         stack.Add(v)
-        static indexedArrayItem := zTemplate("({index}) ➤ ")
-        hasUnsetItems := zz_arr.hasUnsetItems(v)
         if stack.Count != 1 {
             writer.Indent().PutLn()
         }
+        writer.PutLn("[")
+        writer.Indent()
         for index, value in v {
             if index != 1 {
-                writer.PutLn()
+                writer.PutLn(",")
             }
-            if hasUnsetItems {
-                writer.Put(indexedArrayItem(value))
-            } else {
-                writer.Put("• ")
-            }  
             recursivePrint(value)
         }
+        writer.PutLn().Unindent().PutLn("]")
         if not stack.Count = 1 {
             writer.Unindent()
         }
-        
+
         stack.Delete(v)
         return True
     }
@@ -134,7 +134,7 @@ zz_print(writer, v) {
             writer.Put(tmpltEmptyMap(v))
             return True
         }
-        
+
         stack.Add(v)
         if not stack.Count = 1 {
             writer.Indent().PutLn()
@@ -159,34 +159,24 @@ zz_print(writer, v) {
             return False
         }
         static errorBody := zTemplate(
-            "[!errorTitle]💥 {type} 💥[!]`n"
-            "[!errorMessage]{message}[!]"
+            "[!errorTitle]{.type}[!]`n"
+            "[!errorMessage]{.message}[!]"
         )
         static traceFileEntry := zTemplate(
-            "[!errorFrame][!arrow]➜[!] [!location]{File}:{Line}[!][!] @ [!function]{Function.Display}[!]`n" 
-            "[!quote]    >  {Quote}[!]"
+            "[!errorFrame][!arrow]➜[!] [!location]{.File.Path}:{.Line}[!][!] @ [!function]{.Function}[!]`n"
+            "[!quote]    >  {.Quote}[!]"
         )
-        static traceAutoExecEntry := zTemplate("[!errorFrame][!arrow]➜[!] [!location]Auto-execute[!][!]")
+        static headerRow := zTemplate(
+            "{.type}: {.message}"
+        )
         stack.Add(v)
-        if not stack.Count = 1 {
-            writer.Indent().PutLn()
-        }
-        writer.Put(errorBody({
+
+        writer.PutLn(headerRow({
             type: Type(v),
             message: v.Message
         }))
-        writer.Indent()
-        frames := zz_stack.parseTrace(v)
-        for frame in frames {
-            writer.Putln()
-            if frame.isScript {
-                writer.Put(traceFileEntry(frame))
-            } else {
-                writer.Put(traceAutoExecEntry(frame))
-            }
-        }
-        writer.Unindent().PutLn()
         fst := True
+
         for key in ObjOwnProps(v) {
             if zz_arr.hasAny(key, "message", "stack", "file", "line") {
                 continue
@@ -197,6 +187,14 @@ zz_print(writer, v) {
             fst := False
             writeProperty(v, key)
         }
+        writer.PutLn()
+        frames := zz_stack.Frame.Parse(v)
+        for frame in frames {
+            writer.Putln()
+            writer.Put(frame)
+        }
+        writer.PutLn()
+
         stack.Delete(v)
         return True
     }
@@ -212,7 +210,7 @@ zz_print(writer, v) {
             if IsSet(value) {
                 recursivePrint(value)
             } else {
-                writer.Put(propGetError(, err))
+                writer.Put(propGetError(err))
             }
         }
     }
@@ -220,7 +218,7 @@ zz_print(writer, v) {
     tryObject(v) {
         count := ObjOwnPropCount(v)
         if not count {
-            writer.Put tmpltProto(, Type(v))
+            writer.Put tmpltProto(Type(v))
             return True
         }
         stack.Add(v)
@@ -228,9 +226,9 @@ zz_print(writer, v) {
             writer.Indent()
             writer.PutLn
         }
-        
+
         if Type(v) != "Object" {
-            writer.PutLn tmpltProto(, Type(v))
+            writer.PutLn tmpltProto(Type(v))
         }
         for key in ObjOwnProps(v) {
             if A_Index != 1 {
@@ -251,7 +249,7 @@ zz_print(writer, v) {
         }
         throw zBadInputError("The input for zPrint is invalid.")
     }
-        recursivePrint(v)
+    recursivePrint(v)
     writer.Flush()
 }
 
@@ -270,17 +268,21 @@ zPrint(v, options := "") {
         operator: "blue",
         getterError: "bgBrightRed",
         errorTitle: "bold bgBrightRed black",
-        errorMessage: "i",
+        errorMessage: "i white",
         errorFrame: "brightBlue",
         location: "u",
         function: "i green",
-        quote: "d black",
-        arrow: "b"
+        quote: "d grey",
+        arrow: "b",
+        object: "green"
     })
     options := zz_options_parse(options)
-    zz_print(zTextWriter(&result), v)
-    if options["color"] = -1 {
-        return zColor_Strip(result)
+    txt := zz_TextWriter(&result)
+    zz_print(txt, v)
+    txt.Flush()
+    if options["color"] != 1 {
+        xz := zColor_Strip(result)
+        return xz
     } else {
         return renderer(result)
     }

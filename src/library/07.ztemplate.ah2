@@ -1,8 +1,10 @@
 #include 01.zinit.ah2
 
+; Like `Format`, but creates a template object that can be used to generate lots of different messages.
 class zTemplate {
     static replaceOpen := "[~[["
     static replaceClose := "]~]]"
+
     static _encodeBraces(input) {
         return StrReplace(StrReplace(input, "{{}", zTemplate.replaceOpen), "{}}", zTemplate.replaceClose)
     }
@@ -10,9 +12,13 @@ class zTemplate {
     static _decodeBraces(input) {
         return StrReplace(StrReplace(input, zTemplate.replaceOpen, "{"), zTemplate.replaceClose, "}")
     }
+
     class Token {
         __New(name, path := "", format := "") {
-            this.Name := name
+            if not (IsDigit(name) or name == "") {
+                throw zBadInputError(Format("Token name '{1}' isn't numeric or empty.", name))
+            }
+            this.Name := name == "" ? 1 : name
             this.Path := StrSplit(path, ".")
             this.Format := format
             this.FormatTK := "{1:" this.Format "}"
@@ -24,9 +30,11 @@ class zTemplate {
         }
     }
     _post := []
+
     __New(template) {
         template := zTemplate._encodeBraces(template)
         tokens := StrSplit(template, ["{", "}"])
+
         loop tokens.Length {
             if Mod(A_Index, 2) = 0 {
                 tk := Trim(tokens[A_Index])
@@ -37,8 +45,8 @@ class zTemplate {
             } else {
                 tokens[A_Index] := zTemplate._decodeBraces(tokens[A_Index])
             }
-
         }
+
         this._tokens := tokens
     }
 
@@ -47,16 +55,22 @@ class zTemplate {
     }
 
     _evaluate(allArgs) {
+        if not allArgs is Array {
+            throw zBadInputError("Internal error - allArgs must be an array.")
+        }
         text := ""
         for tk in this._tokens {
-            if tk is zTemplate.Token {
-                if not allArgs.Has(tk.Name) {
-                    throw zBadInputError(Format("No value assigned for template input '{1}'.", tk.Name))
-                }
+            if not tk is zTemplate.Token {
+                ; A non-object string means verbatim text
+                text .= tk
+            } else if tk.Name <= allArgs.Length {
+                ; Numbered tokens index the allArgs array.
                 text .= tk(allArgs[tk.Name])
             } else {
-                text .= tk
+                ; Referring to a token with an invalid number
+                throw zBadInputError(Format("No value assigned to input number {1}.", tk.Name))
             }
+
         }
         decoded := zTemplate._decodeBraces(text)
         for step in this._post {
@@ -65,20 +79,25 @@ class zTemplate {
         return decoded
     }
 
-    Call(argsKeyed := {}, argsIndexed*) {
-        if not IsObject(argsKeyed) {
-            argsIndexed.InsertAt(1, argsKeyed)
-            argsKeyed := {}
-        }
-        allArgs := Map()
-        allArgs.CaseSense := False
-        for key, value in ObjOwnProps(argsKeyed) {
-            allArgs[key] := value
-        }
-        for ix, value in argsIndexed {
-            allArgs[String(ix)] := value
-        }
-        return this._evaluate(allArgs)
+    Call(args*) {
+        return this._evaluate(args)
     }
+
 }
 
+zTemplate_MultiLineFormat(multiLineStringOrArray, template) {
+    tmplt := zTemplate(template)
+    wasString := False
+    if multiLineStringOrArray is String {
+        wasString := True
+        multiLineStringOrArray := StrSplit(multiLineStringOrArray, "`n")
+    }
+    for i, line in multiLineStringOrArray {
+        multiLineStringOrArray[i] := tmplt(line)
+    }
+    if wasString {
+        return zz_str.join(multiLineStringOrArray, "`n")
+    }
+    return multiLineStringOrArray
+
+}

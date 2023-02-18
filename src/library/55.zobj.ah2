@@ -91,11 +91,7 @@ gObj_Omit(self, keys*) {
 
 ; Assigns all the keys from sources, in order, to `self`.
 zObj_Assign(self, sources*) {
-    for i, source in sources {
-        for k, v in source {
-            self[k] := v
-        }
-    }
+    return zz_obj.assign(self, sources*)
 }
 
 ; Returns a new object with defaults from `sources`.

@@ -6,8 +6,31 @@ class zInvalidCallError extends zError {
 
 }
 
-class zBadInputError extends zError {
+class zSyntaxError extends zBadInputError {
+    __New(message, what, position) {
+        text := what
+        rows := StrSplit(text, "`n")
+        rowPos := 0
+        loop {
+            rowPos += 1
+            curRow := rows[rowPos]
+            position -= StrLen(curRow) + 1
+            if position <= 0 {
+                break
+            }
+        }
+        errorMarker := zz_str.repeat(" ", StrLen(curRow) + position) "🢁 " message
+        rows.InsertAt(rowPos + 1, errorMarker)
+        text := zz_str.join(rows, "`n")
+        super.__New(text, "")
+    }
+}
 
+class zBadInputError extends zError {
+    __New(message, what?, extra?) {
+        super.__New(message, what?, extra?)
+
+    }
 }
 
 class zNotImplementedError extends zError {
@@ -17,8 +40,9 @@ class zNotImplementedError extends zError {
 zz_none := {}
 
 class zz_throw {
+
     static badParam(name, needed, value) {
-        return zBadInputError(Format("Parameter {1} is invalid. Expected {2}.", needed, value))
+        return zBadInputError(Format("Argument '{1}' is invalid. ", name), value)
     }
 
     static checkEnumeratorArity(real, expected) {
@@ -75,12 +99,46 @@ class zz_arr {
     static slice(arr, start := 1, count := -1) {
         newArr := []
         start := zz_normIndex(start, arr.Length)
-        count := count = -1 ? arr.Length - start + 1 : count
+        count := count == -1 ? arr.Length - start + 1 : count
+        last := ""
         loop count {
-            newArr.Push(arr[start + A_Index - 1])
+            last := start + A_Index - 1
+            newArr.Push(arr[last])
+
         }
+
         return newArr
     }
+
+    static findIndex(self, predicate) {
+        predicate := zz_func.wrapIteratee(predicate)
+        for i, x in self {
+            if predicate(i, x) {
+                return i
+            }
+        }
+    }
+
+    static first(self, predicate?) {
+        if not IsSet(predicate) {
+            return first[1]
+        }
+        ix := this.findIndex(self, predicate)
+        return first[ix]
+    }
+
+    static findLastIndex(self, predicate) {
+        predicate := zz_func.wrapIteratee(predicate)
+        found := 0
+        for i, x in self {
+            if predicate(i, x) {
+                found := i
+            }
+        }
+        return found
+    }
+
+
     static hasUnsetItems(arr) {
         lastIndex := 0
         for index, item in arr {
@@ -111,12 +169,38 @@ class zz_arr {
         return False
     }
 
+    static map(self, projection) {
+        projection := zz_func.wrapIteratee(projection)
+        newArr := []
+        for index, item in self {
+            newArr.Push(projection(index, item))
+        }
+        return newArr
+    }
+
+
     static hasAny(arr, options*) {
         return zz_arr.has(options, arr, False)
+    }
+
+    static reverse(self) {
+        newArr := []
+        Loop self.Length {
+            newArr.Push(self[self.Length - A_Index + 1])
+        }
+        return newArr
     }
 }
 
 class zz_str {
+    static startsWith(haystack, needle, caseSense := False) {
+        subhaystack := SubStr(haystack, StrLen(needle.Count))
+        if caseSense {
+            return subhaystack == needle
+        } else {
+            return subhaystack = needle
+        }
+    }
     static trimEach(arr) {
         newArr := []
         for x in arr {
@@ -127,6 +211,17 @@ class zz_str {
             newArr.Push(x)
         }
         return newArr
+    }
+
+    static repeat(self, count, delim := "") {
+        result := ""
+        Loop count {
+            if (A_Index != 1) {
+                result .= delim
+            }
+            result .= self
+        }
+        return result
     }
 
     static split(haystack, needle, matchAction := False, startingPos := 1, omitEmpty := False) {
@@ -179,6 +274,35 @@ class zz_str {
         return result
     }
 
+    static splice(self, position, strs*) {
+        before := SubStr(self, 1, position)
+        after := SubStr(self, position + 1)
+        return before this.join(strs, "") after
+    }
+
+    static slice(self, start := 1, end := 0) {
+        end := end == 0 ? StrLen(self) : end
+        end := zz_normIndex(end, StrLen(self))
+        start := zz_normIndex(start, StrLen(self))
+        return SubStr(self, start, end - start + 1)
+    }
+
+    static snip(self, position, radius := 10) {
+        position := zz_normIndex(position, StrLen(self))
+        extraFromRight := position + radius - StrLen(self)
+        extraFromLeft := 1 - (position - radius)
+        start := Max(1, position - radius - Max(extraFromRight, 0))
+        end := Min(StrLen(self), position + radius) + Max(extraFromLeft, 0)
+        slice := this.slice(self, start, end)
+        if start != 1 {
+            slice := "…" slice
+        }
+        if end != StrLen(self) {
+            slice := slice "…"
+        }
+        return slice
+    }
+
 }
 
 class zz_func {
@@ -213,29 +337,29 @@ class zz_func {
                     if not f() {
                         return False
                     }
-                    return arr
-                case 1:
-                    if f(&r1) {
-                        arr.Push(r1)
-                    }
-                case 2:
-                    if f(&r1, &r2) {
-                        arr.Push(r1, r2)
-                    }
-                case 3:
-                    if f(&r1, &r2, &r3) {
-                        arr.Push(r1, r2, r3)
-                    }
-                case 4:
-                    if f(&r1, &r2, &r3, &r4) {
-                        arr.Push(r1, r2, r3, r4)
-                    }
-                case 5:
-                    if f(&r1, &r2, &r3, &r4, &r5) {
-                        arr.Push(r1, r2, r3, r4, r5)
-                    }
-default:
-                    throw zNotImplementedError("Iter(args*) for more than 5 arguments")
+                        return arr
+                    case 1:
+                        if f(&r1) {
+                            arr.Push(r1)
+                        }
+                        case 2:
+                            if f(&r1, &r2) {
+                                arr.Push(r1, r2)
+                            }
+                            case 3:
+                                if f(&r1, &r2, &r3) {
+                                    arr.Push(r1, r2, r3)
+                                }
+                                case 4:
+                                    if f(&r1, &r2, &r3, &r4) {
+                                        arr.Push(r1, r2, r3, r4)
+                                    }
+                                    case 5:
+                                        if f(&r1, &r2, &r3, &r4, &r5) {
+                                            arr.Push(r1, r2, r3, r4, r5)
+                                        }
+                                        default:
+                                            throw zNotImplementedError("Iter(args*) for more than 5 arguments")
             }
             if arr.Length = 0 {
                 return False
@@ -247,14 +371,43 @@ default:
     static isCallable(input) {
         return HasMethod(input, "Call")
     }
-    static normalize(f, wantedParams) {
-        if not f is Func {
-            f := f.Call
+    static getMaxParams(f) {
+        if f is Func {
+            return f.MaxParams
         }
-        if f.MaxParams = wantedParams or f.IsVariadic {
+        return f.Call.MaxParams - 1
+    }
+    static getIsVariadic(f) {
+        if f is Func {
+            return f.IsVariadic
+        }
+        return f.Call.IsVariadic
+    }
+    static wrapIteratee(f) {
+        if this.getMaxParams(f) = 2 or this.getIsVariadic(f) {
             return f
         }
-        combo := wantedParams * 10 + f.MaxParams
+        if this.getMaxParams(f) = 1 {
+            return (i, x) => f(x)
+        }
+
+        throw zBadInputError("Expected function to take 1 or 2 parameters", f.MaxParams)
+    }
+
+    static normalize2(f) {
+        if not f is Func {
+            maxParams := f.Call.MaxParams - 1
+            isVariadic := f.Call.IsVariadic
+            f := f.Call.Bind(f)
+        }
+    }
+
+    static normalize(f, wantedParams) {
+
+        if maxParams = wantedParams or isVariadic {
+            return f
+        }
+        combo := wantedParams * 10 + maxParams
         switch combo {
             case 10:
                 return x => f()
@@ -275,10 +428,28 @@ default:
 }
 
 class zz_obj {
+    static assign(self, sources*) {
+        for i, source in sources {
+            for k, v in source.OwnProps() {
+                if self.HasProp(k) {
+                    self[k] := v
+                } else {
+                    self.DefineProp(k, {
+                        value: v
+                    })
+                }
+
+            }
+        }
+        return self
+    }
     static evalPath(obj, pathSegments) {
         cur := obj
         for segment in pathSegments {
             cur := cur.%segment%
+        }
+        if IsObject(cur) {
+            return Type(cur)
         }
         return cur
     }
@@ -328,8 +499,8 @@ class zz_obj {
             if a.Length != b.Length {
                 return False
             }
-            loop arr1.Length {
-                if not zz_obj.equal(arr1[A_Index], arr2[A_Index]) {
+            loop a.Length {
+                if not zz_obj.equal(a[A_Index], b[A_Index]) {
                     return False
                 }
             }

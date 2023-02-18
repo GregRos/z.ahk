@@ -37,6 +37,12 @@ class zz_checks {
         }
     }
 
+    static isNumber(name, value) {
+        if not IsNumber(value) {
+            throw zz_throw.badParam(name, "a number", value)
+        }
+    }
+
     static isString(name, value) {
         if value is Object {
             throw zz_throw.badParam(name, "a number or string", value)
@@ -48,6 +54,14 @@ class zz_checks {
             throw zz_throw.badParam(name, "a boolean (0 or 1)", value)
         }
     }
+    
+    static isGreater(name, value, threshold) {
+        this.isNumber(name, value)
+        if value <= threshold {
+            throw zz_throw.badParam(name, "a number greater than " threshold, value)
+        }
+    }
+
 
     static isInstanceOf(name, cls, value) {
         if not value is cls {
