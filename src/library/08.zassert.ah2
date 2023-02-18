@@ -18,24 +18,30 @@ class zAssert {
 
     _kwTypeAssertion(real, kw, type) {
         static template := zTemplate("[!real]Real[!] [!kw]{.kw}[!] [!type]{.Type}[!]")
-        return template({
-            kw: kw,
-            type: type
-        })
+        return {
+            title: template({
+                kw: kw,
+                type: type
+            }),
+            full: ""
+        }
     }
  
     _relationAssertion(real, relation, expected) {
         out := ""
         writer := zWriter(&out)
-        writer.PutLn("[!real]🟥 real[!] [!operator]{.relation}[!] [!expected]🟢 expected[!]", {
+        title := zTemplate("[!real]🟥 real[!] [!operator]{.relation}[!] [!expected]🟢 expected[!]")({
             relation: relation
         })
-        writer.Put("[!real]🟥 ")
+        writer.Put("[!real]🟥 real: ")
         writer.PutLn(zPrint(real) "[!]")
-        writer.Put("[!expected]🟢 ")
+        writer.Put("[!expected]🟢 expected: ").Indent("  ")
         writer.Put(zPrint(expected) "[!]")
         writer.Flush()
-        return out
+        return {
+            title: title,
+            full: out
+        }
     }
 
     not {

@@ -371,6 +371,12 @@ class zz_func {
     static isCallable(input) {
         return HasMethod(input, "Call")
     }
+    static getMinParams(f) {
+        if f is Func {
+            return f.MinParams
+        }
+        return f.Call.MinParams - 1
+    }
     static getMaxParams(f) {
         if f is Func {
             return f.MaxParams
@@ -446,7 +452,11 @@ class zz_obj {
     static evalPath(obj, pathSegments) {
         cur := obj
         for segment in pathSegments {
+            prev := cur
             cur := cur.%segment%
+            if zz_func.isCallable(cur) and zz_func.getMinParams(cur) == 1 {
+                cur := cur.Call(prev)
+            }
         }
         if IsObject(cur) {
             return Type(cur)

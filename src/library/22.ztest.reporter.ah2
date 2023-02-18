@@ -54,7 +54,7 @@ class zz_reporter {
         }
 
         _statusLine(event) {
-            static failStatus := zTemplate("[!lineFail][!fail] FAIL [!] {.test}[!]")
+            static failStatus := zTemplate("[!lineFail][!fail] FAIL [!][!b] {.test}[!][!]")
             static okStatus := zTemplate("[!linePass][!pass] PASS [!] {.test}[!]")
             if event.isOk {
                 return okStatus(event)
@@ -82,7 +82,7 @@ class zz_reporter {
 
         finish(results) {
             _writer := this._writer
-            static pathFormat := zTemplate("[!grey]➜ [!blue]{.Function}[!] ([!cyan]{.File.Path}:{.Line}[!][!])")
+            static pathFormat := zTemplate("[!grey]➜ [!blue]{.Function.ToString}[!] ([!cyan]{.File.Path}:{.Line}[!][!])")
             _writer.PutLn(" ")
             anyFails := False
             for r in results {
@@ -92,23 +92,25 @@ class zz_reporter {
                 if anyFails {
                     _writer.PutLn()
                 }
+                _writer.Put("[!black bold]{1}[!]", this._statusLine(r))
                 anyFails := True
-                _writer.PutLn("[!black bold]{1}[!]", this._statusLine(r))
-                _writer.Indent("[!red]▐  [!]")
                 if r.isError {
-                    _writer.PutLn("[!brightYellow][!b]🗲 {.type}[!][!d] was unhandled[!][!]`n[!brightYellow][!i]{.message}[!][!]", {
-                        type: Type(r.result),
-                        message: r.result.message
+                    _writer.Indent("[!brightYellow]▐  [!]")
+                    _writer.PutLn("[!brightYellow][!b]:: 🗲 {.type}[!][!d] was unhandled[!][!]", {
+                        type: Type(r.result)
                     })
+                    _writer.PutLn("[!brightYellow][!i] { .message }[!][!]", r.result)
+
                     bottomFrame := r.result.Stack[1]
                     _writer.PutLn(this.quoteSourceCode(bottomFrame))
                 } else {
-                    _writer.PutLn(r.result.assertion)
+                    _writer.Indent("[!red]▐  [!]")
+                    _writer.PutLn("[!red] :: {.result.assertion.title} [!]", r)
+                    _writer.PutLn(r.result.assertion.full)
                     _writer.PutLn(this.quoteSourceCode(r.result.Bottom))
                 }
                 for i, frame in r.result.Stack {
                     _writer.PutLn(pathFormat(frame)).Indent("   ")
-                    _writer.PutLn("[!brightGreen dim]❯ {1}[!]", zz_color.verbatim(frame.Quote))
                     _writer.Unindent()
                 }
                 _writer.Unindent().PutLn(" ")

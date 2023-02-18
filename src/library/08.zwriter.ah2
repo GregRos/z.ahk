@@ -51,6 +51,9 @@ class zz_TextWriter {
         if args.Length {
             text := zTemplate(text)(args*)
         }
+        if not this._line {
+            this._line := zz_str.join(this._indents)
+        }
         joined := this._line text
         this._line := ""
         if not joined {
@@ -61,9 +64,13 @@ class zz_TextWriter {
             this._line := joined
             return this
         }
+
         loop lines.Length - 1 {
             curLine := lines[A_Index]
-            curLine := zz_str.join(this._indents) curLine
+            if A_Index > 1 {
+                curLine := zz_str.join(this._indents) curLine
+            }
+
             this._sink.PutLn(curLine)
         }
         lastLine := lines[-1]

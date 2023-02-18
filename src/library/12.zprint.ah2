@@ -117,7 +117,7 @@ zz_print(writer, v) {
             }
             recursivePrint(value)
         }
-        writer.PutLn().Unindent().PutLn("]")
+        writer.PutLn().Unindent().Put("]")
         if not stack.Count = 1 {
             writer.Unindent()
         }
