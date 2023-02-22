@@ -2,7 +2,7 @@
 #include 13.zchecks.ah2
 #include 45.zstr.ah2
 
-zMap_FromKeys(keys) {
+zMapFromKeys(keys) {
     zz_checks.isIter("keys", keys)
     myMap := Map()
     for x in keys {
@@ -11,7 +11,7 @@ zMap_FromKeys(keys) {
     return myMap
 }
 
-zMap_Assign(target, maps, assignValues) {
+zMapAssign(target, maps, assignValues) {
     zz_checks.isInstanceOf("target", Map, target)
     for cur in maps {
         zz_checks.isInstanceOf("maps" A_Index, Map, cur)
@@ -32,6 +32,6 @@ zMap_Assign(target, maps, assignValues) {
     return target
 }
 
-zMap_Merge(maps, mergeValues) {
-    return zMap_Assign(Map(), maps, mergeValues)
+zMapMerge(maps, mergeValues) {
+    return zMapAssign(Map(), maps, mergeValues)
 }

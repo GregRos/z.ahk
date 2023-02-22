@@ -1,7 +1,7 @@
 #include 01.zinit.ah2
 
 
-zWriter_Sink(nameOrObject) {
+zWriterSink(nameOrObject) {
     return zz_sink.GetSink(nameOrObject)
 }
 

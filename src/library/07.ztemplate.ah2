@@ -85,7 +85,7 @@ class zTemplate {
 
 }
 
-zTemplate_MultiLineFormat(multiLineStringOrArray, template) {
+zTemplateMultiLineFormat(multiLineStringOrArray, template) {
     tmplt := zTemplate(template)
     wasString := False
     if multiLineStringOrArray is String {

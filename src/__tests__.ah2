@@ -7,7 +7,7 @@
 #include library/05.zprocess.ah2
 #include library/06.zcolor.ah2
 #include library/12.zprint.ah2
-zSystem_Oops()
+zSystemOops()
 
 #include library/13.zchecks.ah2
 #include tests\14.zmaybe.ah2
@@ -28,7 +28,7 @@ class Blah {
 ;     }
 ; }
 
-zSystem_Highlander()
+zSystemHighlander()
 
 zTest({
     reporter: "stdout"

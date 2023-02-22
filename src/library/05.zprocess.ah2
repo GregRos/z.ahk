@@ -65,7 +65,7 @@ class zProcess {
 }
 
 
-zSystem_Highlander() {
+zSystemHighlander() {
     exe := A_AhkPath
     processes := zProcess.ByExe(exe)
     for proc in processes {

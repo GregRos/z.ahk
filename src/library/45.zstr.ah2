@@ -1,6 +1,6 @@
 #include 13.zchecks.ah2
 
-zStr_Join(delim, arr) {
+zStrJoin(delim, arr) {
     zz_checks.isString("delim", delim)
     zz_checks.isArray("arr", arr)
     return zz_str.join(arr, delim)
@@ -16,14 +16,14 @@ zStr(obj*) {
         return String(obj)
     }
     if obj is Array {
-        return Format("[{1}]", zStr_Join(", ", zArr_Map(obj, zStr)))
+        return Format("[{1}]", zStrJoin(", ", zArrMap(obj, zStr)))
     }
     if obj is Map {
         
     }
 }
 
-zStr_Format(template, args) {
+zStrFormat(template, args) {
     zz_checks.isObjectLike("args", args)
     zz_checks.isString("template", template)
     if args is Array {
@@ -33,7 +33,7 @@ zStr_Format(template, args) {
 }
 
 ; Returns a string that's `self` repeated `count` times, deparated by `delim`.
-zStr_Repeat(self, count, delim := "") {
+zStrRepeat(self, count, delim := "") {
     zz_checks.isString("self", self)
     zz_checks.isInt("count", count)
     zz_checks.isString("delim", delim)
@@ -41,7 +41,7 @@ zStr_Repeat(self, count, delim := "") {
 }
 
 ; Returns a new string that's padded to the end, to the width toWidth, using the padding `padding`.
-zStr_PadRight(self, toWidth, padding := " ") {
+zStrPadRight(self, toWidth, padding := " ") {
     zz_checks.isString("self", self)
     zz_checks.isInt("toWidth", toWidth)
     zz_checks.isString("padding", padding)
@@ -50,13 +50,13 @@ zStr_PadRight(self, toWidth, padding := " ") {
     if (extras <= 0) {
         return self
     }
-    padding := zStr_Repeat(padding, extras)
+    padding := zStrRepeat(padding, extras)
     result := self padding
     return result
 }
 
 ; Returns a string that's padded to the left, toWidth, using the given padding.
-zStr_PadLeft(self, toWidth, padding := " ") {
+zStrPadLeft(self, toWidth, padding := " ") {
     zz_checks.isString("self", self)
     zz_checks.isInt("toWidth", toWidth)
     zz_checks.isString("padding", padding)
@@ -65,13 +65,13 @@ zStr_PadLeft(self, toWidth, padding := " ") {
     if (extras <= 0) {
         return self
     }
-    padding := zStr_Repeat(padding, extras)
+    padding := zStrRepeat(padding, extras)
     result := padding self 
     return result
 }
 
 ; Returns the positions of substring `what` in `this`.
-zStr_IndexesOf(self, what, cs := false) {
+zStrIndexesOf(self, what, cs := false) {
     zz_checks.isString("self", self)
     zz_checks.isString("what", what)
     zz_checks.isBool("cs", cs)
@@ -88,12 +88,12 @@ zStr_IndexesOf(self, what, cs := false) {
 }
 
 ; Returns the position of the first occurence of `what`.
-zStr_IndexOf(self, what, caseSensitivity := False, pos := 1) {
+zStrIndexOf(self, what, caseSensitivity := False, pos := 1) {
     return InStr(self, what, caseSensitivity, pos)
 }
 
 ; Returns a reversed string.
-zStr_Reverse(self) {
+zStrReverse(self) {
     zz_checks.isString("self", self)
     str := ""
     Loop Parse self {
@@ -104,17 +104,17 @@ zStr_Reverse(self) {
 }
 
 ; Returns the last position of `what` in `self`.
-zStr_LastIndexOf(self, what, cs := false, pos := 1) {
+zStrLastIndexOf(self, what, cs := false, pos := 1) {
     zz_checks.isString("self", self)
     zz_checks.isString("what", what)
     zz_checks.isBool("cs", cs)
     zz_checks.isInt("pos", pos)
     cur := 0
-    indexes := zStr_IndexesOf(self, what, pos)
+    indexes := zStrIndexesOf(self, what, pos)
     return indexes[indexes.Length]
 }
 
-zStr_Slice(self, start := 1, end := unset) {
+zStrSlice(self, start := 1, end := unset) {
     if not IsSet(end) or end == 0 {
         return SubStr(self, start)
     }
@@ -129,21 +129,21 @@ zStr_Slice(self, start := 1, end := unset) {
 
 
 ; Splits `self` in two at `pos` and returns the two parts.
-zStr_SplitAt(self, pos) {
+zStrSplitAt(self, pos) {
     zz_checks.isString("self", self)
     zz_checks.isInt("pos", pos)
     pos := zz_normIndex(pos, StrLen(self))
-    first := zStr_Slice(self, pos - 1)
-    last := zStr_Slice(self, pos + 1)
+    first := zStrSlice(self, pos - 1)
+    last := zStrSlice(self, pos + 1)
     return [first, last]
 }
 
-zStr_Len(self) {
+zStrLen(self) {
     return StrLen(self)
 }
 
 ; Returns from an array of numeric char codes.
-zStr_OfCodes(wArray) {
+zStrOfCodes(wArray) {
     zz_checks.isArray("wArray", wArray)
     result := ""
     for i, x in wArray {
@@ -153,7 +153,7 @@ zStr_OfCodes(wArray) {
 }
 
 ; Returns a string from an array of strings.
-zStr_OfChars(cArray) {
+zStrOfChars(cArray) {
     zz_checks.isArray("cArray", cArray)
     result := ""
     for i, x in cArray {
@@ -163,12 +163,12 @@ zStr_OfChars(cArray) {
 }
 
 ; True if `what` is in `self`
-zStr_Has(self, what, caseSensitive := false, start := 1) {
-    return zStr_IndexOf(self, what, caseSensitive, start) > 0
+zStrHas(self, what, caseSensitive := false, start := 1) {
+    return zStrIndexOf(self, what, caseSensitive, start) > 0
 }
 
 ; Returns the character at position `pos`.
-zStr_At(self, pos) {
+zStrAt(self, pos) {
     return SubStr(self, pos, 1)
 }
 

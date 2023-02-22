@@ -281,7 +281,7 @@ zPrint(v, options := "") {
     zz_print(txt, v)
     txt.Flush()
     if options["color"] != 1 {
-        xz := zColor_Strip(result)
+        xz := zColorStrip(result)
         return xz
     } else {
         return renderer(result)

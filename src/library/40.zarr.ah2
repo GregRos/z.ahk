@@ -13,7 +13,7 @@ zArr(iterable := []) {
     return arr
 }
 
-zArr_Range(start, end, step := 1) {
+zArrRange(start, end, step := 1) {
     zz_checks.isNotEqual("step", step, 0)
     if start > end and step > 0 {
         step := -step
@@ -29,7 +29,7 @@ zArr_Range(start, end, step := 1) {
     return result
 }
 
-zArr_From(iterable) {
+zArrFrom(iterable) {
     zz_checks.isIter("iterable", iterable)
     arr := []
     for x in iterable {
@@ -38,7 +38,7 @@ zArr_From(iterable) {
     return arr
 }
 
-zArr_Repeat(self, count) {
+zArrRepeat(self, count) {
     arr := []
     arr.Capacity := count
     Loop count {
@@ -47,12 +47,12 @@ zArr_Repeat(self, count) {
     return arr
 }
 
-zArr_FindIndex(self, predicate) {
+zArrFindIndex(self, predicate) {
     return zz_arr.findIndex(self, predicate)
 }
 
 ; Returns the position of the first occurence of `what` in `self`.
-zArr_IndexOf(self, what, caseSensitive := False) {
+zArrIndexOf(self, what, caseSensitive := False) {
     zz_checks.isIter("self", self)
     zz_checks.isBool("caseSensitive", caseSensitive)
     for ix, value in self {
@@ -64,14 +64,14 @@ zArr_IndexOf(self, what, caseSensitive := False) {
 }
 
 ; Returns if `self` is an array including value `what`.
-zArr_Has(self, what) {
+zArrHas(self, what) {
     zz_checks.isIter("self", self)
-    return zArr_IndexOf(self, what) > 0
+    return zArrIndexOf(self, what) > 0
 }
 
 
 ; Returns a new array made of elements from `self` that satisfy `predicate`.
-zArr_Filter(self, predicate) {
+zArrFilter(self, predicate) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("predicate", predicate)
     newArr := []
@@ -85,7 +85,7 @@ zArr_Filter(self, predicate) {
 }
 
 ; Creates a new array, its elements the result of applying `projection` on elements of `self.`
-zArr_Map(self, projection) {
+zArrMap(self, projection) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("projection", projection)
     projection := zz_func.wrapIteratee(projection)
@@ -97,8 +97,8 @@ zArr_Map(self, projection) {
 }
 
 ; Returns the first element in `self` that match `predicate`. `predicate` can be a function name or function object.
-zArr_Find(self, predicate) {
-    result := zArr_Filter(self, predicate)
+zArrFind(self, predicate) {
+    result := zArrFilter(self, predicate)
     if result.Length > 0 {
         return result[1]
     }
@@ -106,17 +106,17 @@ zArr_Find(self, predicate) {
 }
 
 ; Returns true if `self` contains an element matching `predicate`.
-zArr_Exists(self, predicate) {
-    return zArr_FindIndex(self, predicate) != 0
+zArrExists(self, predicate) {
+    return zArrFindIndex(self, predicate) != 0
 }
 
 ; Returns true if every element of `self` matches `predicate`.
-zArr_Every(self, predicate) {
-    return zArr_Filter(self, predicate).Length == self.Length
+zArrEvery(self, predicate) {
+    return zArrFilter(self, predicate).Length == self.Length
 }
 
 ; Returns a new array by applying `projection` to each element of `self` and concatenating the resulting arrays.
-zArr_FlatMap(self, projection) {
+zArrFlatMap(self, projection) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("projection", projection)
     arr := []
@@ -133,20 +133,20 @@ zArr_FlatMap(self, projection) {
 }
 
 ; Returns a new array consisting of the elements of `self` in a reversed order.
-zArr_Reverse(self) {
+zArrReverse(self) {
     zz_checks.isArray("self", self)
     return zz_arr.reverse(self)
 }
 
 ; Adds an element to the start of `self`.
-zArr_Prepend(self, items*) {
+zArrPrepend(self, items*) {
     zz_checks.isArray("self", self)
     self.InsertAt(1, items*)
     return self
 }
 
 ; Returns a subsequence of `self` of values with positions `start` (inclusive) to `end` (exclusive).
-zArr_Slice(self, start := 1, end := 0) {
+zArrSlice(self, start := 1, end := 0) {
     zz_checks.isArray("self", self)
     zz_checks.isInt("start", start)
     zz_checks.isInt("end", end + 1)
@@ -157,7 +157,7 @@ zArr_Slice(self, start := 1, end := 0) {
 }
 
 ; Applies an accumulator on `self`, with the initial value `initial`.
-zArr_Reduce(self, accumulator, initial) {
+zArrReduce(self, accumulator, initial) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("accumulator", accumulator, 2)
     accumulator := zz_func.normalize(accumulator, 3)
@@ -169,11 +169,11 @@ zArr_Reduce(self, accumulator, initial) {
 }
 
 ; Removes all appearances of `values` from `self`.
-zArr_Pull(self, values*) {
+zArrPull(self, values*) {
     zz_checks.isArray("self", self)
     Loop self.Length {
         cur := self[A_Index]
-        if zArr_Has(values, cur) {
+        if zArrHas(values, cur) {
             self.RemoveAt(A_Index)
             A_Index--
         }
@@ -182,7 +182,7 @@ zArr_Pull(self, values*) {
 }
 
 ; Sorts `self` in place using `comparer`, which defaults to `>`.
-zArr_Sort(self, comparer := zz_defaultComparer) {
+zArrSort(self, comparer := zz_defaultComparer) {
     zz_checks.isArray("self", self)
     work := self.Clone()
     zz_arr.mergeSort(work, self, comparer)
@@ -190,7 +190,7 @@ zArr_Sort(self, comparer := zz_defaultComparer) {
 }
 
 ; Returns a copy of this array, its elements sorted using `comparer`.
-zArr_Order(self, comparer := zz_defaultComparer) {
+zArrOrder(self, comparer := zz_defaultComparer) {
     zz_checks.isArray("self", self)
     work := []
     work.Capacity := self.Length
@@ -198,20 +198,20 @@ zArr_Order(self, comparer := zz_defaultComparer) {
 }
 
 ; Returns a copy of this array, its elements sorted by applying `getKey` to each element and then sorting using `comparer`.
-zArr_OrderBy(self, getKey, comparer := zz_defaultComparer) {
+zArrOrderBy(self, getKey, comparer := zz_defaultComparer) {
     zz_checks.isArray("self", self)
     zz_checks.isFunc("getKey", getKey, 1)
-    return zArr_Order(self, zz_keyComparer(getKey, comparer))
+    return zArrOrder(self, zz_keyComparer(getKey, comparer))
 }
 
 ; Sorts `self` in place according
-zArr_SortBy(self, getKey, comparer := zz_defaultComparer) {
+zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
     zz_checks.isArray("self", self)
     zz_checks.isFunc("getKey", getKey, 1)
-    return zArr_Sort(self, zz_keyComparer(getKey, comparer))
+    return zArrSort(self, zz_keyComparer(getKey, comparer))
 }
 
-zArr_Uniq(self) {
+zArrUniq(self) {
     zz_checks.isIter("self", self)
     map := Map()
     for x in self {
@@ -224,7 +224,7 @@ zArr_Uniq(self) {
     return arr
 }
 
-zArr_UniqBy(self, getKey) {
+zArrUniqBy(self, getKey) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("getKey", getKey, 1)
     map := Map()
@@ -238,11 +238,11 @@ zArr_UniqBy(self, getKey) {
     return arr
 }
 
-zArr_Zip(sources*) {
+zArrZip(sources*) {
     for source in sources {
         zz_checks.isIter("sources" A_Index, source)
     }
-    iterators := zArr_Map(sources, x => x.__Enum())
+    iterators := zArrMap(sources, x => x.__Enum())
     cont := True
     output := []
     while cont {

@@ -2,7 +2,7 @@
 #include 50.zmap.ah2
 
 
-zObj_Props(self, inherited := False) {
+zObjProps(self, inherited := False) {
     zz_checks.isObjectLike("self", self)
     zz_checks.isBool("inherited", inherited)
     keys := []
@@ -18,7 +18,7 @@ zObj_Props(self, inherited := False) {
     return keys
 }
 
-zObj_GetOwnDescs(self) {
+zObjGetOwnDescs(self) {
     zz_checks.isObjectLike("self", self)
     descs := {}
     for k in self.OwnProps() {
@@ -27,19 +27,19 @@ zObj_GetOwnDescs(self) {
     return descs
 }
 
-zObj_GetDescsDownTo(self, stopPrototype := Object.Prototype) {
+zObjGetDescsDownTo(self, stopPrototype := Object.Prototype) {
     zz_checks.isObjectLike("self", self)
     zz_checks.isObjectLike("stopPrototype", stopPrototype)
     descList := []
     while IsObject(self) and self != stopPrototype {
-        curDescs := zObj_GetOwnDescs(self)
+        curDescs := zObjGetOwnDescs(self)
         descList.Push(curDescs)
     }
-    return zMap_Merge(descList, False)
+    return zMapMerge(descList, False)
 }
 
 ; Returns a Map consisting of the object's property descriptors
-zObj_GetDescs(self, stopCondition := True) {
+zObjGetDescs(self, stopCondition := True) {
     zz_checks.isObjectLike("self", self)
     zz_checks.isBool("inherited", inherited)
     descs := Map()
@@ -56,7 +56,7 @@ zObj_GetDescs(self, stopCondition := True) {
 }
 
 ; Returns a subset of `self` including only keys from `keys`.
-zObj_Pick(self, keys*) {
+zObjPick(self, keys*) {
     zz_checks.isObjectLike("self", self)
     result := {}
     for i, k in keys {
@@ -68,7 +68,7 @@ zObj_Pick(self, keys*) {
 }
 
 ; Creates an object with all the keys in `keys`, all having the value `value`.
-zObj_FromKeys(keys, value := True) {
+zObjFromKeys(keys, value := True) {
     zz_checks.isInstanceOf("keys", Array, keys)
     result := {}
     for i, k in keys {
@@ -80,7 +80,7 @@ zObj_FromKeys(keys, value := True) {
 ; Returns a subset of `self` without keys from `keys`.
 gObj_Omit(self, keys*) {
     result := {}
-    keysObj := zObj_FromKeys(keys)
+    keysObj := zObjFromKeys(keys)
     for i, k in self {
         if (!keysObj.HasKey(k)) {
             result[k] := self[k]
@@ -90,12 +90,12 @@ gObj_Omit(self, keys*) {
 }
 
 ; Assigns all the keys from sources, in order, to `self`.
-zObj_Assign(self, sources*) {
+zObjAssign(self, sources*) {
     return zz_obj.assign(self, sources*)
 }
 
 ; Returns a new object with defaults from `sources`.
-zObj_Defaults(self, sources*) {
+zObjDefaults(self, sources*) {
     for i, source in sources {
         for key, value in source {
             if not self.HasKey()

@@ -235,7 +235,7 @@ class zz_oops {
 }
 
 
-zSystem_Oops() {
+zSystemOops() {
     static oopsSetup := False
     if oopsSetup {
         return

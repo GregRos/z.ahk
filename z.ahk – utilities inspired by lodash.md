@@ -29,8 +29,8 @@ It fills in some other voids:
 
 `z.ahk` has a very simple interface that consists entirely of functions. The functions are named based on the module and the operation they perform:
 
-* `zObj_Pick({a: “hello”, b: "goodbye"}, “a”)` – `Obj` is short for object.
-* `zArr_OrderBy(array, x => x.orderingKey)` – `Arr` is short for array.
+* `zObjPick({a: “hello”, b: "goodbye"}, “a”)` – `Obj` is short for object.
+* `zArrOrderBy(array, x => x.orderingKey)` – `Arr` is short for array.
 
 So if you want to find functions dealing with strings, you should type `zStr` and your IDE will complete it for you. `z.ahk` uses classes but they’re rarely public. Some modules have a default function that’s just the module name, such as `zArr(1, 2, 3)`. 
 
@@ -42,17 +42,17 @@ The library has some functions it uses internally, but that you shouldn’t call
 
 * Arrays
   * `zArr` – Given any number of arguments, will return them in an array. 
-  * `zArr_From` – Makes `self`, an iterable, into an array.
-  * `zArr_Repeat` – Makes an array of size `count` filled with `value`.
-  * `zArr_IndexOf` – Finds the first index where `value` appears in `self`.
-  * `zArr_Has` – Checks if `value` appears in `self`.
-  * `zArr_Filter` – Makes a new array made of the elements of `self` that satisfy `predicate`.
-  * `zArr_Map` – Makes a new array consisting of elements of `projection` applied to each element of `self`.
-  * `zArr_Find` – Returns the first element in `self` matching `predicate`.
-  * `zArr_Exists` – True if `value` exists in `self`.
-  * `zArr_Every` – True if every value in `self` fulfills `predicate`.
-  * `zArr_FlatMap` – Projects every element of `self` into an array using `projection`, and then concatenates all the arrays.
-  * `zArr_Flatten` – Makes a new array 
+  * `zArrFrom` – Makes `self`, an iterable, into an array.
+  * `zArrRepeat` – Makes an array of size `count` filled with `value`.
+  * `zArrIndexOf` – Finds the first index where `value` appears in `self`.
+  * `zArrHas` – Checks if `value` appears in `self`.
+  * `zArrFilter` – Makes a new array made of the elements of `self` that satisfy `predicate`.
+  * `zArrMap` – Makes a new array consisting of elements of `projection` applied to each element of `self`.
+  * `zArrFind` – Returns the first element in `self` matching `predicate`.
+  * `zArrExists` – True if `value` exists in `self`.
+  * `zArrEvery` – True if every value in `self` fulfills `predicate`.
+  * `zArrFlatMap` – Projects every element of `self` into an array using `projection`, and then concatenates all the arrays.
+  * `zArrFlatten` – Makes a new array 
 
 The convention
 

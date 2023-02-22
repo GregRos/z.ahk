@@ -3,7 +3,7 @@
 
 
 
-zColor_Parse(input) {
+zColorParse(input) {
     reduceUntilOpener(stack) {
         pos := 0
         loop stack.Length {
@@ -62,7 +62,7 @@ zColor(textOrObject) {
 }
 
 
-zColor_Strip(text) {
+zColorStrip(text) {
     return zz_color.strip(text)
 }
 
@@ -287,7 +287,7 @@ class zz_color {
             if not InStr(text, "[!]") {
                 return text
             }
-            run := zColor_parse(text)
+            run := zColorParse(text)
             result := this._renderRun(run)
             return zz_color.unescape(result)
         }
@@ -308,7 +308,7 @@ class zz_color {
             ; Apply all the formatters from the directives to each line of the run.
             lines := zz_arr.map(lines, formatter)
             ; Join the lines back up
-            text := zStr_Join("`n", lines)
+            text := zStrJoin("`n", lines)
             return text
         }
 

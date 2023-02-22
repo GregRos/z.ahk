@@ -10,119 +10,119 @@ class Array_operations extends zTestSuite {
         super.isEqual(zArr(), [])
     }
 
-    zArr_Range() {
-        super.isEqual(zArr_Range(0, 3), [0, 1, 2])
-        super.isEqual(zArr_Range(0, -2), [0, -1])
-        super.isEqual(zArr_Range(0, 5, 2), [0, 2, 4])
-        super.isEqual(zArr_Range(0, -2, -2), [0])
-        super.isEqual(zArr_Range(0, 0, 10), [])
-        super.throws(() => zArr_Range(0, 0, 0))
+    zArrRange() {
+        super.isEqual(zArrRange(0, 3), [0, 1, 2])
+        super.isEqual(zArrRange(0, -2), [0, -1])
+        super.isEqual(zArrRange(0, 5, 2), [0, 2, 4])
+        super.isEqual(zArrRange(0, -2, -2), [0])
+        super.isEqual(zArrRange(0, 0, 10), [])
+        super.throws(() => zArrRange(0, 0, 0))
     }
 
-    zArr_From() {
+    zArrFrom() {
         
     }
 
-    zArr_Repeat() {
-        super.isEqual(zArr_Repeat("a", 3), ["a", "a", "a"])
-        super.isEqual(zArr_Repeat("a", 0), [])
-        super.throws(() => zArr_Repeat("a", -1))
+    zArrRepeat() {
+        super.isEqual(zArrRepeat("a", 3), ["a", "a", "a"])
+        super.isEqual(zArrRepeat("a", 0), [])
+        super.throws(() => zArrRepeat("a", -1))
     }
 
-    zArr_FindIndex() {
+    zArrFindIndex() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_FindIndex(arr, x => x == 5), 2)
-        super.isEqual(zArr_FindIndex(arr, x => x == 100), 0)
-        super.throws(() => zArr_FindIndex(arr, "a"))
+        super.isEqual(zArrFindIndex(arr, x => x == 5), 2)
+        super.isEqual(zArrFindIndex(arr, x => x == 100), 0)
+        super.throws(() => zArrFindIndex(arr, "a"))
         ; With index:
-        super.isEqual(zArr_FindIndex(arr, (i, x) => i == 1 and x == 0), 1)
+        super.isEqual(zArrFindIndex(arr, (i, x) => i == 1 and x == 0), 1)
     }
 
-    zArr_IndexOf() {
+    zArrIndexOf() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_IndexOf(arr, 5), 2)
-        super.isEqual(zArr_IndexOf(arr, 0), 1)
-        super.isEqual(zArr_IndexOf(arr, 100), 0)
+        super.isEqual(zArrIndexOf(arr, 5), 2)
+        super.isEqual(zArrIndexOf(arr, 0), 1)
+        super.isEqual(zArrIndexOf(arr, 100), 0)
     }
 
-    zArr_Has() {
+    zArrHas() {
         arr := [0, 5, 10]
-        super.isTrue(zArr_Has(arr, 5))
-        super.isFalse(zArr_Has(arr, -1))
+        super.isTrue(zArrHas(arr, 5))
+        super.isFalse(zArrHas(arr, -1))
     }
 
-    zArr_Filter() {
+    zArrFilter() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_Filter(arr, x => x == 5), [5])
-        super.isEqual(zArr_Filter(arr, x => x == -1), [])
-        super.isEqual(zArr_Filter(arr, x => True), arr)
-        super.isEqual(zArr_Filter(arr, (i, x) => Mod(i, 2) == 0 and x == 5), [5])
+        super.isEqual(zArrFilter(arr, x => x == 5), [5])
+        super.isEqual(zArrFilter(arr, x => x == -1), [])
+        super.isEqual(zArrFilter(arr, x => True), arr)
+        super.isEqual(zArrFilter(arr, (i, x) => Mod(i, 2) == 0 and x == 5), [5])
     }
 
-    zArr_Map() {
+    zArrMap() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_Map(arr, x => x + 1), [1, 6, 11])
-        super.isEqual(zArr_Map(arr, x => {}), [{}, {}, {}])
-        super.isEqual(zArr_Map(arr, (i, x) => x + i), [1, 7, 13])
+        super.isEqual(zArrMap(arr, x => x + 1), [1, 6, 11])
+        super.isEqual(zArrMap(arr, x => {}), [{}, {}, {}])
+        super.isEqual(zArrMap(arr, (i, x) => x + i), [1, 7, 13])
     }
 
-    zArr_Find() {
+    zArrFind() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_Find(arr, x => x == 5), 5)
-        super.isEqual(zArr_Find(arr, (i, x) => x == 5 and i == 2), 5)
-        super.isEqual(zArr_Find(arr, x => x == 11), "")
+        super.isEqual(zArrFind(arr, x => x == 5), 5)
+        super.isEqual(zArrFind(arr, (i, x) => x == 5 and i == 2), 5)
+        super.isEqual(zArrFind(arr, x => x == 11), "")
     }
 
-    zArr_Exists() {
+    zArrExists() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_Exists(arr, x => x == 5), True)
-        super.isEqual(zArr_Exists(arr, x => x == 1111), False)
-        super.isEqual(zArr_ExistS(arr, (i, x) => i == 2 and x == 5), True)
+        super.isEqual(zArrExists(arr, x => x == 5), True)
+        super.isEqual(zArrExists(arr, x => x == 1111), False)
+        super.isEqual(zArrExistS(arr, (i, x) => i == 2 and x == 5), True)
     }
 
-    zArr_Every() {
+    zArrEvery() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_Every(arr, x => x == 5), False)
-        super.isEqual(zArr_Every(arr, x => x < 11), True)
-        super.isEqual(zArr_Every(arr, (i, x) => i < 4 and x < 11), True)
+        super.isEqual(zArrEvery(arr, x => x == 5), False)
+        super.isEqual(zArrEvery(arr, x => x < 11), True)
+        super.isEqual(zArrEvery(arr, (i, x) => i < 4 and x < 11), True)
     }
 
-    zArr_FlatMap() {
+    zArrFlatMap() {
         arr := [0, 5, 10]
         super.isEqual(
-            zArr_FlatMap(arr, x => [x, x]), 
+            zArrFlatMap(arr, x => [x, x]), 
             [0, 0, 5, 5, 10, 10]
         )
         super.isEqual(
-            zArr_FlatMap(arr, x => []),
+            zArrFlatMap(arr, x => []),
             []
         )
         super.isEqual(
-            zArr_FlatMap(arr, (i, x) => [i, x]),
+            zArrFlatMap(arr, (i, x) => [i, x]),
             [1, 0, 2, 5, 3, 10]
         )
-        super.throws(() => zArr_FlatMap(arr, "a"))
+        super.throws(() => zArrFlatMap(arr, "a"))
     }
 
-    zArr_Reverse() {
+    zArrReverse() {
         arr := [0, 5, 10]
-        super.isEqual(zArr_Reverse(arr), [10, 5, 0])
-        super.isEqual(zArr_Reverse([]), [])
+        super.isEqual(zArrReverse(arr), [10, 5, 0])
+        super.isEqual(zArrReverse([]), [])
     }
 
-    zArr_Prepend() {
-        super.isEqual(zArr_Prepend([0], 1, 2), [1, 2, 0])
-        super.isEqual(zArr_Prepend([0]), [0])
-        super.isEqual(zArr_Prepend([], 1), [1])
+    zArrPrepend() {
+        super.isEqual(zArrPrepend([0], 1, 2), [1, 2, 0])
+        super.isEqual(zArrPrepend([0]), [0])
+        super.isEqual(zArrPrepend([], 1), [1])
     }
 
-    zArr_Slice() {
-        super.isEqual(zArr_Slice([1, 2], 1, 2), [1])
-        super.isEqual(zArr_Slice([1, 2], -1, -1), [2])
-        super.isEqual(zArr_Slice([0], 1, 2), [0])
-        super.isEqual(zArr_Slice([0, 1], 1, 1), [])
+    zArrSlice() {
+        super.isEqual(zArrSlice([1, 2], 1, 2), [1])
+        super.isEqual(zArrSlice([1, 2], -1, -1), [2])
+        super.isEqual(zArrSlice([0], 1, 2), [0])
+        super.isEqual(zArrSlice([0, 1], 1, 1), [])
         
-        super.throws(() => zArr_Slice([], 100, -1))
-        super.throws(() => zArr_Slice([0, 1, 2], 5, 7))
+        super.throws(() => zArrSlice([], 100, -1))
+        super.throws(() => zArrSlice([0, 1, 2], 5, 7))
     }
 }
