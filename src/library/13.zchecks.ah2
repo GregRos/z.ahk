@@ -54,11 +54,31 @@ class zz_checks {
             throw zz_throw.badParam(name, "a boolean (0 or 1)", value)
         }
     }
+
+    static isNotEqual(name, value, illegal) {
+        if value == illegal {
+            throw zz_throw.badParam(name, "not " illegal, value)
+        }
+    }
+
+    static isLte(name, value, threshold) {
+        this.isNumber(name, value)
+        if !(value <= threshold) {
+            throw zz_throw.badParam(name, "a number less than or equal to " threshold, value)
+        }
+    }
     
-    static isGreater(name, value, threshold) {
+    static isGt(name, value, threshold) {
         this.isNumber(name, value)
         if value <= threshold {
             throw zz_throw.badParam(name, "a number greater than " threshold, value)
+        }
+    }
+
+    static isLt(name, value, threshold) {
+        this.isNumber(name, value)
+        if value >= threshold {
+            throw zz_throw.badParam(name, "a number smaller than " threshold, value)
         }
     }
 

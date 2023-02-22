@@ -74,7 +74,7 @@ class zz_reporter {
             static centerFormat := zTemplate("[!bgRed]{1}[!]")
             lines := userFrame.File.Lines
             lines := zz_arr.map(lines, (i, x) => lineFormat(i, zz_color.verbatim(x)))
-            lines := zz_arr.slice(lines, userFrame.Line - 1, 3)
+            lines := zz_arr.take(lines, userFrame.Line - 1, 3)
             middleIndex := (lines.Length + 1) / 2
             lines[middleIndex] := centerFormat(lines[middleIndex])
             return zz_str.join(lines, "`n")
@@ -96,10 +96,10 @@ class zz_reporter {
                 anyFails := True
                 if r.isError {
                     _writer.Indent("[!brightYellow]▐  [!]")
-                    _writer.PutLn("[!brightYellow][!b]:: 🗲 {.type}[!][!d] was unhandled[!][!]", {
+                    _writer.PutLn("[!brightYellow][!b] :: 🗲 {.type}[!][!d] was unhandled[!][!]", {
                         type: Type(r.result)
                     })
-                    _writer.PutLn("[!brightYellow][!i] { .message }[!][!]", r.result)
+                    _writer.PutLn("[!brightYellow][!i]{ .message }[!][!]", r.result)
 
                     bottomFrame := r.result.Stack[1]
                     _writer.PutLn(this.quoteSourceCode(bottomFrame))

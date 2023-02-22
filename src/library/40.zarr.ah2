@@ -14,11 +14,13 @@ zArr(iterable := []) {
 }
 
 zArr_Range(start, end, step := 1) {
-    zz_checks.isGreater("step", step, 0)
-    step := start > end ? -step : step
+    zz_checks.isNotEqual("step", step, 0)
+    if start > end and step > 0 {
+        step := -step
+    }
     result := []
     loop {
-        if start >= end {
+        if step < 0 ? start <= end : start >= end {
             break
         }
         result.Push(start)
@@ -64,7 +66,7 @@ zArr_IndexOf(self, what, caseSensitive := False) {
 ; Returns if `self` is an array including value `what`.
 zArr_Has(self, what) {
     zz_checks.isIter("self", self)
-    return gArr_IndexOf(self, what) > 0
+    return zArr_IndexOf(self, what) > 0
 }
 
 
@@ -73,10 +75,10 @@ zArr_Filter(self, predicate) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("predicate", predicate)
     newArr := []
-    predicate := zz_func.normalize(predicate, 2)
+    predicate := zz_func.wrapIteratee(predicate)
     for index, item in self {
-        if predicate(item, index) {
-            newArr.Push(item,)
+        if predicate(index, item) {
+            newArr.Push(item)
         }
     }
     return newArr
@@ -86,12 +88,10 @@ zArr_Filter(self, predicate) {
 zArr_Map(self, projection) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("projection", projection)
-    projection := zz_func.normalize(projection, 2)
+    projection := zz_func.wrapIteratee(projection)
     newArr := []
     for index, item in self {
-        if predicate(item, index) {
-            newArr.Push(projection(item))
-        }
+        newArr.Push(projection(index, item))
     }
     return newArr
 }
@@ -99,15 +99,15 @@ zArr_Map(self, projection) {
 ; Returns the first element in `self` that match `predicate`. `predicate` can be a function name or function object.
 zArr_Find(self, predicate) {
     result := zArr_Filter(self, predicate)
-    if result.Length = 0 {
-        return zSome(result[1])
+    if result.Length > 0 {
+        return result[1]
     }
-    return zNone("no element matching predicate")
+    return ""
 }
 
 ; Returns true if `self` contains an element matching `predicate`.
 zArr_Exists(self, predicate) {
-    return zArr_Find(self, predicate).isSome
+    return zArr_FindIndex(self, predicate) != 0
 }
 
 ; Returns true if every element of `self` matches `predicate`.
@@ -120,9 +120,9 @@ zArr_FlatMap(self, projection) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("projection", projection)
     arr := []
-    projection := zz_func.normalize(projection, 2)
+    projection := zz_func.wrapIteratee(projection)
     for index, item in self {
-        result := projection(item, index)
+        result := projection(index, item)
         if result is Array {
             arr.Push(result*)
         } else {
@@ -130,11 +130,6 @@ zArr_FlatMap(self, projection) {
         }
     }
     return arr
-}
-
-; Flattens `self` one level
-zArr_Flat(self) {
-    return zArr_FlatMap(self, x => x)
 }
 
 ; Returns a new array consisting of the elements of `self` in a reversed order.
@@ -146,14 +141,18 @@ zArr_Reverse(self) {
 ; Adds an element to the start of `self`.
 zArr_Prepend(self, items*) {
     zz_checks.isArray("self", self)
-    self.InsertAt(0, items*)
+    self.InsertAt(1, items*)
+    return self
 }
 
-; Returns a subsequence of `self` starting at `start` and ending at `end`, inclusive.
+; Returns a subsequence of `self` of values with positions `start` (inclusive) to `end` (exclusive).
 zArr_Slice(self, start := 1, end := 0) {
     zz_checks.isArray("self", self)
     zz_checks.isInt("start", start)
-    zz_checks.isInt("end", end)
+    zz_checks.isInt("end", end + 1)
+    zz_checks.isLte("start", start, self.Length)
+    zz_checks.isLte("end", end, self.Length + 1)
+    return zz_arr.slice(self, start, end)
 
 }
 
@@ -179,6 +178,7 @@ zArr_Pull(self, values*) {
             A_Index--
         }
     }
+    return self
 }
 
 ; Sorts `self` in place using `comparer`, which defaults to `>`.

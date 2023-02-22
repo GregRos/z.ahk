@@ -10,7 +10,7 @@ class zTestSuite extends zAssert {
         raise(failure) {
             throw zz_TestAssertionFailed(failure.assertion, failure.data)
         }
-        super.__New(raise)
+        super.__New(raise,)
     }
 
     Name {

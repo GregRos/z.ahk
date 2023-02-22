@@ -42,7 +42,8 @@ zz_none := {}
 class zz_throw {
 
     static badParam(name, needed, value) {
-        return zBadInputError(Format("Argument '{1}' is invalid. ", name), value)
+        return zBadInputError(Format("Argument '{1}' is invalid. Needs {2}, got {3}.", name, needed, value), value)
+
     }
 
     static checkEnumeratorArity(real, expected) {
@@ -96,18 +97,27 @@ class zz_arr {
 
         splitMerge(1, arr.Length)
     }
-    static slice(arr, start := 1, count := -1) {
+
+    static take(arr, start := 1, count := -1) {
         newArr := []
         start := zz_normIndex(start, arr.Length)
         count := count == -1 ? arr.Length - start + 1 : count
-        last := ""
         loop count {
-            last := start + A_Index - 1
-            newArr.Push(arr[last])
-
+            curIndex := start + A_Index - 1
+            if curIndex > arr.Length {
+                return newArr
+            }
+            newArr.Push(arr[curIndex])
         }
 
         return newArr
+    }
+
+    static slice(arr, start := 1, end := -1) {
+        start := zz_normIndex(start, arr.Length)
+        end := zz_normIndex(end, arr.Length + 1)
+        count := end - start
+        return this.take(arr, start, count)
     }
 
     static findIndex(self, predicate) {
@@ -117,6 +127,7 @@ class zz_arr {
                 return i
             }
         }
+        return 0
     }
 
     static first(self, predicate?) {

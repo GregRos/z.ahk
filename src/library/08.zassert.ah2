@@ -1,5 +1,17 @@
 #include 01.zinit.ah2
 #include 07.ztemplate.ah2
+
+class zAssertFail {
+    Name := "???"
+    Values := {}
+    Text := "???"
+    __New(name, text, values) {
+        this.Name := name
+        this.Values := values
+        this.Text := text
+    }
+}
+
 class zAssertFailureInfo {
     __New(assertion, data) {
         this.assertion := assertion
@@ -61,6 +73,13 @@ class zAssert {
         }
     }
 
+    fail(message) {
+        this._fail({
+            title: message,
+            full: ""
+        }, {})
+    }
+
     _fail(assertion, data) {
         failure := zAssertFailureInfo(assertion, data)
         this._onFailCallback.Call(failure)
@@ -111,6 +130,7 @@ class zAssert {
         fail := this._relationAssertion(real, "isn't", "Falsy")
         this._result(real == True, pass, fail, {})
     }
+
 
     isEqual(real, expected) {
         pass := this._relationAssertion(real, "is equal to", expected)
