@@ -12,6 +12,7 @@ zSystemOops()
 #include library/13.zchecks.ah2
 #include tests\14.zmaybe.ah2
 #include tests\zarr.test.ah2
+#include tests\zstr.test.ah2
 class Blah {
     a := 1
 }

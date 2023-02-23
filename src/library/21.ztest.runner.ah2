@@ -43,8 +43,12 @@ class zz_TestResult {
         
     }
 
+    assertions {
+        get => +this.result
+    }
+
     isOk {
-        get => this.result = True
+        get => this.result is Integer
     }
 
     isFail {
@@ -64,8 +68,7 @@ class zz_Test {
 
     zzRun() {
         try {
-            this.definition.Call()
-            return True
+            return this.definition.Call()
         } catch Any as err {
             return err
         }

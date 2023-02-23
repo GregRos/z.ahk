@@ -55,8 +55,9 @@ class zz_reporter {
 
         _statusLine(event) {
             static failStatus := zTemplate("[!lineFail][!fail] FAIL [!][!b] {.test}[!][!]")
-            static okStatus := zTemplate("[!linePass][!pass] PASS [!] {.test}[!]")
+            static okStatus := zTemplate("[!linePass][!pass] PASS [!][!b] {.test}[!][!] [!green d i]{.result} assertions[!]")
             if event.isOk {
+                event.test := zz_str.padEnd(event.test, 20)
                 return okStatus(event)
             } else {
                 return failStatus(event)
@@ -99,7 +100,7 @@ class zz_reporter {
                     _writer.PutLn("[!brightYellow][!b] :: 🗲 {.type}[!][!d] was unhandled[!][!]", {
                         type: Type(r.result)
                     })
-                    _writer.PutLn("[!brightYellow][!i]{ .message }[!][!]", r.result)
+                    _writer.PutLn("[!brightYellow][!i]{ .message }`nWhat: {.what}`nExtra: {.Extra}[!][!]", r.result)
 
                     bottomFrame := r.result.Stack[1]
                     _writer.PutLn(this.quoteSourceCode(bottomFrame))

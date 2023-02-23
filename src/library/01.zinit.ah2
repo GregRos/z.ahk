@@ -71,31 +71,38 @@ zz_normFuncToMethod(f) {
 class zz_arr {
     static mergeSort(arr, work, comparer) {
         ; Merge sort because it's a stable sort
-        merge(begin, middle, end) {
-            Loop end - begin {
-                ix := A_Index + begin
-                if i < middle and (ix >= end or comparer(arr[start], arr[middle]) <= 0) {
-                    work[ix] := arr[start]
-                    start++
+        merge(arr, begin, middle, end, work) {
+            count := end - begin
+            begin2 := begin
+            end2 := middle
+            Loop count {
+                ix := A_Index + begin - 1
+                if ix >= end {
+                    break
+                }
+                if begin2 < middle and (end2 >= end or comparer(arr[begin2], arr[end2]) <= 0) {
+                    work[ix] := arr[begin2]
+                    begin2++
                 } else {
-                    work[ix] := arr[end]
-                    end++
+                    work[ix] := arr[end2]
+                    end2++
                 }
             }
         }
 
-        splitMerge(begin, end) {
-            if (end - begin = 0) {
-                ; One-item run
+        splitMerge(work, begin, end, arr) {
+            if (end - begin <= 1) {
+                ; One-item run7
                 return
             }
+
             middle := Integer((end + begin) / 2)
-            splitMerge(start, middle)
-            splitMerge(middle, end)
-            merge(start, middle, end)
+            splitMerge(arr, begin, middle, work)
+            splitMerge(arr, middle, end, work)
+            merge(work, begin, middle, end, arr)
         }
 
-        splitMerge(1, arr.Length)
+        splitMerge(work, 1, arr.Length + 1, arr)
     }
 
     static take(arr, start := 1, count := -1) {
@@ -132,10 +139,10 @@ class zz_arr {
 
     static first(self, predicate?) {
         if not IsSet(predicate) {
-            return first[1]
+            return self[1]
         }
         ix := this.findIndex(self, predicate)
-        return first[ix]
+        return self[ix]
     }
 
     static findLastIndex(self, predicate) {
@@ -147,6 +154,17 @@ class zz_arr {
             }
         }
         return found
+    }
+
+    static filter(self, predicate) {
+        newArr := []
+        predicate := zz_func.wrapIteratee(predicate)
+        for index, item in self {
+            if predicate(index, item) {
+                newArr.Push(item)
+            }
+        }
+        return newArr
     }
 
 
@@ -204,6 +222,33 @@ class zz_arr {
 }
 
 class zz_str {
+
+    static padEnd(self, toWidth, padding := " ") {
+        myLen := StrLen(self)
+        extras := toWidth - myLen
+        if (extras <= 0) {
+            return self
+        }
+        padding := zz_str.repeat(padding, extras)
+        result := self padding
+        return result
+    }
+    static regexReplaceEach(haystack, needleObject) {
+        kvpIter := needleObject.HasProp("__Enum") ? needleObject.__Enum() : ObjOwnProps(needleObject)
+        for key, value in kvpIter {
+            haystack := RegExReplace(haystack, key, value)
+        }
+        return haystack
+    }
+    static hasAny(haystack, needles*) {
+        for needle in needles {
+            if InStr(haystack, needle) {
+                return True
+            }
+        }
+        return False
+    }
+
     static startsWith(haystack, needle, caseSense := False) {
         subhaystack := SubStr(haystack, StrLen(needle.Count))
         if caseSense {
@@ -411,6 +456,21 @@ class zz_func {
         throw zBadInputError("Expected function to take 1 or 2 parameters", f.MaxParams)
     }
 
+    static wrapAccumulator(f) {
+        if this.getMaxParams(f) = 3 or this.getIsVariadic(f) {
+            return f
+        }
+        switch this.getMaxParams(f) {
+            case 2:
+                return (acc, cur, index) => f(acc, cur)
+            case 1:
+                return (acc, cur, index) => f(acc)
+            case 0:
+                return (acc, cur, index) => f()
+        }
+        return f
+    }
+
     static normalize2(f) {
         if not f is Func {
             maxParams := f.Call.MaxParams - 1
@@ -500,7 +560,9 @@ class zz_obj {
             for k in ObjOwnProps(source) {
                 v := source.%k%
                 if not HasProp(target, k) {
-                    target[k] := v
+                    target.DefineProp(k, {
+                        value: v
+                    })
                 }
             }
         }
@@ -521,6 +583,9 @@ class zz_obj {
                 return False
             }
             loop a.Length {
+                if not b.Has(A_Index) or not a.Has(A_Index) {
+                    return a.Has(A_Index) == b.Has(A_Index)
+                }
                 if not zz_obj.equal(a[A_Index], b[A_Index]) {
                     return False
                 }
@@ -531,7 +596,7 @@ class zz_obj {
             return False
         }
         for key, value in ObjOwnProps(a) {
-            if not zz_obj.equal(a[key], b[key], caseMode) {
+            if not b.HasProp(key) or not zz_obj.equal(a.%key%, b.%key%, caseMode) {
                 return False
             }
         }

@@ -74,14 +74,7 @@ zArrHas(self, what) {
 zArrFilter(self, predicate) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("predicate", predicate)
-    newArr := []
-    predicate := zz_func.wrapIteratee(predicate)
-    for index, item in self {
-        if predicate(index, item) {
-            newArr.Push(item)
-        }
-    }
-    return newArr
+    return zz_arr.filter(self, predicate)
 }
 
 ; Creates a new array, its elements the result of applying `projection` on elements of `self.`
@@ -157,13 +150,20 @@ zArrSlice(self, start := 1, end := 0) {
 }
 
 ; Applies an accumulator on `self`, with the initial value `initial`.
-zArrReduce(self, accumulator, initial) {
+zArrReduce(self, accumulator, initial := unset) {
     zz_checks.isIter("self", self)
     zz_checks.isFunc("accumulator", accumulator, 2)
-    accumulator := zz_func.normalize(accumulator, 3)
-    current := initial
+    accumulator := zz_func.wrapAccumulator(accumulator)
+    current := initial ?? unset
     for index, item in self {
+        if not IsSet(current) {
+            current := item
+            continue
+        }
         current := accumulator(current, item, index)
+    }
+    if not IsSet(current) {
+        throw zBadInputError(Format("Can't get initial value from array because it's empty."))
     }
     return current
 }
@@ -171,7 +171,11 @@ zArrReduce(self, accumulator, initial) {
 ; Removes all appearances of `values` from `self`.
 zArrPull(self, values*) {
     zz_checks.isArray("self", self)
-    Loop self.Length {
+
+    Loop {
+        if A_Index > self.Length {
+            break
+        }
         cur := self[A_Index]
         if zArrHas(values, cur) {
             self.RemoveAt(A_Index)
@@ -185,16 +189,17 @@ zArrPull(self, values*) {
 zArrSort(self, comparer := zz_defaultComparer) {
     zz_checks.isArray("self", self)
     work := self.Clone()
-    zz_arr.mergeSort(work, self, comparer)
+    zz_arr.mergeSort(self, work, comparer)
     return self
 }
 
 ; Returns a copy of this array, its elements sorted using `comparer`.
 zArrOrder(self, comparer := zz_defaultComparer) {
     zz_checks.isArray("self", self)
-    work := []
-    work.Capacity := self.Length
-    return zz_arr.mergeSort(self, work, comparer)
+    clone := self.Clone()
+    work := self.Clone()
+    zz_arr.mergeSort(clone, work, comparer)
+    return clone
 }
 
 ; Returns a copy of this array, its elements sorted by applying `getKey` to each element and then sorting using `comparer`.
@@ -211,28 +216,34 @@ zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
     return zArrSort(self, zz_keyComparer(getKey, comparer))
 }
 
-zArrUniq(self) {
+zArrUniq(self, caseSense := False) {
     zz_checks.isIter("self", self)
-    map := Map()
+    myMap := Map()
+    myMap.CaseSense := caseSense
     for x in self {
-        map.Set(x, x)
+        myMap.Set(x, x)
     }
     arr := []
-    for k, v in map {
+    for k, v in myMap {
         arr.Push(k)
     }
     return arr
 }
 
-zArrUniqBy(self, getKey) {
+zArrUniqBy(self, getKey, caseSense := False) {
     zz_checks.isIter("self", self)
-    zz_checks.isFunc("getKey", getKey, 1)
-    map := Map()
-    for x in self {
-        map.set(getKey(x), x)
+    getKey := zz_func.wrapIteratee(getKey)
+    myMap := Map()
+    myMap.CaseSense := caseSense
+    for i, x in self {
+        key := getKey(i, x)
+        if not myMap.Has(key) {
+            myMap.set(key, x)
+        }
+
     }
     arr := []
-    for x, v in self {
+    for k, v in myMap {
         arr.Push(v)
     }
     return arr
@@ -244,17 +255,27 @@ zArrZip(sources*) {
     }
     iterators := zArrMap(sources, x => x.__Enum())
     cont := True
+    index := 1
     output := []
     while cont {
-        for iterator in iterators {
-            out
+        curRecord := []
+        curRecord.Length := iterators.Length
+        for iterIndex, iterator in iterators {
             result := iterator(&out)
+
             if result = 0 {
                 cont := False
                 break
             }
-            output.Push(out)
+            if not IsSet(out) {
+                continue
+            }
+            curRecord[iterIndex] := out
         }
+        if cont {
+            output.InsertAt(index, curRecord)
+        }
+        index++
     }
     return output
 }
@@ -270,5 +291,5 @@ zz_keyComparer(getKey, comparer := zz_defaultComparer) {
         kB := getKey(b)
         return comparer(kA, kB)
     }
-    return comparer
+    return compare_keys
 }

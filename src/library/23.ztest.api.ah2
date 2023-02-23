@@ -4,13 +4,24 @@
 zz_test_runner := zz_TestRunner()
 
 class zTestSuite extends zAssert {
+    AssertionCount := 0
     __New() {
         stack := zz_stack.capture()
         z := 1
-        raise(failure) {
-            throw zz_TestAssertionFailed(failure.assertion, failure.data)
-        }
-        super.__New(raise,)
+
+        super.__New()
+    }
+
+    onTestStart() {
+        this.AssertionCount := 0
+    }
+
+    onFailedAssertion(failure) {
+        throw zz_TestAssertionFailed(failure.assertion, failure.data)
+    }
+
+    onSuccessfulAssertion(text) {
+        this.AssertionCount++
     }
 
     Name {
@@ -23,8 +34,13 @@ class zTestSuite extends zAssert {
         for key in ObjOwnProps(cls.Prototype) {
             value := inst.%key%
             if zz_func.isCallable(value) {
+                exec_test(value, inst) {
+                    inst.AssertionCount := 0
+                    value.Call(inst)
+                    return inst.AssertionCount
+                }
                 bound := ObjBindMethod(inst, key)
-                tests.Push(zz_Test(key, bound))
+                tests.Push(zz_Test(key, exec_test.Bind(value, inst)))
             }
         }
         return zz_TestSuite(inst.Name, tests)

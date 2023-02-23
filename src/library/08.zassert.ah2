@@ -24,8 +24,16 @@ class zAssert {
         Format("'{1}'", str)
     }
     _notMode := False
-    __New(onFailCallback) {
-        this._onFailCallback := onFailCallback
+    __New() {
+
+    }
+
+    onFailedAssertion(err) {
+        throw zNotImplementedError("You must implement 'onFailedAssertion'.")
+    }
+
+    onSuccessfulAssertion(assert) {
+        
     }
 
     _kwTypeAssertion(real, kw, type) {
@@ -47,7 +55,7 @@ class zAssert {
         })
         writer.Put("[!real]🟥 real: ")
         writer.PutLn(zPrint(real) "[!]")
-        writer.Put("[!expected]🟢 expected: ").Indent("  ")
+        writer.Put("[!expected]🟢 expected: ")
         writer.Put(zPrint(expected) "[!]")
         writer.Flush()
         return {
@@ -70,6 +78,8 @@ class zAssert {
             this._fail(failText, data)
         } else if success and notMode {
             this._fail(passText, data)
+        } else {
+            this.onSuccessfulAssertion(passText)
         }
     }
 
@@ -82,7 +92,7 @@ class zAssert {
 
     _fail(assertion, data) {
         failure := zAssertFailureInfo(assertion, data)
-        this._onFailCallback.Call(failure)
+        this.onFailedAssertion(failure)
     }
 
     isArray(real) {

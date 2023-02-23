@@ -101,26 +101,29 @@ zz_print(writer, v) {
             writer.Put(tmpltEmptyArray(v))
             return True
         }
-        
+
         if zz_arr.hasUnsetItems(v) {
             return this.tryObject(v)
         }
         stack.Add(v)
-        if stack.Count != 1 {
-            writer.Indent().PutLn()
-        }
-        writer.PutLn("[")
-        writer.Indent()
-        for index, value in v {
+
+        writer.PutLn("[").Indent()
+        loop v.Length {
+            index := A_Index
+
             if index != 1 {
-                writer.PutLn(",")
+                writer.PutLn(", ")
             }
-            recursivePrint(value)
+            if not v.Has(index) {
+                continue
+            }
+            value := v[index]
+            if IsSet(value) {
+                recursivePrint(value)
+            }
         }
         writer.PutLn().Unindent().Put("]")
-        if not stack.Count = 1 {
-            writer.Unindent()
-        }
+
 
         stack.Delete(v)
         return True
@@ -224,18 +227,20 @@ zz_print(writer, v) {
         stack.Add(v)
         if not stack.Count = 1 {
             writer.Indent()
-            writer.PutLn
         }
 
         if Type(v) != "Object" {
             writer.PutLn tmpltProto(Type(v))
         }
+        writer.PutLn("{").Indent("  ")
         for key in ObjOwnProps(v) {
             if A_Index != 1 {
                 writer.PutLn()
             }
             writeProperty(v, key)
         }
+        writer.Unindent().PutLn()
+        writer.Put("}")
         if not stack.Count = 1 {
             writer.Unindent()
         }
@@ -280,6 +285,11 @@ zPrint(v, options := "") {
     txt := zz_TextWriter(&result)
     zz_print(txt, v)
     txt.Flush()
+    result := zz_str.regexReplaceEach(result, Map(
+        "\[\s*\{", "[{",
+        "\}\s*\]", "}]",
+        "\},\s*\{", "}, {",
+        "\],\s*\[", "], ["))
     if options["color"] != 1 {
         xz := zColorStrip(result)
         return xz

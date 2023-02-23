@@ -4,6 +4,14 @@
 my_empty := []
 my_arr := [1, 2, 3]
 
+makeArrayOfObjects(values*) {
+    arr := []
+    for i, value in values {
+        arr.Push({ a: value })
+    }
+    return arr
+}
+
 class Array_operations extends zTestSuite {
     zArr() {
         super.isEqual(zArr(my_arr), my_arr)
@@ -20,7 +28,7 @@ class Array_operations extends zTestSuite {
     }
 
     zArrFrom() {
-        
+
     }
 
     zArrRepeat() {
@@ -90,7 +98,7 @@ class Array_operations extends zTestSuite {
     zArrFlatMap() {
         arr := [0, 5, 10]
         super.isEqual(
-            zArrFlatMap(arr, x => [x, x]), 
+            zArrFlatMap(arr, x => [x, x]),
             [0, 0, 5, 5, 10, 10]
         )
         super.isEqual(
@@ -121,8 +129,83 @@ class Array_operations extends zTestSuite {
         super.isEqual(zArrSlice([1, 2], -1, -1), [2])
         super.isEqual(zArrSlice([0], 1, 2), [0])
         super.isEqual(zArrSlice([0, 1], 1, 1), [])
-        
+
         super.throws(() => zArrSlice([], 100, -1))
         super.throws(() => zArrSlice([0, 1, 2], 5, 7))
+
+    }
+
+    zArrReduce() {
+        super.isEqual(zArrReduce([1], () => 1), 1)
+        super.isEqual(zArrReduce([1, 2, 3], (acc, cur) => acc + cur), 6)
+        super.isEqual(zArrReduce([1, 2], (acc, cur, ix) => acc + cur * ix), 5)
+        super.isEqual(zArrReduce([1], (acc, cur) => acc + cur, 1), 2)
+        super.isEqual(zArrReduce([], () => 1, 5), 5)
+        super.throws(() => zArrReduce([], () => 1))
+    }
+
+    zArrPull() {
+        super.isEqual(zArrPull([], 5, 1), [])
+        super.isEqual(zArrPull([1], 1), [])
+        super.isEqual(zArrPull([1, 2], 1), [2])
+        super.isEqual(zArrPull([1, 2, 3], 1, 2, 3), [])
+    }
+
+    zArrSort() {
+        super.isEqual(zArrSort([5, 2, 10]), [2, 5, 10])
+        arr := [0, 5, -1]
+        zArrSort(arr)
+        super.isEqual(arr, [-1, 0, 5])
+        super.isEqual(zArrSort([]), [])
+        super.isEqual(zArrSort([1]), [1])
+    }
+
+    zArrOrder() {
+        super.isEqual(zArrOrder([5, 2, 10]), [2, 5, 10])
+        arr := [0, 5, -1]
+        zArrOrder(arr)
+        super.isEqual(arr, [0, 5, -1])
+        super.isEqual(zArrOrder([]), [])
+        super.isEqual(zArrOrder([1]), [1])
+    }
+
+    zArrOrderBy() {
+        arr := makeArrayOfObjects(5, 2, 10)
+        orig := arr.Clone()
+        super.isEqual(zArrOrderBy(arr, x => x.a), makeArrayOfObjects(2, 5, 10))
+        ; Stability:
+        super.isEqual(zArrOrderBy(arr, x => x.a == 5 ? 1 : 2), makeArrayOfObjects(5, 2, 10))
+        super.isEqual(arr, orig)
+    }
+
+    zArrSortBy() {
+        arr := makeArrayOfObjects(5, 2, 10)
+        orig := arr.Clone()
+        super.isEqual(zArrSortBy(arr, x => x.a), makeArrayOfObjects(2, 5, 10))
+
+
+    }
+
+    zArrUniq() {
+        arr := [1, 1, 2, 2]
+        super.isEqual(zArrUniq(arr), [1, 2])
+        super.isEqual(zArrUniq([]), [])
+        super.isEqual(zArrUniq(["a", "A"]), ["a"])
+        super.isEqual(zArrUniq(["a", "A"], True), ["a", "A"])
+    }
+
+    zArrUniqBy() {
+        arr := makeArrayOfObjects(1, 1, 2, 2)
+        super.isEqual(zArrUniqBy(arr, x => x.a), makeArrayOfObjects(1, 2))
+        super.isEqual(zArrUniqBy(arr, x => 1), makeArrayOfObjects(1))
+        super.isEqual(zArrUniqBy(arr, x => "a"), makeArrayOfObjects(1))
+    }
+
+    zArrZip() {
+        arr := [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
+        super.isEqual(zArrZip(arr*), [[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+        super.isEqual(zArrZip([], [], []), [])
+        super.isEqual(zArrZip([], [1], [1]), [])
+        super.isEqual(zArrZip([, 2], [1, 1]), [[, 1], [2, 1]])
     }
 }

@@ -69,6 +69,7 @@ class zz_stack {
                 trace.Push(zz_stack.Frame(error.File, error.Line))
             }
             trace := zz_arr.slice(trace, skip + 1)
+            trace := zz_arr.filter(trace, frame => !zz_str.hasAny(frame.Function.ToString(), "zTest", "zz_Test", "Func.Call"))
             return trace
         }
     }

@@ -45,14 +45,7 @@ zStrPadRight(self, toWidth, padding := " ") {
     zz_checks.isString("self", self)
     zz_checks.isInt("toWidth", toWidth)
     zz_checks.isString("padding", padding)
-    myLen := StrLen(self)
-    extras := toWidth - myLen
-    if (extras <= 0) {
-        return self
-    }
-    padding := zStrRepeat(padding, extras)
-    result := self padding
-    return result
+    return zz_str.padEnd(self, toWidth, padding)
 }
 
 ; Returns a string that's padded to the left, toWidth, using the given padding.
@@ -77,12 +70,12 @@ zStrIndexesOf(self, what, cs := false) {
     zz_checks.isBool("cs", cs)
     arr := []
     occur := 1
-    last := ""
+    last := 0
     Loop {
-        if (last != "") {
+        if (last != 0) {
             arr.Push(last)
         }
-        last := gStr_IndexOf(self, what, cs, A_Index)
+        last := zStrIndexOf(self, what, cs, last + 1)
     } until last = 0
     return arr
 }
