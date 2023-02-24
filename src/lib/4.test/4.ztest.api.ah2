@@ -5,7 +5,7 @@ zz_test_runner := zz_TestRunner()
 class zTestSuite extends zAssert {
     AssertionCount := 0
     __New() {
-        stack := zz_stack.capture()
+        stack := zTrace()
         z := 1
 
         super.__New()

@@ -1,7 +1,7 @@
-
 class zz_func {
 
     static id := x => x
+
 
     static wrapVariadic(fVariadic, paramCount, skipThis := False) {
         switch paramCount {

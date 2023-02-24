@@ -109,9 +109,9 @@ class zz_reporter {
                     _writer.PutLn(r.result.assertion.full)
                     _writer.PutLn(this.quoteSourceCode(r.result.Bottom))
                 }
-                for i, frame in r.result.Stack {
-                    _writer.PutLn(pathFormat(frame)).Indent("   ")
-                    _writer.Unindent()
+                for i, frame in r.result.Stack.Filter(frm => !frm.Function.Match("zz_Test|zTest|Func\.Call|exec_test")) {
+                    _writer.PutLn(pathFormat(frame))
+                    
                 }
                 _writer.Unindent().PutLn(" ")
 

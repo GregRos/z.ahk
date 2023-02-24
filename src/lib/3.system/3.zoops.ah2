@@ -14,7 +14,7 @@ class zz_oops {
 
     static print(err) {
         stack := []
-        for frame in zz_stack.Frame.parse(err) {
+        for frame in zTrace(err) {
             stack.Push(String(frame))
         }
         result := zz_oops.errorTemplate({
@@ -57,7 +57,7 @@ class zz_oops {
         __New(error) {
             this._error := error
             super.__New("-DPIScale -MinimizeBox -MaximizeBox -0x20000 -0x30000", Format("Error in AHK script « {1} »", A_ScriptName), this)
-            this._trace := zz_stack.Frame.Parse(error)
+            this._trace := zTrace(error)
             this.Setup()
         }
 

@@ -15,12 +15,10 @@ class zz_TestAssertionFailed {
         this.Assertion := assertion
         this.Data := data
 
-        frames := zz_stack.capture(1)
+        frames := zTrace().Skip(1)
         ; This will find the last frame in the class zAssert. All assertions are defined on it,
         ; so the frame above that is the one with user code.
-        lastFrameworkFrameIndex := zz_arr.findLastIndex(frames, frm => frm.Function.Class == "zAssert")
-        
-        this.Stack := zz_arr.slice(frames, lastFrameworkFrameIndex + 1)
+        this.Stack := frames.Skip(frames.FindLastIndex(frm => frm.Function.Match("zAssert")))
     }
 
     Bottom {
@@ -35,7 +33,7 @@ class zz_TestResult {
         this.Test := test
         this.result := result
         if this.isError {
-            this.Result.Stack := zz_stack.Frame.parse(this.Result)
+            this.Result.Stack := zTrace(this.Result)
         }
         
     }
