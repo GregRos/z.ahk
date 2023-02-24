@@ -19,6 +19,43 @@ class zAssertFailureInfo {
     }
 }
 
+class zTypeAssertion {
+    __New(real, relation, type) {
+        this.Real := real
+        this.Relation := relation
+        this.Type := type
+    }
+
+    Description {
+        get {
+            static template := zTemplate("{.Relation} {.Type}")
+            return template(this)
+        }
+    }
+
+    TextTitle {
+        get {
+            static template := zTemplate("[!real]🟥 Real[!] [!kw]{.Relation}[!] [!type]{.Type}[!]")
+            return template(this)
+        }
+    }
+
+    TextBody {
+        get {
+            static template := zTemplate("[!real]🟥 real: {.Real} [!]")
+            return template(this)
+        }
+    }
+}
+
+class zComparisonAssertion {
+    __New(real, relation, target) {
+        this.Real := real
+        this.Relation := relation
+        this.Target := target
+    }
+}
+
 class zAssert {
     static _quote(str) {
         Format("'{1}'", str)
@@ -33,7 +70,7 @@ class zAssert {
     }
 
     onSuccessfulAssertion(assert) {
-        
+
     }
 
     _kwTypeAssertion(real, kw, type) {
@@ -46,7 +83,7 @@ class zAssert {
             full: ""
         }
     }
- 
+
     _relationAssertion(real, relation, expected) {
         out := ""
         writer := zWriter(&out)
