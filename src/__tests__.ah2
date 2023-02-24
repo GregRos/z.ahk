@@ -1,17 +1,17 @@
 #SingleInstance Off
 #ErrorStdOut 'UTF-8'
 #Warn All, Off
-#include library/1.init/0.index.ah2
-#include library/2.text/0.index.ah2
-#include library/10.zoops.ah2
-#include library/23.ztest.api.ah2
-#include library/05.zprocess.ah2
-#include library/12.zprint.ah2
+#include lib/1.util/0.index.ah2
+#include lib/2.text/0.index.ah2
+#include lib/3.system/0.index.ah2
+#include lib/4.test/0.index.ah2
+
 zSystemOops()
 
 #include tests\14.zmaybe.ah2
 #include tests\zarr.test.ah2
 #include tests\zstr.test.ah2
+
 class Blah {
     a := 1
 }

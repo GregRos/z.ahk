@@ -1,4 +1,3 @@
-#include 1.init\0.index.ah2
 
 class zz_reporter {
     class ColoringSink extends zz_sink.Sink {

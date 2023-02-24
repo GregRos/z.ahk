@@ -1,5 +1,4 @@
-#include ../library/40.zarr.ah2
-#include ../library/23.ztest.api.ah2
+#include ../lib/40.zarr.ah2
 
 my_empty := []
 my_arr := [1, 2, 3]

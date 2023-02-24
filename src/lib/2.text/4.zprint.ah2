@@ -1,8 +1,5 @@
-#include 09.zset.ah2
-
-
 zz_print(writer, v) {
-    stack := zSet()
+    stack := Map()
     static tmpltProperty := zTemplate("[!key]{1}[!operator]:[!][!] ")
     static tmpltGui := zTemplate("[!type]Gui '{.title}' (0x{.hwnd:x})[!]")
     static tmpltGuiControl := zTemplate("[!type]GuiControl '{.name}' (0x{.hwnd:x})[!]")
@@ -103,7 +100,7 @@ zz_print(writer, v) {
         if zz_arr.hasUnsetItems(v) {
             return this.tryObject(v)
         }
-        stack.Add(v)
+        stack.Set(v, v)
 
         writer.PutLn("[").Indent()
         loop v.Length {
@@ -136,7 +133,7 @@ zz_print(writer, v) {
             return True
         }
 
-        stack.Add(v)
+        stack.Set(v, v)
         if not stack.Count = 1 {
             writer.Indent().PutLn()
         }
@@ -170,7 +167,7 @@ zz_print(writer, v) {
         static headerRow := zTemplate(
             "{.type}: {.message}"
         )
-        stack.Add(v)
+        stack.Set(v, v)
 
         writer.PutLn(headerRow({
             type: Type(v),
@@ -222,7 +219,7 @@ zz_print(writer, v) {
             writer.Put tmpltProto(Type(v))
             return True
         }
-        stack.Add(v)
+        stack.Set(v, v)
         if not stack.Count = 1 {
             writer.Indent()
         }

@@ -1,4 +1,3 @@
-#include 1.init\0.index.ah2
 #include 45.zstr.ah2
 
 ; Takes any number of arguments and joins them up into an array.

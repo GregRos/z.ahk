@@ -1,7 +1,4 @@
-#include ..
-#include 1.init\0.index.ah2
-#include 08.zassert.ah2
-#include 03.zstack.ah2
+
 
 class zz_TestResult2 {
     Test := ""

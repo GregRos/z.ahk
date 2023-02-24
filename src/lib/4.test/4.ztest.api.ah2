@@ -1,5 +1,4 @@
-#include 21.ztest.runner.ah2
-#include 22.ztest.reporter.ah2
+
 
 zz_test_runner := zz_TestRunner()
 
