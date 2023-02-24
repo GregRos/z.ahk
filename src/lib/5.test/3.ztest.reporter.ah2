@@ -88,6 +88,9 @@ class zz_reporter {
         }
 
         getAssertionFull(assertion) {
+            if (assertion is zz_assert.TypeAssertion) {
+                return ""
+            }
             out := ""
             writer := zWriter(&out)
 
@@ -124,9 +127,6 @@ class zz_reporter {
                     _writer.PutLn(this.quoteSourceCode(bottomFrame))
                 } else {
                     _writer.Indent("[!red]▐  [!]")
-                    if r.result.assertion is String {
-                        a := 1
-                    }
                     _writer.PutLn("[!red] :: {1} [!]", this.getAssertionTitle(r.result.assertion))
                     _writer.PutLn(this.getAssertionFull(r.result.assertion))
                     _writer.PutLn(this.quoteSourceCode(r.result.Bottom))

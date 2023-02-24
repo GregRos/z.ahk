@@ -5,23 +5,23 @@ class zExpectBase {
     }
 
     onFailedAssertion(assertion) {
-        this._notMode := False
+
         throw zNotImplementedError("You must implement onFailedAssertion.")
     }
 
     onPassedAssertion(assertion) {
-        this._notMode := False
+        
     }
 
     _getNotMode() {
         old := this._notMode
-        this._notMode := !this._notMode
+        this._notMode := False
         return old
     }
 
     _relation(pass, relation, other) {
         assertion := zz_assert.RelationAssertion(this._getNotMode(), this.REAL, relation, other)
-        if pass !== this._notMode {
+        if pass == assertion.IsInverted {
             this.onFailedAssertion(assertion)
         } else {
             this.onPassedAssertion(assertion)
@@ -31,7 +31,7 @@ class zExpectBase {
 
     _type(pass, type) {
         assertion := zz_assert.TypeAssertion(this._getNotMode(), this.REAL, type)
-        if pass  !== this._notMode {
+        if pass == assertion.IsInverted {
             this.onFailedAssertion(assertion)
         } else {
             this.onPassedAssertion(assertion)
@@ -82,7 +82,7 @@ class zExpectBase {
     }
 
     toBeStringLike() {
-        return this._type(not IsObject(this.REAL), "string-like")
+        return this._type( not IsObject(this.REAL), "string-like")
     }
 
     toContain(value) {

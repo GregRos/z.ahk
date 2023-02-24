@@ -1,8 +1,13 @@
 zz_test_runner := zz_TestRunner()
 
 class zz_TestExpect extends zExpectBase {
-    __New(REAL) {
+    __New(REAL, onSuccessful) {
         super.__New(REAL)
+        this._onSuccessful := onSuccessful
+    }
+
+    onPassedAssertion(assertion) {
+        this._onSuccessful(assertion)
     }
 
     onFailedAssertion(assertion) {
@@ -17,7 +22,9 @@ class zTestSuite {
     }
 
     expect(what) {
-        return zz_TestExpect(what)
+        expect := zz_TestExpect(what, (self, assertion) => this.AssertionCount++)
+        
+        return expect
     }
 
     onTestStart() {
