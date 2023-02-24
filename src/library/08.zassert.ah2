@@ -44,6 +44,7 @@ class zTypeAssertion {
         get {
             static template := zTemplate("[!real]🟥 real: {.Real} [!]")
             return template(this)
+
         }
     }
 }

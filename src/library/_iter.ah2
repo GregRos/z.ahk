@@ -1,4 +1,5 @@
-#include 01.zinit.ah2
+#include .\1.zinit.ah2\
+#include 0.index.ah2
 
 zz_negotiateIterCount(iter, fExample, forceCount := unset) {
     if IsSet(forceCount) {

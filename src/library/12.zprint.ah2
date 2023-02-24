@@ -258,7 +258,7 @@ zz_print(writer, v) {
     writer.Flush()
 }
 
-zPrint(v, options := "") {
+zPrint(v) {
     static renderer := zColor({
         type: "bgBlueBright whiteBright",
         error: "bgRed",
@@ -281,7 +281,6 @@ zPrint(v, options := "") {
         arrow: "b",
         object: "green"
     })
-    options := zz_options_parse(options)
     txt := zz_TextWriter(&result)
     zz_print(txt, v)
     txt.Flush()
