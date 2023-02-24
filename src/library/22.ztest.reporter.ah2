@@ -1,7 +1,4 @@
 #include 1.init\0.index.ah2
-#include 06.zcolor.ah2
-#include 07.ztemplate.ah2
-#include 08.zwriter.ah2
 
 class zz_reporter {
     class ColoringSink extends zz_sink.Sink {

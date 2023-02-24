@@ -1,4 +1,3 @@
-#include 13.zchecks.ah2
 
 zStrJoin(delim, arr) {
     zCheck(delim, "delim").isString()

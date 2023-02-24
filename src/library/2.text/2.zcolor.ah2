@@ -1,6 +1,3 @@
-#include 1.init\0.index.ah2
-
-
 
 
 zColorParse(input) {

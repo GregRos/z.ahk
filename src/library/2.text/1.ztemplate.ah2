@@ -1,4 +1,3 @@
-#include 1.init\0.index.ah2
 
 ; Like `Format`, but creates a template object that can be used to generate lots of different messages.
 class zTemplate {

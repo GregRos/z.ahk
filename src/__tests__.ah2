@@ -1,15 +1,14 @@
 #SingleInstance Off
 #ErrorStdOut 'UTF-8'
 #Warn All, Off
-#include library/07.ztemplate.ah2
+#include library/1.init/0.index.ah2
+#include library/2.text/0.index.ah2
 #include library/10.zoops.ah2
 #include library/23.ztest.api.ah2
 #include library/05.zprocess.ah2
-#include library/06.zcolor.ah2
 #include library/12.zprint.ah2
 zSystemOops()
 
-#include library/13.zchecks.ah2
 #include tests\14.zmaybe.ah2
 #include tests\zarr.test.ah2
 #include tests\zstr.test.ah2

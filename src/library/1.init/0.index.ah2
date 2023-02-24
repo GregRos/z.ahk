@@ -1,4 +1,3 @@
-#include .
 #include 1.zerrors.ah2
 #include 2.zcheck.ah2
 #include 3.zzarr.ah2

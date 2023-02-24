@@ -1,5 +1,4 @@
 #include 1.init\0.index.ah2
-#include 07.ztemplate.ah2
 
 class zAssertFail {
     Name := "???"

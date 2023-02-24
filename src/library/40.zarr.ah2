@@ -1,5 +1,4 @@
 #include 1.init\0.index.ah2
-#include 13.zchecks.ah2
 #include 45.zstr.ah2
 
 ; Takes any number of arguments and joins them up into an array.
@@ -143,9 +142,7 @@ zArrPrepend(self, items*) {
 zArrSlice(self, start := 1, end := 0) {
     zCheck(self, "self").isArray()
     zCheck(start, "start").isInt()
-    zz_checks.isInt("end", end + 1)
-    zCheck(start, "start").isntGreater(start)
-    zCheck(end, "end").isntGreater(end)
+    zCheck(end, "end").isInt()
     return zz_arr.slice(self, start, end)
 
 }
@@ -251,7 +248,7 @@ zArrUniqBy(self, getKey, caseSense := False) {
 
 zArrZip(sources*) {
     for source in sources {
-        zz_checks.isIter("sources" A_Index, source)
+        zCheck(source, "sources" A_Index).isEnumerable()
     }
     iterators := zArrMap(sources, x => x.__Enum())
     cont := True

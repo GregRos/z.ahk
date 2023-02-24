@@ -1,5 +1,4 @@
 #include 1.init\0.index.ah2
-#include 13.zchecks.ah2
 #include 45.zstr.ah2
 
 zMapFromKeys(keys) {
@@ -14,7 +13,7 @@ zMapFromKeys(keys) {
 zMapAssign(target, maps, assignValues) {
     zCheck(target, "target").isInstanceOf(Map)
     for cur in maps {
-        zz_checks.isInstanceOf("maps" A_Index, Map, cur)
+        zCheck(cur, "maps" A_Index).instanceOf(Map)
     }
     if mergeValues == True {
         mergeValues := (old, new) => new
