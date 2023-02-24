@@ -1,27 +1,29 @@
-
-
 zz_test_runner := zz_TestRunner()
 
-class zTestSuite extends zAssert {
+class zz_TestExpect extends zExpectBase {
+    __New(REAL) {
+        super.__New(REAL)
+    }
+
+    onFailedAssertion(assertion) {
+        throw zz_TestAssertionFailed(assertion)
+    }
+}
+
+class zTestSuite {
     AssertionCount := 0
     __New() {
-        stack := zTrace()
-        z := 1
+       
+    }
 
-        super.__New()
+    expect(what) {
+        return zz_TestExpect(what)
     }
 
     onTestStart() {
         this.AssertionCount := 0
     }
 
-    onFailedAssertion(failure) {
-        throw zz_TestAssertionFailed(failure.assertion, failure.data)
-    }
-
-    onSuccessfulAssertion(text) {
-        this.AssertionCount++
-    }
 
     Name {
         get => Type(this)

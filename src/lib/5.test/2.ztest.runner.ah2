@@ -3,22 +3,11 @@ class zInvalidTestError extends Error {
 }
 
 class zz_TestAssertionFailed {
-    ; The assertion that failed.
-    Assertion := ""
 
-    ; Data included with the assertion.
-    Data := ""
-
-    ; Call stack when the assertion failed.
-    Stack := ""
-    __New(assertion, data) {
+    __New(assertion) {
+        trace := zTrace() 
         this.Assertion := assertion
-        this.Data := data
-
-        frames := zTrace().Skip(1)
-        ; This will find the last frame in the class zAssert. All assertions are defined on it,
-        ; so the frame above that is the one with user code.
-        this.Stack := frames.Skip(frames.FindLastIndex(frm => frm.Function.Match("zAssert")))
+        this.Stack := trace.Skip(frames.FindLastIndex(frm => frm.Function.Match("zExpectBase")))
     }
 
     Bottom {

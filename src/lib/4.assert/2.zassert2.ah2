@@ -1,4 +1,4 @@
-class zExpect {
+class zExpectBase {
     _notMode := False
     __New(REAL) {
         this.REAL := REAL
@@ -62,11 +62,11 @@ class zExpect {
     }
 
     toBeTrue() {
-        return this._type(this.REAL == True, "True", other)
+        return this._type(this.REAL == True, "True")
     }
 
     toBeFalse() {
-        return this._type(this.REAL == False, "False", other)
+        return this._type(this.REAL == False, "False")
     }
 
     toBeInstanceOf(ctor) {
@@ -93,6 +93,16 @@ class zExpect {
         return this._type(this.REAL is Array, "an array")
     }
 
+    toThrow() {
+        ex := ""
+        try {
+            this.REAL()
+        } catch Error as e {
+            ex := e
+        }
+        this._type(!!ex, "throwing")
+    }
+
     toBeFunc() {
         return this._type(this.REAL is Func or this.REAL.HasMethod("Call") or this.REAL.HasProp("Call"), "a function")
     }
@@ -106,7 +116,7 @@ class zExpect {
     }
 }
 
-class zExpectArg extends zExpect {
+class zExpectArg extends zExpectBase {
     __New(REAL, name) {
         super.__New(REAL)
         this.Name := name

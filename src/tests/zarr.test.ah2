@@ -13,17 +13,17 @@ makeArrayOfObjects(values*) {
 
 class Array_operations extends zTestSuite {
     zArr() {
-        super.isEqual(zArr(my_arr), my_arr)
-        super.isEqual(zArr(), [])
+        this.expect(zArr(my_arr)).toEqual(my_arr)
+        this.expect(zArr()).toEqual([])
     }
 
     zArrRange() {
-        super.isEqual(zArrRange(0, 3), [0, 1, 2])
-        super.isEqual(zArrRange(0, -2), [0, -1])
-        super.isEqual(zArrRange(0, 5, 2), [0, 2, 4])
-        super.isEqual(zArrRange(0, -2, -2), [0])
-        super.isEqual(zArrRange(0, 0, 10), [])
-        super.throws(() => zArrRange(0, 0, 0))
+        this.expect(zArrRange(0, 3)).toEqual([0, 1, 2])
+        this.expect(zArrRange(0, -2)).toEqual([0, -1])
+        this.expect(zArrRange(0, 5, 2)).toEqual([0, 2, 4])
+        this.expect(zArrRange(0, -2, -2)).toEqual([0])
+        this.expect(zArrRange(0, 0, 10)).toEqual([])
+        this.expect(() => zArrRange(0, 0, 0)).toThrow()
     }
 
     zArrFrom() {
@@ -31,180 +31,171 @@ class Array_operations extends zTestSuite {
     }
 
     zArrRepeat() {
-        super.isEqual(zArrRepeat("a", 3), ["a", "a", "a"])
-        super.isEqual(zArrRepeat("a", 0), [])
-        super.throws(() => zArrRepeat("a", -1))
+        this.expect(zArrRepeat("a", 3)).toEqual(["a", "a", "a"])
+        this.expect(zArrRepeat("a", 0)).toEqual([])
+        this.expect(() => zArrRepeat("a", -1)).toThrow()
     }
 
     zArrFindIndex() {
         arr := [0, 5, 10]
-        super.isEqual(zArrFindIndex(arr, x => x == 5), 2)
-        super.isEqual(zArrFindIndex(arr, x => x == 100), 0)
-        super.throws(() => zArrFindIndex(arr, "a"))
+        this.expect(zArrFindIndex(arr, x => x == 5)).toEqual(2)
+        this.expect(zArrFindIndex(arr, x => x == 100)).toEqual(0)
+        this.expect(() => zArrFindIndex(arr, "a")).toThrow()
         ; With index:
-        super.isEqual(zArrFindIndex(arr, (i, x) => i == 1 and x == 0), 1)
+        this.expect(zArrFindIndex(arr, (i, x) => i == 1 and x == 0)).toEqual(1)
     }
 
     zArrIndexOf() {
         arr := [0, 5, 10]
-        super.isEqual(zArrIndexOf(arr, 5), 2)
-        super.isEqual(zArrIndexOf(arr, 0), 1)
-        super.isEqual(zArrIndexOf(arr, 100), 0)
+        this.expect(zArrIndexOf(arr, 5)).toEqual(2)
+        this.expect(zArrIndexOf(arr, 0)).toEqual(1)
+        this.expect(zArrIndexOf(arr, 100)).toEqual(0)
     }
 
     zArrHas() {
         arr := [0, 5, 10]
-        super.isTrue(zArrHas(arr, 5))
-        super.isFalse(zArrHas(arr, -1))
+        this.expect(zArrHas(arr, 5)).toBeTrue()
+        this.expect(zArrHas(arr, -1)).toBeFalse()
     }
 
     zArrFilter() {
         arr := [0, 5, 10]
-        super.isEqual(zArrFilter(arr, x => x == 5), [5])
-        super.isEqual(zArrFilter(arr, x => x == -1), [])
-        super.isEqual(zArrFilter(arr, x => True), arr)
-        super.isEqual(zArrFilter(arr, (i, x) => Mod(i, 2) == 0 and x == 5), [5])
+        this.expect(zArrFilter(arr, x => x == 5)).toEqual([5])
+        this.expect(zArrFilter(arr, x => x == -1)).toEqual([])
+        this.expect(zArrFilter(arr, x => True)).toEqual(arr)
+        this.expect(zArrFilter(arr, (i, x) => Mod(i, 2) == 0 and x == 5)).toEqual([5])
     }
 
     zArrMap() {
         arr := [0, 5, 10]
-        super.isEqual(zArrMap(arr, x => x + 1), [1, 6, 11])
-        super.isEqual(zArrMap(arr, x => {}), [{}, {}, {}])
-        super.isEqual(zArrMap(arr, (i, x) => x + i), [1, 7, 13])
+        this.expect(zArrMap(arr, x => x + 1)).toEqual([1, 6, 11])
+        this.expect(zArrMap(arr, x => {})).toEqual([{}, {}, {}])
+        this.expect(zArrMap(arr, (i, x) => x + i)).toEqual([1, 7, 13])
     }
 
     zArrFind() {
         arr := [0, 5, 10]
-        super.isEqual(zArrFind(arr, x => x == 5), 5)
-        super.isEqual(zArrFind(arr, (i, x) => x == 5 and i == 2), 5)
-        super.isEqual(zArrFind(arr, x => x == 11), "")
+        this.expect(zArrFind(arr, x => x == 5)).toEqual(5)
+        this.expect(zArrFind(arr, (i, x) => x == 5 and i == 2)).toEqual(5)
+        this.expect(zArrFind(arr, x => x == 11)).toEqual("")
     }
 
     zArrExists() {
         arr := [0, 5, 10]
-        super.isEqual(zArrExists(arr, x => x == 5), True)
-        super.isEqual(zArrExists(arr, x => x == 1111), False)
-        super.isEqual(zArrExistS(arr, (i, x) => i == 2 and x == 5), True)
+        this.expect(zArrExists(arr, x => x == 5)).toEqual(True)
+        this.expect(zArrExists(arr, x => x == 1111)).toEqual(False)
+        this.expect(zArrExistS(arr, (i, x) => i == 2 and x == 5)).toEqual(True)
     }
 
     zArrEvery() {
         arr := [0, 5, 10]
-        super.isEqual(zArrEvery(arr, x => x == 5), False)
-        super.isEqual(zArrEvery(arr, x => x < 11), True)
-        super.isEqual(zArrEvery(arr, (i, x) => i < 4 and x < 11), True)
+        this.expect(zArrEvery(arr, x => x == 5)).toEqual(False)
+        this.expect(zArrEvery(arr, x => x < 11)).toEqual(True)
+        this.expect(zArrEvery(arr, (i, x) => i < 4 and x < 11)).toEqual(True)
     }
 
     zArrFlatMap() {
         arr := [0, 5, 10]
-        super.isEqual(
-            zArrFlatMap(arr, x => [x, x]),
-            [0, 0, 5, 5, 10, 10]
-        )
-        super.isEqual(
-            zArrFlatMap(arr, x => []),
-            []
-        )
-        super.isEqual(
-            zArrFlatMap(arr, (i, x) => [i, x]),
-            [1, 0, 2, 5, 3, 10]
-        )
-        super.throws(() => zArrFlatMap(arr, "a"))
+        this.expect(zArrFlatMap(arr, x => [x, x])).toEqual([0, 0, 5, 5, 10, 10])
+        this.expect(zArrFlatMap(arr, x => [])).toEqual([])
+        this.expect(zArrFlatMap(arr, (i, x) => [i, x])).toEqual([1, 0, 2, 5, 3, 10])
+        this.expect(() => zArrFlatMap(arr, "a")).toThrow()
     }
 
     zArrReverse() {
         arr := [0, 5, 10]
-        super.isEqual(zArrReverse(arr), [10, 5, 0])
-        super.isEqual(zArrReverse([]), [])
+        this.expect(zArrReverse(arr)).toEqual([10, 5, 0])
+        this.expect(zArrReverse([])).toEqual([])
     }
 
     zArrPrepend() {
-        super.isEqual(zArrPrepend([0], 1, 2), [1, 2, 0])
-        super.isEqual(zArrPrepend([0]), [0])
-        super.isEqual(zArrPrepend([], 1), [1])
+        this.expect(zArrPrepend([0], 1, 2)).toEqual([1, 2, 0])
+        this.expect(zArrPrepend([0])).toEqual([0])
+        this.expect(zArrPrepend([], 1)).toEqual([1])
     }
 
     zArrSlice() {
-        super.isEqual(zArrSlice([1, 2], 1, 2), [1])
-        super.isEqual(zArrSlice([1, 2], -1, -1), [2])
-        super.isEqual(zArrSlice([0], 1, 2), [0])
-        super.isEqual(zArrSlice([0, 1], 1, 1), [])
+        this.expect(zArrSlice([1, 2], 1, 2)).toEqual([1])
+        this.expect(zArrSlice([1, 2], -1, -1)).toEqual([2])
+        this.expect(zArrSlice([0], 1, 2)).toEqual([0])
+        this.expect(zArrSlice([0, 1], 1, 1)).toEqual([])
 
-        super.isEqual(zArrSlice([], 100, -1), [])
-        super.isEqual(zArrSlice([0, 1, 2], 5, 7), [])
+        this.expect(zArrSlice([], 100, -1)).toEqual([])
+        this.expect(zArrSlice([0, 1, 2], 5, 7)).toEqual([])
 
     }
 
     zArrReduce() {
-        super.isEqual(zArrReduce([1], () => 1), 1)
-        super.isEqual(zArrReduce([1, 2, 3], (acc, cur) => acc + cur), 6)
-        super.isEqual(zArrReduce([1, 2], (acc, cur, ix) => acc + cur * ix), 5)
-        super.isEqual(zArrReduce([1], (acc, cur) => acc + cur, 1), 2)
-        super.isEqual(zArrReduce([], () => 1, 5), 5)
-        super.throws(() => zArrReduce([], () => 1))
+        this.expect(zArrReduce([1], () => 1)).toEqual(1)
+        this.expect(zArrReduce([1, 2, 3], (acc, cur) => acc + cur)).toEqual(6)
+        this.expect(zArrReduce([1, 2], (acc, cur, ix) => acc + cur * ix)).toEqual(5)
+        this.expect(zArrReduce([1], (acc, cur) => acc + cur, 1)).toEqual(2)
+        this.expect(zArrReduce([], () => 1, 5)).toEqual(5)
+        this.expect(() => zArrReduce([], () => 1)).toThrow()
     }
 
     zArrPull() {
-        super.isEqual(zArrPull([], 5, 1), [])
-        super.isEqual(zArrPull([1], 1), [])
-        super.isEqual(zArrPull([1, 2], 1), [2])
-        super.isEqual(zArrPull([1, 2, 3], 1, 2, 3), [])
+        this.expect(zArrPull([], 5, 1)).toEqual([])
+        this.expect(zArrPull([1], 1)).toEqual([])
+        this.expect(zArrPull([1, 2], 1)).toEqual([2])
+        this.expect(zArrPull([1, 2, 3], 1, 2, 3)).toEqual([])
     }
 
     zArrSort() {
-        super.isEqual(zArrSort([5, 2, 10]), [2, 5, 10])
+        this.expect(zArrSort([5, 2, 10])).toEqual([2, 5, 10])
         arr := [0, 5, -1]
         zArrSort(arr)
-        super.isEqual(arr, [-1, 0, 5])
-        super.isEqual(zArrSort([]), [])
-        super.isEqual(zArrSort([1]), [1])
+        this.expect(arr).toEqual([-1, 0, 5])
+        this.expect(zArrSort([])).toEqual([])
+        this.expect(zArrSort([1])).toEqual([1])
     }
 
     zArrOrder() {
-        super.isEqual(zArrOrder([5, 2, 10]), [2, 5, 10])
+        this.expect(zArrOrder([5, 2, 10])).toEqual([2, 5, 10])
         arr := [0, 5, -1]
         zArrOrder(arr)
-        super.isEqual(arr, [0, 5, -1])
-        super.isEqual(zArrOrder([]), [])
-        super.isEqual(zArrOrder([1]), [1])
+        this.expect(arr).toEqual([0, 5, -1])
+        this.expect(zArrOrder([])).toEqual([])
+        this.expect(zArrOrder([1])).toEqual([1])
     }
 
     zArrOrderBy() {
         arr := makeArrayOfObjects(5, 2, 10)
         orig := arr.Clone()
-        super.isEqual(zArrOrderBy(arr, x => x.a), makeArrayOfObjects(2, 5, 10))
+        this.expect(zArrOrderBy(arr, x => x.a)).toEqual(makeArrayOfObjects(2, 5, 10))
         ; Stability:
-        super.isEqual(zArrOrderBy(arr, x => x.a == 5 ? 1 : 2), makeArrayOfObjects(5, 2, 10))
-        super.isEqual(arr, orig)
+        this.expect(zArrOrderBy(arr, x => x.a == 5 ? 1 : 2)).toEqual(makeArrayOfObjects(5, 2, 10))
+        this.expect(arr).toEqual(orig)
     }
 
     zArrSortBy() {
         arr := makeArrayOfObjects(5, 2, 10)
         orig := arr.Clone()
-        super.isEqual(zArrSortBy(arr, x => x.a), makeArrayOfObjects(2, 5, 10))
+        this.expect(zArrSortBy(arr, x => x.a)).toEqual(makeArrayOfObjects(2, 5, 10))
 
 
     }
 
     zArrUniq() {
         arr := [1, 1, 2, 2]
-        super.isEqual(zArrUniq(arr), [1, 2])
-        super.isEqual(zArrUniq([]), [])
-        super.isEqual(zArrUniq(["a", "A"]), ["a"])
-        super.isEqual(zArrUniq(["a", "A"], True), ["a", "A"])
+        this.expect(zArrUniq(arr)).toEqual([1, 2])
+        this.expect(zArrUniq([])).toEqual([])
+        this.expect(zArrUniq(["a", "A"])).toEqual(["a"])
+        this.expect(zArrUniq(["a", "A"], True)).toEqual(["a", "A"])
     }
 
     zArrUniqBy() {
         arr := makeArrayOfObjects(1, 1, 2, 2)
-        super.isEqual(zArrUniqBy(arr, x => x.a), makeArrayOfObjects(1, 2))
-        super.isEqual(zArrUniqBy(arr, x => 1), makeArrayOfObjects(1))
-        super.isEqual(zArrUniqBy(arr, x => "a"), makeArrayOfObjects(1))
+        this.expect(zArrUniqBy(arr, x => x.a)).toEqual(makeArrayOfObjects(1, 2))
+        this.expect(zArrUniqBy(arr, x => 1)).toEqual(makeArrayOfObjects(1))
+        this.expect(zArrUniqBy(arr, x => "a")).toEqual(makeArrayOfObjects(1))
     }
 
     zArrZip() {
         arr := [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
-        super.isEqual(zArrZip(arr*), [[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-        super.isEqual(zArrZip([], [], []), [])
-        super.isEqual(zArrZip([], [1], [1]), [])
-        super.isEqual(zArrZip([, 2], [1, 1]), [[, 1], [2, 1]])
+        this.expect(zArrZip(arr*)).toEqual([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+        this.expect(zArrZip([], [], [])).toEqual([])
+        this.expect(zArrZip([], [1], [1])).toEqual([])
+        this.expect(zArrZip([, 2], [1, 1])).toEqual([[, 1], [2, 1]])
     }
 }
