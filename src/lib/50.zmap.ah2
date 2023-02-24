@@ -1,7 +1,7 @@
 #include 45.zstr.ah2
 
 zMapFromKeys(keys) {
-    zCheck(keys, "keys").isEnumerable()
+    zExpectArg(keys, "keys").toBeEnum()
     myMap := Map()
     for x in keys {
         myMap.set(x, True)
@@ -10,9 +10,9 @@ zMapFromKeys(keys) {
 }
 
 zMapAssign(target, maps, assignValues) {
-    zCheck(target, "target").isInstanceOf(Map)
+    zExpectArg(target, "target").toBeInstanceOf(Map)
     for cur in maps {
-        zCheck(cur, "maps" A_Index).instanceOf(Map)
+        zExpectArg(cur, "maps" A_Index).instanceOf(Map)
     }
     if mergeValues == True {
         mergeValues := (old, new) => new
@@ -20,7 +20,7 @@ zMapAssign(target, maps, assignValues) {
     if mergeValues == False {
         mergeValues := (old, new) => old
     }
-    zCheck(assignValues, "assignValues").isFunc(assignValues)
+    zExpectArg(assignValues, "assignValues").toBeFunc(assignValues)
     for curMap in maps {
         for k, v in curMap {
             merged := target.Has(k) ? mergeValues(target.Get(k), v) : v

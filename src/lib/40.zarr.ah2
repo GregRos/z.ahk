@@ -3,7 +3,7 @@
 ; Takes any number of arguments and joins them up into an array.
 ; A non-array argument
 zArr(iterable := []) {
-    zCheck(iterable, "iterable").isEnumerable()
+    zExpectArg(iterable, "iterable").toBeEnum()
     arr := []
     for x in iterable {
         arr.Push(x)
@@ -13,7 +13,7 @@ zArr(iterable := []) {
 
 zArrRange(start, end, step := 1) {
     
-    zCheck(step, "step").isNotEqual(0)
+    zExpectArg(step, "step").toNotEqual(0)
     if start > end and step > 0 {
         step := -step
     }
@@ -29,7 +29,7 @@ zArrRange(start, end, step := 1) {
 }
 
 zArrFrom(iterable) {
-    zCheck(iterable, "iterable").isEnumerable()
+    zExpectArg(iterable, "iterable").toBeEnum()
     arr := []
     for x in iterable {
         arr.Push(x)
@@ -52,8 +52,8 @@ zArrFindIndex(self, predicate) {
 
 ; Returns the position of the first occurence of `what` in `self`.
 zArrIndexOf(self, what, caseSensitive := False) {
-    zCheck(self, "self").isEnumerable()
-    zCheck(caseSensitive, "caseSensitive").isBool()
+    zExpectArg(self, "self").toBeEnum()
+    zExpectArg(caseSensitive, "caseSensitive").toBeBool()
     for ix, value in self {
         if (!caseSensitive and what = value) or what == value {
             return ix
@@ -64,22 +64,22 @@ zArrIndexOf(self, what, caseSensitive := False) {
 
 ; Returns if `self` is an array including value `what`.
 zArrHas(self, what) {
-    zCheck(self, "self").isEnumerable()
+    zExpectArg(self, "self").toBeEnum()
     return zArrIndexOf(self, what) > 0
 }
 
 
 ; Returns a new array made of elements from `self` that satisfy `predicate`.
 zArrFilter(self, predicate) {
-    zCheck(self, "self").isEnumerable()
-    zCheck(predicate, "predicate").isFunc()
+    zExpectArg(self, "self").toBeEnum()
+    zExpectArg(predicate, "predicate").toBeFunc()
     return zz_arr.filter(self, predicate)
 }
 
 ; Creates a new array, its elements the result of applying `projection` on elements of `self.`
 zArrMap(self, projection) {
-    zCheck(self, "self").isEnumerable()
-    zCheck(projection, "projection").isFunc()
+    zExpectArg(self, "self").toBeEnum()
+    zExpectArg(projection, "projection").toBeFunc()
     projection := zz_func.wrapIteratee(projection)
     newArr := []
     for index, item in self {
@@ -109,8 +109,8 @@ zArrEvery(self, predicate) {
 
 ; Returns a new array by applying `projection` to each element of `self` and concatenating the resulting arrays.
 zArrFlatMap(self, projection) {
-    zCheck(self, "self").isEnumerable()
-    zCheck(projection, "projection").isFunc()
+    zExpectArg(self, "self").toBeEnum()
+    zExpectArg(projection, "projection").toBeFunc()
     arr := []
     projection := zz_func.wrapIteratee(projection)
     for index, item in self {
@@ -126,30 +126,30 @@ zArrFlatMap(self, projection) {
 
 ; Returns a new array consisting of the elements of `self` in a reversed order.
 zArrReverse(self) {
-    zCheck(self, "self").isArray()
+    zExpectArg(self, "self").toBeArray()
     return zz_arr.reverse(self)
 }
 
 ; Adds an element to the start of `self`.
 zArrPrepend(self, items*) {
-    zCheck(self, "self").isArray()
+    zExpectArg(self, "self").toBeArray()
     self.InsertAt(1, items*)
     return self
 }
 
 ; Returns a subsequence of `self` of values with positions `start` (inclusive) to `end` (exclusive).
 zArrSlice(self, start := 1, end := 0) {
-    zCheck(self, "self").isArray()
-    zCheck(start, "start").isInt()
-    zCheck(end, "end").isInt()
+    zExpectArg(self, "self").toBeArray()
+    zExpectArg(start, "start").toBeIntLike()
+    zExpectArg(end, "end").toBeIntLike()
     return zz_arr.slice(self, start, end)
 
 }
 
 ; Applies an accumulator on `self`, with the initial value `initial`.
 zArrReduce(self, accumulator, initial := unset) {
-    zCheck(self, "self").isEnumerable()
-    zCheck(accumulator, "accumulator").isFunc()
+    zExpectArg(self, "self").toBeEnum()
+    zExpectArg(accumulator, "accumulator").toBeFunc()
     accumulator := zz_func.wrapAccumulator(accumulator)
     current := initial ?? unset
     for index, item in self {
@@ -167,7 +167,7 @@ zArrReduce(self, accumulator, initial := unset) {
 
 ; Removes all appearances of `values` from `self`.
 zArrPull(self, values*) {
-    zCheck(self, "self").isArray()
+    zExpectArg(self, "self").toBeArray()
 
     Loop {
         if A_Index > self.Length {
@@ -184,7 +184,7 @@ zArrPull(self, values*) {
 
 ; Sorts `self` in place using `comparer`, which defaults to `>`.
 zArrSort(self, comparer := zz_defaultComparer) {
-    zCheck(self, "self").isArray()
+    zExpectArg(self, "self").toBeArray()
     work := self.Clone()
     zz_arr.mergeSort(self, work, comparer)
     return self
@@ -192,7 +192,7 @@ zArrSort(self, comparer := zz_defaultComparer) {
 
 ; Returns a copy of this array, its elements sorted using `comparer`.
 zArrOrder(self, comparer := zz_defaultComparer) {
-    zCheck(self, "self").isArray()
+    zExpectArg(self, "self").toBeArray()
     clone := self.Clone()
     work := self.Clone()
     zz_arr.mergeSort(clone, work, comparer)
@@ -201,20 +201,20 @@ zArrOrder(self, comparer := zz_defaultComparer) {
 
 ; Returns a copy of this array, its elements sorted by applying `getKey` to each element and then sorting using `comparer`.
 zArrOrderBy(self, getKey, comparer := zz_defaultComparer) {
-    zCheck(self, "self").isArray()
-    zCheck(getKey, "getKey").isFunc()
+    zExpectArg(self, "self").toBeArray()
+    zExpectArg(getKey, "getKey").toBeFunc()
     return zArrOrder(self, zz_keyComparer(getKey, comparer))
 }
 
 ; Sorts `self` in place according
 zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
-    zCheck(self, "self").isArray()
-    zCheck(getKey, "getKey").isFunc()
+    zExpectArg(self, "self").toBeArray()
+    zExpectArg(getKey, "getKey").toBeFunc()
     return zArrSort(self, zz_keyComparer(getKey, comparer))
 }
 
 zArrUniq(self, caseSense := False) {
-    zCheck(self, "self").isEnumerable()
+    zExpectArg(self, "self").toBeEnum()
     myMap := Map()
     myMap.CaseSense := caseSense
     for x in self {
@@ -228,7 +228,7 @@ zArrUniq(self, caseSense := False) {
 }
 
 zArrUniqBy(self, getKey, caseSense := False) {
-    zCheck(self, "self").isEnumerable()
+    zExpectArg(self, "self").toBeEnum()
     getKey := zz_func.wrapIteratee(getKey)
     myMap := Map()
     myMap.CaseSense := caseSense
@@ -247,7 +247,7 @@ zArrUniqBy(self, getKey, caseSense := False) {
 
 zArrZip(sources*) {
     for source in sources {
-        zCheck(source, "sources" A_Index).isEnumerable()
+        zExpectArg(source, "sources" A_Index).toBeEnum()
     }
     iterators := zArrMap(sources, x => x.__Enum())
     cont := True

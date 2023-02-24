@@ -24,7 +24,7 @@ class zExpect {
         if pass !== this._notMode {
             this.onFailedAssertion(assertion)
         } else {
-            this.onSuccessfulAssertion(assertion)
+            this.onPassedAssertion(assertion)
         }
         return this
     }
@@ -34,7 +34,7 @@ class zExpect {
         if pass  !== this._notMode {
             this.onFailedAssertion(assertion)
         } else {
-            this.onSuccessfulAssertion(assertion)
+            this.onPassedAssertion(assertion)
         }
     }
 
@@ -86,7 +86,7 @@ class zExpect {
     }
 
     toContain(value) {
-        return this._relation(zz_gen.contains(this.REAL, value)m "contain", value)
+        return this._relation(zz_gen.contains(this.REAL, value), "contain", value)
     }
 
     toBeArray() {
@@ -94,7 +94,7 @@ class zExpect {
     }
 
     toBeFunc() {
-        return this._type(this.REAL is Func or this.REAL.HasMethod("Call") or this.REAL.HasProp("Call"))
+        return this._type(this.REAL is Func or this.REAL.HasMethod("Call") or this.REAL.HasProp("Call"), "a function")
     }
 
     toBeBool() {

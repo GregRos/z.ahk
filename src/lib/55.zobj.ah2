@@ -2,8 +2,8 @@
 
 
 zObjProps(self, inherited := False) {
-    zCheck(self, "self").isObjectLike()
-    zCheck(inherited, "inherited").isBool()
+    zExpectArg(self, "self").toBeObjectLike()
+    zExpectArg(inherited, "inherited").toBeBool()
     keys := []
     while (IsObject(self)) {
         for k in ObjOwnProps(self) {
@@ -18,7 +18,7 @@ zObjProps(self, inherited := False) {
 }
 
 zObjGetOwnDescs(self) {
-    zCheck(self, "self").isObjectLike()
+    zExpectArg(self, "self").toBeObjectLike()
     descs := {}
     for k in self.OwnProps() {
         descs[k] := self.GetOwnPropDesc(k)
@@ -27,8 +27,8 @@ zObjGetOwnDescs(self) {
 }
 
 zObjGetDescsDownTo(self, stopPrototype := Object.Prototype) {
-    zCheck(self, "self").isObjectLike()
-    zCheck(stopPrototype, "stopPrototype").isObjectLike()
+    zExpectArg(self, "self").toBeObjectLike()
+    zExpectArg(stopPrototype, "stopPrototype").toBeObjectLike()
     descList := []
     while IsObject(self) and self != stopPrototype {
         curDescs := zObjGetOwnDescs(self)
@@ -39,8 +39,8 @@ zObjGetDescsDownTo(self, stopPrototype := Object.Prototype) {
 
 ; Returns a Map consisting of the object's property descriptors
 zObjGetDescs(self, stopCondition := True) {
-    zCheck(self, "self").isObjectLike()
-    zCheck(inherited, "inherited").isBool()
+    zExpectArg(self, "self").toBeObjectLike()
+    zExpectArg(inherited, "inherited").toBeBool()
     descs := Map()
     while IsObject(self) and self != stopPrototype {
         for k in self.OwnProps() {
@@ -56,7 +56,7 @@ zObjGetDescs(self, stopCondition := True) {
 
 ; Returns a subset of `self` including only keys from `keys`.
 zObjPick(self, keys*) {
-    zCheck(self, "self").isObjectLike()
+    zExpectArg(self, "self").toBeObjectLike()
     result := {}
     for i, k in keys {
 
@@ -68,7 +68,7 @@ zObjPick(self, keys*) {
 
 ; Creates an object with all the keys in `keys`, all having the value `value`.
 zObjFromKeys(keys, value := True) {
-    zCheck(keys, "keys").isInstanceOf(Array)
+    zExpectArg(keys, "keys").toBeInstanceOf(Array)
     result := {}
     for i, k in keys {
         result[k] := value
