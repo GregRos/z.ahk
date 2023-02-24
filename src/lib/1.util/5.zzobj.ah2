@@ -1,4 +1,3 @@
-
 class zz_obj {
     static assign(self, sources*) {
         for i, source in sources {
@@ -62,6 +61,17 @@ class zz_obj {
             }
         }
         return target
+    }
+
+    static toShortStr(self) {
+        if IsObject(self) {
+            if self.HasMethod("ToString") or v.HasProp("ToString") {
+                return self.ToString()
+            }
+            return Type(self)
+        } else {
+            return String(self)
+        }
     }
 
     static equal(a, b, caseMode := False) {

@@ -6,21 +6,10 @@ class zCheck {
         this.Name := Name
     }
 
-    static toErrorString(v) {
-        if IsObject(v) {
-            if v.HasMethod("ToString") or v.HasProp("ToString") {
-                return v.ToString()
-            }
-            return Type(v)
-        } else {
-            return String(v)
-        }
-    }
-
     _raise(templateText, extras*) {
-        value := zCheck.toErrorString(this.Value)
+        value :=  zz_obj.toShortStr(this.Value)
         for i, extra in extras {
-            extras[i] := zCheck.toErrorString(extra)
+            extras[i] := zz_obj.toShortStr(extra)
         }
         throw zBadInputError(Format(templateText, this.Name, value, extras*), this.Value)
     }

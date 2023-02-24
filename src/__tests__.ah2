@@ -4,7 +4,8 @@
 #include lib/1.util/0.index.ah2
 #include lib/2.text/0.index.ah2
 #include lib/3.system/0.index.ah2
-#include lib/4.test/0.index.ah2
+#include lib/4.assert/0.index.ah2
+#include lib/5.test/0.index.ah2
 
 zSystemOops()
 
