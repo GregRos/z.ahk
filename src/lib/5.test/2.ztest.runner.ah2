@@ -2,12 +2,14 @@ class zInvalidTestError extends Error {
 
 }
 
-class zz_TestAssertionFailed {
 
+class zz_TestAssertionFailed {
     __New(assertion) {
-        trace := zTrace() 
+        trace := zTrace()
         this.Assertion := assertion
-        this.Stack := trace.Skip(frames.FindLastIndex(frm => frm.Function.Match("zExpectBase")))
+        this.Stack := trace
+
+        ; this.Stack := trace.Skip(frames.FindLastIndex(frm => frm.Function.Match("zExpectBase")))
     }
 
     Bottom {

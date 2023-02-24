@@ -1,4 +1,3 @@
-
 class zz_reporter {
     class ColoringSink extends zz_sink.Sink {
         __New(inner, renderer) {
@@ -77,6 +76,29 @@ class zz_reporter {
             return zz_str.join(lines, "`n")
         }
 
+        getAssertionTitle(assertion) {
+            static relationTemplate := zTemplate("Expected [!real]🟥 real[!][!operator]{2} to {.relation}[!] [!expected]🟢 expected[!]")
+            static typeTemplate := zTemplate("Expected [!real]🟥 real[!]{2} to be [!type]{.type}[!]")
+            prefix := assertion.isInverted ? " not" : ""
+            if assertion is zz_assert.TypeAssertion {
+                return typeTemplate(assertion, prefix)
+            } else if assertion is zz_assert.RelationAssertion {
+                return relationTemplate(assertion, prefix)
+            }
+        }
+
+        getAssertionFull(assertion) {
+            out := ""
+            writer := zWriter(&out)
+
+            writer.Put("[!real]🟥 real: ")
+            writer.PutLn(zPrint(assertion.real) "[!]")
+            writer.Put("[!expected]🟢 expected: ")
+            writer.Put(zPrint(assertion.value) "[!]")
+            writer.Flush()
+            return out
+        }
+
         finish(results) {
             _writer := this._writer
             static pathFormat := zTemplate("[!grey]➜ [!blue]{.Function.ToString}[!] ([!cyan]{.File.Path}:{.Line}[!][!])")
@@ -105,13 +127,13 @@ class zz_reporter {
                     if r.result.assertion is String {
                         a := 1
                     }
-                    _writer.PutLn("[!red] :: {.result.assertion.title} [!]", r)
-                    _writer.PutLn(r.result.assertion.full)
+                    _writer.PutLn("[!red] :: {1} [!]", this.getAssertionTitle(r.result.assertion))
+                    _writer.PutLn(this.getAssertionFull(r.result.assertion))
                     _writer.PutLn(this.quoteSourceCode(r.result.Bottom))
                 }
                 for i, frame in r.result.Stack.Filter(frm => !frm.Function.Match("zz_Test|zTest|Func\.Call|exec_test")) {
                     _writer.PutLn(pathFormat(frame))
-                    
+
                 }
                 _writer.Unindent().PutLn(" ")
 

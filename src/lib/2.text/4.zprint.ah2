@@ -24,11 +24,11 @@ zz_print(writer, v) {
         if IsObject(v) {
             return False
         }
-        if IsInteger(v) {
+        if v is Integer {
             writer.Put(Format("[!int]{1}[!]", v))
-        } else if IsFloat(v) {
+        } else if v is Float {
             writer.Put Format("[!float]{1}[!]", v)
-        } else {
+        } else  {
             writer.Put Format('[!string]"{1}"[!]', v)
         }
         return True

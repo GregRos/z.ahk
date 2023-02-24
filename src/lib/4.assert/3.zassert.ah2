@@ -29,16 +29,7 @@ class zAssert {
     }
 
     _relationAssertion(real, relation, expected) {
-        out := ""
-        writer := zWriter(&out)
-        title := zTemplate("[!real]🟥 real[!] [!operator]{.relation}[!] [!expected]🟢 expected[!]")({
-            relation: relation
-        })
-        writer.Put("[!real]🟥 real: ")
-        writer.PutLn(zPrint(real) "[!]")
-        writer.Put("[!expected]🟢 expected: ")
-        writer.Put(zPrint(expected) "[!]")
-        writer.Flush()
+
         return {
             title: title,
             full: out
