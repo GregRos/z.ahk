@@ -3,8 +3,8 @@
 
 
 zObjProps(self, inherited := False) {
-    zz_checks.isObjectLike("self", self)
-    zz_checks.isBool("inherited", inherited)
+    zCheck(self, "self").isObjectLike()
+    zCheck(inherited, "inherited").isBool()
     keys := []
     while (IsObject(self)) {
         for k in ObjOwnProps(self) {
@@ -19,7 +19,7 @@ zObjProps(self, inherited := False) {
 }
 
 zObjGetOwnDescs(self) {
-    zz_checks.isObjectLike("self", self)
+    zCheck(self, "self").isObjectLike()
     descs := {}
     for k in self.OwnProps() {
         descs[k] := self.GetOwnPropDesc(k)
@@ -28,8 +28,8 @@ zObjGetOwnDescs(self) {
 }
 
 zObjGetDescsDownTo(self, stopPrototype := Object.Prototype) {
-    zz_checks.isObjectLike("self", self)
-    zz_checks.isObjectLike("stopPrototype", stopPrototype)
+    zCheck(self, "self").isObjectLike()
+    zCheck(stopPrototype, "stopPrototype").isObjectLike()
     descList := []
     while IsObject(self) and self != stopPrototype {
         curDescs := zObjGetOwnDescs(self)
@@ -40,8 +40,8 @@ zObjGetDescsDownTo(self, stopPrototype := Object.Prototype) {
 
 ; Returns a Map consisting of the object's property descriptors
 zObjGetDescs(self, stopCondition := True) {
-    zz_checks.isObjectLike("self", self)
-    zz_checks.isBool("inherited", inherited)
+    zCheck(self, "self").isObjectLike()
+    zCheck(inherited, "inherited").isBool()
     descs := Map()
     while IsObject(self) and self != stopPrototype {
         for k in self.OwnProps() {
@@ -57,7 +57,7 @@ zObjGetDescs(self, stopCondition := True) {
 
 ; Returns a subset of `self` including only keys from `keys`.
 zObjPick(self, keys*) {
-    zz_checks.isObjectLike("self", self)
+    zCheck(self, "self").isObjectLike()
     result := {}
     for i, k in keys {
 
@@ -69,7 +69,7 @@ zObjPick(self, keys*) {
 
 ; Creates an object with all the keys in `keys`, all having the value `value`.
 zObjFromKeys(keys, value := True) {
-    zz_checks.isInstanceOf("keys", Array, keys)
+    zCheck(keys, "keys").isInstanceOf(Array)
     result := {}
     for i, k in keys {
         result[k] := value

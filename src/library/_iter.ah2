@@ -1,4 +1,4 @@
-#include .\1.zinit.ah2\
+#include .\1.init\
 #include 0.index.ah2
 
 zz_negotiateIterCount(iter, fExample, forceCount := unset) {

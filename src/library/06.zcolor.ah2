@@ -1,4 +1,4 @@
-#include 01.zinit.ah2
+#include 1.init\0.index.ah2
 
 
 

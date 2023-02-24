@@ -1,4 +1,4 @@
-#Include 01.zinit.ah2
+#include 1.init\0.index.ah2
 
 class zz_checks {
     static isObjectLike(name, value) {

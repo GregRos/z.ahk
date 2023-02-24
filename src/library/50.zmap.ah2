@@ -1,9 +1,9 @@
-#include 01.zinit.ah2
+#include 1.init\0.index.ah2
 #include 13.zchecks.ah2
 #include 45.zstr.ah2
 
 zMapFromKeys(keys) {
-    zz_checks.isIter("keys", keys)
+    zCheck(keys, "keys").isEnumerable()
     myMap := Map()
     for x in keys {
         myMap.set(x, True)
@@ -12,7 +12,7 @@ zMapFromKeys(keys) {
 }
 
 zMapAssign(target, maps, assignValues) {
-    zz_checks.isInstanceOf("target", Map, target)
+    zCheck(target, "target").isInstanceOf(Map)
     for cur in maps {
         zz_checks.isInstanceOf("maps" A_Index, Map, cur)
     }
@@ -22,7 +22,7 @@ zMapAssign(target, maps, assignValues) {
     if mergeValues == False {
         mergeValues := (old, new) => old
     }
-    zz_checks.isFunc("assignValues", assignValues, 2)
+    zCheck(assignValues, "assignValues").isFunc(assignValues)
     for curMap in maps {
         for k, v in curMap {
             merged := target.Has(k) ? mergeValues(target.Get(k), v) : v

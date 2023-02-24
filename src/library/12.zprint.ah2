@@ -289,10 +289,6 @@ zPrint(v) {
         "\}\s*\]", "}]",
         "\},\s*\{", "}, {",
         "\],\s*\[", "], ["))
-    if options["color"] != 1 {
-        xz := zColorStrip(result)
-        return xz
-    } else {
-        return renderer(result)
-    }
+    return renderer(result)
+
 }

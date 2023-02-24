@@ -1,4 +1,4 @@
-#include 01.zinit.ah2
+#include 1.init\0.index.ah2
 #include 06.zcolor.ah2
 #include 07.ztemplate.ah2
 #include 08.zwriter.ah2
@@ -106,6 +106,9 @@ class zz_reporter {
                     _writer.PutLn(this.quoteSourceCode(bottomFrame))
                 } else {
                     _writer.Indent("[!red]▐  [!]")
+                    if r.result.assertion is String {
+                        a := 1
+                    }
                     _writer.PutLn("[!red] :: {.result.assertion.title} [!]", r)
                     _writer.PutLn(r.result.assertion.full)
                     _writer.PutLn(this.quoteSourceCode(r.result.Bottom))

@@ -3,7 +3,6 @@ class zz_cim {
         static cimv2 := ComObjGet("winmgmts:{impersonationLevel=impersonate}!\\.\root\cimv2")
             query := cimv2.ExecQuery(query)
             newEnum(this, vars) {
-            zz_throw.checkEnumeratorArity(vars, 1)
             enum := query._NewEnum()
             next(out) {
                 for comOut in enum {

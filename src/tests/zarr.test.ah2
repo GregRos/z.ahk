@@ -130,8 +130,8 @@ class Array_operations extends zTestSuite {
         super.isEqual(zArrSlice([0], 1, 2), [0])
         super.isEqual(zArrSlice([0, 1], 1, 1), [])
 
-        super.throws(() => zArrSlice([], 100, -1))
-        super.throws(() => zArrSlice([0, 1, 2], 5, 7))
+        super.isEqual(zArrSlice([], 100, -1), [])
+        super.isEqual(zArrSlice([0, 1, 2], 5, 7), [])
 
     }
 

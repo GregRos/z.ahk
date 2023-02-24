@@ -29,7 +29,6 @@ class zSyntaxError extends zBadInputError {
 class zBadInputError extends zError {
     __New(message, what?, extra?) {
         super.__New(message, what?, extra?)
-
     }
 }
 
@@ -45,6 +44,7 @@ class zInvalidError extends zError {
         super.__New(Format("Illegal internal call: {1}", reason))
     }
 }
+
 
 
 zz_none := {}

@@ -1,4 +1,4 @@
-#include 01.zinit.ah2
+#include 1.init\0.index.ah2
 #include 07.ztemplate.ah2
 
 class zAssertFail {
@@ -170,7 +170,13 @@ class zAssert {
         } catch as e {
             ex := e
         }
-        this._result(!!ex, "function threw", "function didn't throw", {})
+        this._result(!!ex, {
+            title: "function threw",
+            full: ""
+        }, {
+            title: "function didn't throw",
+            full: ""
+        }, {})
     }
 
     isFalsy(real) {
