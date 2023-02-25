@@ -14,9 +14,7 @@ class zTemplate {
 
     class Token {
         __New(name, path := "", format := "") {
-            if not (IsDigit(name) or name == "") {
-                throw zBadInputError(Format("Token name '{1}' isn't numeric or empty.", name))
-            }
+
             this.Name := name == "" ? 1 : name
             this.Path := StrSplit(path, ".")
             this.Format := format
@@ -28,9 +26,8 @@ class zTemplate {
             return Format(this.FormatTK, result)
         }
     }
-    _post := []
-
     __New(template) {
+
         template := zTemplate._encodeBraces(template)
         tokens := StrSplit(template, ["{", "}"])
 
@@ -49,9 +46,6 @@ class zTemplate {
         this._tokens := tokens
     }
 
-    Map(post) {
-        this._post.Push(post)
-    }
 
     _evaluate(allArgs) {
         if not allArgs is Array {
@@ -72,9 +66,7 @@ class zTemplate {
 
         }
         decoded := zTemplate._decodeBraces(text)
-        for step in this._post {
-            decoded := step(decoded)
-        }
+
         return decoded
     }
 

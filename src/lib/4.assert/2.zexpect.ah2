@@ -1,3 +1,4 @@
+
 class zExpectBase {
     _notMode := False
     __New(REAL) {
@@ -5,12 +6,11 @@ class zExpectBase {
     }
 
     onFailedAssertion(assertion) {
-
-        throw zNotImplementedError("You must implement onFailedAssertion.")
+        throw zAssertionFailedError(assertion)
     }
 
     onPassedAssertion(assertion) {
-        
+
     }
 
     _getNotMode() {
@@ -45,6 +45,10 @@ class zExpectBase {
         }
     }
 
+    toBe(other) {
+        return this._relation(this.REAL == other, "be", other)
+    }
+
     toEqual(other) {
         return this._relation(zz_obj.equal(this.REAL, other), "equal", other)
     }
@@ -62,19 +66,19 @@ class zExpectBase {
     }
 
     toBeTrue() {
-        return this._type(this.REAL == True, "True")
+        return this._type(this.REAL == True, "be True")
     }
 
     toBeFalse() {
-        return this._type(this.REAL == False, "False")
+        return this._type(this.REAL == False, "be False")
     }
 
     toBeInstanceOf(ctor) {
-        return this._type(this.REAL is ctor, "be an instance of", zz_obj.toShortStr(ctor))
+        return this._type(this.REAL is ctor, "be instanceof", zz_obj.toShortStr(ctor))
     }
 
     toBeIntLike() {
-        return this._type(IsInteger(this.REAL), "int-like")
+        return this._type(IsInteger(this.REAL), "be int-like")
     }
 
     toBeNumLike() {
@@ -82,7 +86,7 @@ class zExpectBase {
     }
 
     toBeStringLike() {
-        return this._type( not IsObject(this.REAL), "string-like")
+        return this._type( not IsObject(this.REAL), "be string-like")
     }
 
     toContain(value) {
@@ -90,7 +94,7 @@ class zExpectBase {
     }
 
     toBeArray() {
-        return this._type(this.REAL is Array, "an array")
+        return this._type(this.REAL is Array, "be an array")
     }
 
     toThrow() {
@@ -103,18 +107,54 @@ class zExpectBase {
         this._type(!!ex, "throwing")
     }
 
-    toBeFunc() {
-        return this._type(this.REAL is Func or this.REAL.HasMethod("Call") or this.REAL.HasProp("Call"), "a function")
+    toBeCallable() {
+        return this._type(zz_func.isCallable(this.REAL), "be a function")
     }
 
     toBeBool() {
-        return this._type(this.REAL == True or this.REAL == False, "boolean")
+        return this._type(this.REAL == True or this.REAL == False, "be boolean")
     }
 
     toBeEnum() {
-        return this._type(this.REAL.HasMethod("__Enum") or this.REAL.HasProp("__Enum"), "enumerable")
+        return this._type(this.REAL.HasMethod("__Enum") or this.REAL.HasProp("__Enum"), "be enumerable")
+    }
+
+    toHaveMethods(names*) {
+        for name in names {
+            this._type(this.REAL.HasMethod(name), "have method " name)
+        }
+        return this
+    }
+
+    toHaveProps(names*) {
+        for name in names {
+            this._type(this.REAL.HasProp(name), "have prop " name)
+        }
+        return this
+    }
+
+    toHaveNames(names*) {
+        for name in names {
+            this._type(this.REAL.HasProp(name) or this.REAL.HasMethod(name), "to have name " name)
+        }
+        return this
     }
 }
+
+class zAssertionFailedError extends Error {
+    __New(assertion) {
+        super.__New(assertion.ToString(), assertion.REAL)
+        this.Trace := zTrace()
+    }
+}
+
+class zz_Expect extends zExpectBase {
+    onFailedAssertion(assertion) {
+        
+    }
+}
+
+zExpect := zz_Expect
 
 class zExpectArg extends zExpectBase {
     __New(REAL, name) {
@@ -123,14 +163,19 @@ class zExpectArg extends zExpectBase {
     }
 
     onFailedAssertion(assertion) {
+        static relTemplate := zTemplate("Argument '{1.Name}' was expected {2}to {3.Relation} {3.Value}, but was {3.Real}.")
+        static typeTemplate := zTemplate("Argument '{1.Name}' was expected {2}to be {3.Type}, but was {3.Real}")
+        prefix := assertion.IsInverted ? "not " : ""
         if assertion is zz_assert.RelationAssertion {
-            throw zBadInputError("Argument '{.Name}' was expected{.Prefix}to {.Relation} {.Value}, but was {.Real}.", {
-                Name: this.Name,
-                Prefix: assertion.Inverted ? " not " : "",
-                Relation: assertion.Relation,
-                Value: assertion.Value,
-                Real: assertion.Real
-            })
+            throw zBadInputError(relTemplate(
+                this,
+                prefix,
+                assertion))
+        } else if assertion is zz_assert.TypeAssertion {
+            throw zBadInputError(typeTemplate(
+                this,
+                prefix,
+                assertion))
         }
     }
 }

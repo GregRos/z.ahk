@@ -72,14 +72,14 @@ zArrHas(self, what) {
 ; Returns a new array made of elements from `self` that satisfy `predicate`.
 zArrFilter(self, predicate) {
     zExpectArg(self, "self").toBeEnum()
-    zExpectArg(predicate, "predicate").toBeFunc()
+    zExpectArg(predicate, "predicate").toBeCallable()
     return zz_arr.filter(self, predicate)
 }
 
 ; Creates a new array, its elements the result of applying `projection` on elements of `self.`
 zArrMap(self, projection) {
     zExpectArg(self, "self").toBeEnum()
-    zExpectArg(projection, "projection").toBeFunc()
+    zExpectArg(projection, "projection").toBeCallable()
     projection := zz_func.wrapIteratee(projection)
     newArr := []
     for index, item in self {
@@ -110,7 +110,7 @@ zArrEvery(self, predicate) {
 ; Returns a new array by applying `projection` to each element of `self` and concatenating the resulting arrays.
 zArrFlatMap(self, projection) {
     zExpectArg(self, "self").toBeEnum()
-    zExpectArg(projection, "projection").toBeFunc()
+    zExpectArg(projection, "projection").toBeCallable()
     arr := []
     projection := zz_func.wrapIteratee(projection)
     for index, item in self {
@@ -149,7 +149,7 @@ zArrSlice(self, start := 1, end := 0) {
 ; Applies an accumulator on `self`, with the initial value `initial`.
 zArrReduce(self, accumulator, initial := unset) {
     zExpectArg(self, "self").toBeEnum()
-    zExpectArg(accumulator, "accumulator").toBeFunc()
+    zExpectArg(accumulator, "accumulator").toBeCallable()
     accumulator := zz_func.wrapAccumulator(accumulator)
     current := initial ?? unset
     for index, item in self {
@@ -202,14 +202,14 @@ zArrOrder(self, comparer := zz_defaultComparer) {
 ; Returns a copy of this array, its elements sorted by applying `getKey` to each element and then sorting using `comparer`.
 zArrOrderBy(self, getKey, comparer := zz_defaultComparer) {
     zExpectArg(self, "self").toBeArray()
-    zExpectArg(getKey, "getKey").toBeFunc()
+    zExpectArg(getKey, "getKey").toBeCallable()
     return zArrOrder(self, zz_keyComparer(getKey, comparer))
 }
 
 ; Sorts `self` in place according
 zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
     zExpectArg(self, "self").toBeArray()
-    zExpectArg(getKey, "getKey").toBeFunc()
+    zExpectArg(getKey, "getKey").toBeCallable()
     return zArrSort(self, zz_keyComparer(getKey, comparer))
 }
 

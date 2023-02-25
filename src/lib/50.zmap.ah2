@@ -20,7 +20,7 @@ zMapAssign(target, maps, assignValues) {
     if mergeValues == False {
         mergeValues := (old, new) => old
     }
-    zExpectArg(assignValues, "assignValues").toBeFunc(assignValues)
+    zExpectArg(assignValues, "assignValues").toBeCallable(assignValues)
     for curMap in maps {
         for k, v in curMap {
             merged := target.Has(k) ? mergeValues(target.Get(k), v) : v
