@@ -103,6 +103,9 @@ zStrLastIndexOf(self, what, cs := false, pos := 1) {
     zExpectArg(pos, "pos").toBeIntLike()
     cur := 0
     indexes := zStrIndexesOf(self, what, pos)
+    if indexes.Length == 0 {
+        return 0
+    }
     return indexes[indexes.Length]
 }
 
@@ -118,38 +121,12 @@ zStrSlice(self, start := 1, end := unset) {
     return SubStr(self, start, zz_normIndex(end, StrLen(self)) - zz_normIndex(start, StrLen(self)))
 }
 
-
-
-; Splits `self` in two at `pos` and returns the two parts.
-zStrSplitAt(self, pos) {
-    zExpectArg(self, "self").toBeStringLike()
-    zExpectArg(pos, "pos").toBeIntLike()
-    pos := zz_normIndex(pos, StrLen(self))
-    first := zStrSlice(self, pos - 1)
-    last := zStrSlice(self, pos + 1)
-    return [first, last]
-}
-
-zStrLen(self) {
-    return StrLen(self)
-}
-
 ; Returns from an array of numeric char codes.
 zStrOfCodes(wArray) {
     zExpectArg(wArray, "wArray").toBeArray()
     result := ""
     for i, x in wArray {
         result .= chr(x)
-    }
-    return result
-}
-
-; Returns a string from an array of strings.
-zStrOfChars(cArray) {
-    zExpectArg(cArray, "cArray").toBeArray()
-    result := ""
-    for i, x in cArray {
-        result .= x
     }
     return result
 }

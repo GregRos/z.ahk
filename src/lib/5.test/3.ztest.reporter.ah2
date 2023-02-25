@@ -118,22 +118,25 @@ class zz_reporter {
                 }
                 _writer.Put("[!black bold]{1}[!]", this._statusLine(r))
                 anyFails := True
+                
                 if r.isError {
+                    trace := zTrace(r.result)
                     _writer.Indent("[!brightYellow]▐  [!]")
                     _writer.PutLn("[!brightYellow][!b] :: 🗲 {.type}[!][!d] was unhandled[!][!]", {
                         type: Type(r.result)
                     })
                     _writer.PutLn("[!brightYellow][!i]{ .message }`nWhat: {.what}`nExtra: {.Extra}[!][!]", r.result)
 
-                    bottomFrame := r.result.Stack[1]
+                    bottomFrame := trace[1]
                     _writer.PutLn(this.quoteSourceCode(bottomFrame))
                 } else {
+                    trace := r.result.Trace
                     _writer.Indent("[!red]▐  [!]")
                     _writer.PutLn("[!red] :: {1} [!]", this.getAssertionTitle(r.result.assertion))
                     _writer.PutLn(this.getAssertionFull(r.result.assertion))
-                    _writer.PutLn(this.quoteSourceCode(r.result.Trace[1]))
+                    _writer.PutLn(this.quoteSourceCode(trace[1]))
                 }
-                for i, frame in r.result.Trace {
+                for i, frame in trace {
                     _writer.PutLn(pathFormat(frame))
 
                 }

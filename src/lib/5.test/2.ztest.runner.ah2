@@ -9,9 +9,7 @@ class zz_TestResult {
         this.suite := suite
         this.Test := test
         this.result := result
-        if this.isError {
-            this.Result.Stack := zTrace(this.Result)
-        }
+
         
     }
 
