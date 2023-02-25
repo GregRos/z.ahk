@@ -25,9 +25,9 @@ zz_print(writer, v) {
             return False
         }
         if v is Integer {
-            writer.Put(Format("[!int]{1}[!]", v))
+            writer.Put(Format("[!int]{1:d}[!]", v))
         } else if v is Float {
-            writer.Put Format("[!float]{1}[!]", v)
+            writer.Put Format("[!float]{1:f}[!]", v)
         } else  {
             writer.Put Format('[!string]"{1}"[!]', v)
         }
@@ -179,7 +179,7 @@ zz_print(writer, v) {
             if zz_arr.hasAny(key, "message", "stack", "file", "line") {
                 continue
             }
-            if not fst {
+            if fst == "" {
                 writer.PutLn()
             }
             fst := False

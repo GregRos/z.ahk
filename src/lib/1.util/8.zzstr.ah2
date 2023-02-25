@@ -65,7 +65,7 @@ class zz_str {
         for match in matches {
             matchStart := match.Pos
             slice := SubStr(haystack, oldMatchEnd, matchStart - oldMatchEnd)
-            if slice {
+            if slice != "" {
                 results.Push(slice)
             }
             if zz_func.isCallable(matchAction) {

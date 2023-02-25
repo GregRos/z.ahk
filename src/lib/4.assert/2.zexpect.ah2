@@ -1,5 +1,5 @@
 
-class zExpectBase {
+class zExpect {
     _notMode := False
     __New(REAL) {
         this.REAL := REAL
@@ -144,19 +144,12 @@ class zExpectBase {
 class zAssertionFailedError extends Error {
     __New(assertion) {
         super.__New(assertion.ToString(), assertion.REAL)
-        this.Trace := zTrace()
+        this.Assertion := assertion
+        this.Trace := zTrace(this).Filter(frm => not frm.Function.Match("Object.Call|zAssertionFailed|Func.Call|zz_Test|zExpect"))
     }
 }
 
-class zz_Expect extends zExpectBase {
-    onFailedAssertion(assertion) {
-        
-    }
-}
-
-zExpect := zz_Expect
-
-class zExpectArg extends zExpectBase {
+class zExpectArg extends zExpect {
     __New(REAL, name) {
         super.__New(REAL)
         this.Name := name

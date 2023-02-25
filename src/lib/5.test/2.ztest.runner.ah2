@@ -3,20 +3,6 @@ class zInvalidTestError extends Error {
 }
 
 
-class zz_TestAssertionFailed {
-    __New(assertion) {
-        trace := zTrace()
-        this.Assertion := assertion
-        this.Stack := trace
-
-        ; this.Stack := trace.Skip(frames.FindLastIndex(frm => frm.Function.Match("zExpectBase")))
-    }
-
-    Bottom {
-        get => this.Stack[1]
-    }
-
-}
 
 class zz_TestResult {
     __New(suite, test, result) {
@@ -38,11 +24,11 @@ class zz_TestResult {
     }
 
     isFail {
-        get => this.result is zz_TestAssertionFailed
+        get => this.result is zAssertionFailedError
     }
 
     isError {
-        get => this.result is Error
+        get => !this.isFail and this.result is Error
     }
 }
 

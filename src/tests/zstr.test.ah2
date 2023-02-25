@@ -3,42 +3,43 @@
 
 class String_operators extends zTestSuite {
     zStrRepeat() {
-        this.expect(zStrRepeat("x", 3)).toEqual("xxx")
-        this.expect(zStrRepeat("", 3)).toEqual("")
-        this.expect(zStrRepeat("a", 0)).toEqual("")
-        this.expect(zStrRepeat("a", 2, ",")).toEqual("a,a")
+        zExpect(zStrRepeat("x", 3)).toEqual("xxx")
+        zExpect(zStrRepeat("", 3)).toEqual("")
+        zExpect(zStrRepeat("a", 0)).toEqual("")
+        zExpect(zStrRepeat("a", 2, ",")).toEqual("a,a")
     }
 
     zStrPadRight() {
-        this.expect(zStrPadRight("a", 3)).toEqual("a  ")
-        this.expect(zStrPadRight("a", 0)).toEqual("a")
-        this.expect(zStrPadRight("a", 1)).toEqual("a")
-        this.expect(zStrPadRight("a", 3, 0)).toEqual("a00")
+        zExpect(zStrPadRight("a", 3)).toEqual("a  ")
+        zExpect(zStrPadRight("a", 0)).toEqual("a")
+        zExpect(zStrPadRight("a", 1)).toEqual("a")
+        zExpect(zStrPadRight("a", 3, 0)).toEqual("a00")
     }
 
     zStrPadLeft() {
-        this.expect(zStrPadLeft("a", 3)).toEqual("  a")
-        this.expect(zStrPadLeft("a", 0)).toEqual("a")
-        this.expect(zStrPadLeft("a", 1)).toEqual("a")
-        this.expect(zStrPadLeft("a", 3, 0)).toEqual("00a")
+        zExpect(zStrPadLeft("a", 3)).toEqual("  a")
+        zExpect(zStrPadLeft("a", 0)).toEqual("a")
+        zExpect(zStrPadLeft("a", 1)).toEqual("a")
+        zExpect(zStrPadLeft("a", 3, 0)).toEqual("00a")
     }
 
     zStrIndexOf() {
-        this.expect(zStrIndexOf("aaa", "a")).toEqual(1)
-        this.expect(zStrIndexOf("aba", "b")).toEqual(2)
-        this.expect(zStrIndexOf("bbb", "a")).toEqual(0)
-        this.expect(zStrIndexOf("abb", "a", , 2)).toEqual(0)
-        this.expect(zStrIndexOf("aba", "a" , ,3)).toEqual(3)
-        this.expect(zStrIndexOf("aba", "a", , 4)).toEqual(0)
+        zExpect(zStrIndexOf("aaa", "a")).toEqual(1)
+        zExpect(zStrIndexOf("aba", "b")).toEqual(2)
+        zExpect(zStrIndexOf("bbb", "a")).toEqual(0)
+        zExpect(zStrIndexOf("abb", "a", , 2)).toEqual(0)
+        zExpect(zStrIndexOf("aba", "a", , 3)).toEqual(3)
+        zExpect(zStrIndexOf("aba", "a", , 4)).toEqual(0)
+        zExpect(zStrIndexOf("aba", "a")).toEqual(0)
+
         ; ADD NEGATIVE STARTING POS
-        
+
     }
 
     zStrIndexesOf() {
-        this.expect(zStrIndexesOf("aaa", "a")).toEqual([1, 2, 3])
-        this.expect(zStrIndexesOf("aaa", "b")).toEqual([])
-        this.expect(zStrIndexesOf("aba", "a")).toEqual([1, 3])
-        ; ADD NEGATIVE STARTING POS
+        zExpect(zStrIndexesOf("aaa", "a")).toEqual([1, 2, 3])
+        zExpect(zStrIndexesOf("aaa", "b")).toEqual([])
+        zExpect(zStrIndexesOf("aba", "a")).toEqual([1, 3])
     }
 
 }

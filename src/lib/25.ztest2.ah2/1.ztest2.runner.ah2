@@ -17,11 +17,11 @@ class zz_TestResult2 {
     }
 
     isFail {
-        get => this.result is zz_TestAssertionFailed
+        get => this.result is zAssertionFailedError
     }
 
     isError {
-        get => this.result is Error
+        get => !this.isFail and this.result is Error
     }
 
 }

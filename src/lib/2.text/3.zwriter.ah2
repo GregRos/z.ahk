@@ -1,4 +1,11 @@
 
+zz_ansiEscape(code) {
+    return Chr(0x001b) "[" code 
+}
+
+zz_ansiEscape2(code1, code2, trailer) {
+    return zz_ansiEscape(code1 ";" code2 trailer)
+}
 
 zWriterSink(nameOrObject) {
     return zz_sink.GetSink(nameOrObject)
@@ -50,12 +57,12 @@ class zz_TextWriter {
         if args.Length {
             text := zTemplate(text)(args*)
         }
-        if not this._line {
+        if this._line == "" {
             this._line := zz_str.join(this._indents)
         }
         joined := this._line text
         this._line := ""
-        if not joined {
+        if joined == "" {
             return this
         }
         lines := StrSplit(joined, "`n")
@@ -73,7 +80,7 @@ class zz_TextWriter {
             this._sink.PutLn(curLine)
         }
         lastLine := lines[-1]
-        if lastLine {
+        if lastLine != "" {
             this._line .= zz_str.join(this._indents) lastLine
         } else {
             this._line := ""
@@ -93,7 +100,7 @@ class zz_TextWriter {
             text := zTemplate(text)(args*)
         }
         indentForLine := zz_str.join(this._indents, "")
-        if not this._line {
+        if this._line == "" {
             this._line := indentForLine
         }
         line := this._line text

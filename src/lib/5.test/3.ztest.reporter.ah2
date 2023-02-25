@@ -45,12 +45,14 @@ class zz_reporter {
         }
 
         running(event) {
+            this._writer.Put("💫 [!white b]" zz_str.padEnd(event, 20) "[!]").Flush()
+            a := 1
             ; This event is not implemented here
         }
 
         _statusLine(event) {
-            static failStatus := zTemplate("[!lineFail][!fail] FAIL [!][!b] {.test}[!][!]")
-            static okStatus := zTemplate("[!linePass][!pass] PASS [!][!b] {.test}[!][!] [!green d i]{.result} assertions[!]")
+            static failStatus := zTemplate("[!lineFail][!fail] FAIL [!][!]")
+            static okStatus := zTemplate("[!linePass][!pass] PASS [!][!] [!green d i]{.result} assertions[!]")
             if event.isOk {
                 event.test := zz_str.padEnd(event.test, 20)
                 return okStatus(event)
@@ -129,9 +131,9 @@ class zz_reporter {
                     _writer.Indent("[!red]▐  [!]")
                     _writer.PutLn("[!red] :: {1} [!]", this.getAssertionTitle(r.result.assertion))
                     _writer.PutLn(this.getAssertionFull(r.result.assertion))
-                    _writer.PutLn(this.quoteSourceCode(r.result.Bottom))
+                    _writer.PutLn(this.quoteSourceCode(r.result.Trace[1]))
                 }
-                for i, frame in r.result.Stack.Filter(frm => !frm.Function.Match("zz_Test|zTest|Func\.Call|exec_test")) {
+                for i, frame in r.result.Trace {
                     _writer.PutLn(pathFormat(frame))
 
                 }

@@ -1,19 +1,5 @@
 zz_test_runner := zz_TestRunner()
 
-class zz_TestExpect extends zExpectBase {
-    __New(REAL, onSuccessful) {
-        super.__New(REAL)
-        this._onSuccessful := onSuccessful
-    }
-
-    onPassedAssertion(assertion) {
-        this._onSuccessful(assertion)
-    }
-
-    onFailedAssertion(assertion) {
-        throw zz_TestAssertionFailed(assertion)
-    }
-}
 
 class zTestSuite {
     AssertionCount := 0
@@ -62,11 +48,13 @@ class zTestSuite {
 }
 
 zTest(config) {
+    sink := zz_sink.GetSink(config.reporter)
+    sink.PutLn("⚠️ THIS IS NOW A TEST SCRIPT ⚠️")
     config := zz_obj.defaults(config, {
         reporter: "debug"
     })
     config.reporter := zz_reporter.TestReporter(
-        zz_sink.GetSink(config.reporter),
+        sink,
         zColor({
             fail: "bgRed black bold",
             lineFail: "brightRed",

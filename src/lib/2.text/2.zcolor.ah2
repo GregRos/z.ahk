@@ -36,7 +36,7 @@ zColorParse(input) {
     for item in stack {
         if item is zz_color.Run or not IsObject(item) {
             finalRunKids.Push(item)
-        } else if item is zz_color.OpenRunToken {
+        } else if item !== "" is zz_color.OpenRunToken {
             ; An unclosed run means missing [!]
             throw zSyntaxError(
                 Format("not terminated"),
@@ -73,7 +73,7 @@ class zz_color {
         return result
     }
     static lex(input) {
-        return zz_str.split(input, zz_color.tokenRegexp, m => m.1 ? zz_color.OpenRunToken(m.Pos, m.1) : zz_none, , True)
+        return zz_str.split(input, zz_color.tokenRegexp, m => m.1 != "" ? zz_color.OpenRunToken(m.Pos, m.1) : zz_none, , True)
     }
     static unexpectedError(expected, got) {
         return zBadInputError(Format("Expected {0}", expected), )
@@ -197,13 +197,9 @@ class zz_color {
 
     class Ansi16 {
 
-        static _getEscapeSeq(code) {
-            return Chr(0x001b) "[" code "m"
-        }
-
         __New(open, close) {
-            this.Open := zz_color.Ansi16._getEscapeSeq(open)
-            this.Close := zz_color.Ansi16._getEscapeSeq(close)
+            this.Open := zz_ansiEscape(open "m")
+            this.Close := zz_ansiEscape(close "m")
         }
 
         Call(text) {
@@ -261,7 +257,7 @@ class zz_color {
             formatters := []
             for kw in directives {
                 kw := Trim(kw)
-                if not kw {
+                if kw == "" {
                     continue
                 }
                 if not this.Has(kw) {

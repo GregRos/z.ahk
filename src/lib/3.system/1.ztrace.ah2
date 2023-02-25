@@ -150,5 +150,5 @@ zTrace(err := Error()) {
         trace.Push(zz_trace.Frame(err.File, err.Line))
     }
 
-    return zz_trace.Trace(trace).Skip(1)
+    return zz_trace.Trace(trace)
 }
