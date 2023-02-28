@@ -65,7 +65,7 @@ class zz_obj {
 
     static toShortStr(self) {
         if IsObject(self) {
-            if self.HasMethod("ToString") or v.HasProp("ToString") {
+            if self.HasMethod("ToString") or self.HasProp("ToString") {
                 return self.ToString()
             }
             return Type(self)

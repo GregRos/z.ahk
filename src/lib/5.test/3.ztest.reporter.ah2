@@ -79,18 +79,17 @@ class zz_reporter {
         }
 
         getAssertionTitle(assertion) {
-            static relationTemplate := zTemplate("Expected [!real]🟥 real[!][!operator]{2} to {.relation}[!] [!expected]🟢 expected[!]")
-            static typeTemplate := zTemplate("Expected [!real]🟥 real[!]{2} to be [!type]{.type}[!]")
-            prefix := assertion.isInverted ? " not" : ""
-            if assertion is zz_assert.TypeAssertion {
-                return typeTemplate(assertion, prefix)
-            } else if assertion is zz_assert.RelationAssertion {
-                return relationTemplate(assertion, prefix)
+            static relationTemplate := zTemplate("Expected [!real]🟥 real[!][!operator] {.Operator}[!] [!expected]🟢 expected[!]")
+            static typeTemplate := zTemplate("Expected [!real]🟥 real[!][!type]{.Operator}[!]")
+            if assertion is zz_assert.UnaryAssertion {
+                return typeTemplate(assertion)
+            } else if assertion is zz_assert.RelativeAssertion {
+                return relationTemplate(assertion)
             }
         }
 
         getAssertionFull(assertion) {
-            if (assertion is zz_assert.TypeAssertion) {
+            if (assertion is zz_assert.UnaryAssertion) {
                 return ""
             }
             out := ""

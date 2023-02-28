@@ -5,14 +5,20 @@ class zz_assert {
             this.Real := real
             this.IsInverted := isInverted
         }
-        
+
     }
 
-    class TypeAssertion extends zz_assert.Assertion {
-        kind := "type"
-        __New(isInverted, real, type) {
+    class UnaryAssertion extends zz_assert.Assertion {
+        kind := "unary"
+        __New(isInverted, real, operator) {
             super.__New(isInverted, real)
-            this.Type := type
+            this.Operator := Format("{1}to {2}", this.IsInverted ? " not" : "", operator)
+        }
+
+        Text {
+            get {
+                return this.Operator
+            }
         }
 
         ToString() {
@@ -24,20 +30,23 @@ class zz_assert {
         }
     }
 
-    class RelationAssertion extends zz_assert.Assertion {
-        kind := "relation"
-        __New(isInverted, real, relation, value) {
+    class RelativeAssertion extends zz_assert.Assertion {
+        kind := "relative"
+        __New(isInverted, real, operator, value) {
             super.__New(isInverted, real)
-            this.Relation := relation
+            this.Operator := operator
             this.Value := value
         }
 
+        Text {
+            get {
+                return Format("{1}to {2}", this.IsInverted ? " not" : "", this.Operator)
+            }
+        }
+
         ToString() {
-            static relTemplate := zTemplate("Expected REAL {1}to {2.Relation} {2.Value}, but was {2.Real}.")
-            return relTemplate(
-                this.IsInverted ? "not " : "",
-                this
-            )
+            return Format("Expected REAL {1}, but it was {2}", this.Text, zz_obj.toShortStr(this.REAL))
         }
     }
+
 }

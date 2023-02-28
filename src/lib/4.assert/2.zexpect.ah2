@@ -1,4 +1,3 @@
-
 class zExpect {
     _notMode := False
     __New(REAL) {
@@ -20,7 +19,7 @@ class zExpect {
     }
 
     _relation(pass, relation, other) {
-        assertion := zz_assert.RelationAssertion(this._getNotMode(), this.REAL, relation, other)
+        assertion := zz_assert.RelativeAssertion(this._getNotMode(), this.REAL, relation, other)
         if pass == assertion.IsInverted {
             this.onFailedAssertion(assertion)
         } else {
@@ -30,7 +29,7 @@ class zExpect {
     }
 
     _type(pass, type) {
-        assertion := zz_assert.TypeAssertion(this._getNotMode(), this.REAL, type)
+        assertion := zz_assert.UnaryAssertion(this._getNotMode(), this.REAL, type)
         if pass == assertion.IsInverted {
             this.onFailedAssertion(assertion)
         } else {
@@ -46,7 +45,11 @@ class zExpect {
     }
 
     toBe(other) {
-        return this._relation(this.REAL == other, "be", other)
+        return this._type(this.REAL == other, "an object")
+    }
+
+    toBeObj() {
+        return this._relation(IsObject(this.REAL), "")
     }
 
     toEqual(other) {
@@ -93,8 +96,14 @@ class zExpect {
         return this._relation(zz_gen.contains(this.REAL, value), "contain", value)
     }
 
-    toBeArray() {
-        return this._type(this.REAL is Array, "be an array")
+    toBeArray(predicate?) {
+        this._type(this.REAL is Array, "be an array")
+        if IsSet(predicate) {
+            for item in this.REAL {
+                this._type(predicate(item), "match predicate")
+            }
+        }
+
     }
 
     toThrow() {
@@ -149,6 +158,10 @@ class zAssertionFailedError extends Error {
     }
 }
 
+zz_expectArrayItem(real, name, n) {
+    return zExpectArg(real, Format("{1}[{2}]", name, n))
+}
+
 class zExpectArg extends zExpect {
     __New(REAL, name) {
         super.__New(REAL)
@@ -156,15 +169,15 @@ class zExpectArg extends zExpect {
     }
 
     onFailedAssertion(assertion) {
-        static relTemplate := zTemplate("Argument '{1.Name}' was expected {2}to {3.Relation} {3.Value}, but was {3.Real}.")
-        static typeTemplate := zTemplate("Argument '{1.Name}' was expected {2}to be {3.Type}, but was {3.Real}")
+        static relTemplate := zTemplate("Argument {1.Name} was expected {2}to {3.Relation} {3.Value}, but was {3.Real}.")
+        static typeTemplate := zTemplate("Argument {1.Name} was expected {2}to be {3.Type}, but was {3.Real}")
         prefix := assertion.IsInverted ? "not " : ""
-        if assertion is zz_assert.RelationAssertion {
+        if assertion is zz_assert.RelativeAssertion {
             throw zBadInputError(relTemplate(
                 this,
                 prefix,
                 assertion))
-        } else if assertion is zz_assert.TypeAssertion {
+        } else if assertion is zz_assert.UnaryAssertion {
             throw zBadInputError(typeTemplate(
                 this,
                 prefix,
