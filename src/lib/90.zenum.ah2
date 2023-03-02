@@ -1,116 +1,73 @@
 #Include 4.assert\0.index.ah2
 
 /**
- * Returns true if there is a value in `self` matching `predicate`. If so, the key will be assigned to `gotK` and the 
- * value to `gotV`. If there is no key, `A_Index` will be used.
- * @param self `Enum2` or `Enum1` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param predicate `value => bool` or `(key, value) => bool` A predicate used to search for the value.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with 2 params. The key will be `A_Index`.
+ * Searches an array, map, or similar for a key-value pair that fulfills a predicate, returning "" if none is found.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** search predicate.
+ * @returns {`{Key, Value}` or `""`} The key-value pair being searched for, or `""` if not found.
  * @example
- * zEnumFind( ["a", "bb", "ccc"], x => StrLen(x) == 3) ; theKey == "ccc"
- * zEnumFind(Map("a", 1, "b", 2), (k, v) => v == 2) ; "b"
- */
-zEnumFind(self, predicate, &gotK?, &gotV?) {
-    return zz_gen.findKey(self, predicate)
-}
-
-/**
- * Returns the key of the first appearance of `what` in `self`, or `unset` otherwise. If `self` takes only one
- * parameter, the `key` will be `A_Index`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param what `?` A value
- * @param caseSense `bool` Whether the search is case-sensitive.
- * @example
- * zEnumKeyOf(["a", "b"], "b") ; 2
- * 
- * zEnumKeyOf(Map("a", 1, "b", 2), 2) ; "b"
- */
-zEnumKeyOf(self, what, found, caseSense := False) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(caseSense, "caseSensitive").toBeBool()
-    for ix, value in zz_gen.withIndexing(what) {
-        if (!caseSense and what = value) or what == value {
-            return key
-        }
-    }
-    return unset
-}
-
-/**
- * Returns True if `what` appears as a value in `self`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two parameters.
- * @param what `?` A value.
- * @param caseSense `bool` Whether the search is case-sensitive.
- * @example
- * if zEnumHas([1, 2, 3], 3) {
- *     OutputDebug("The value was found!")
+ * ; Find a string that has length 3:
+ * zEnumFind( ["a", "bb", "ccc"], x => StrLen(x) == 3) ; {Key: 3, Value: "ccc"}
+ * ; Find the first kvp that has the value 2:
+ * zEnumFind(Map("a", 1, "b", 2), (k, v) => v == 2) ; {Key: "b", Value: 2}
+ * ; Try to find 5 in an array that doesn't have it:
+ * zEnumFind([1, 2, 3], x => x = 5) ; ""
+ * ; Use an `if` with an assignment:
+ * if kvp := zEnumFind(arr, x => x.IsTrue) {
+ *  zOut("Key: {.Key}, Value: {.Value}", kvp)
  * }
- */
-zEnumHas(self, what, caseSense := False) {
-    x := zEnumKeyOf(self, what, caseSense) ?? unset
-    return IsSet(x)
-}
-
-/**
- * Returns the first value matching `predicate` in `self`, and `unset` otherwise.
- * @param self `Enum1` or `Enum2` An enumerable with one or two parameters. If `Enum2`, the first param is taken to be a key.
- * @param predicate `val => ?` or `(key, val) => ?` A predicate used to search for a matching value.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with 2 params. The key will be `A_Index`.
- * @example
- * zEnumFind(["hello", "world"], (k, v) => InStr(v, "w")) ; "world"
+ * ; Or, if you're brave, skip the `if`:
+ * key := zEnumFind([1, 2, 3], x => Mod(x, 2) == 0).Key
  */
 zEnumFind(self, predicate) {
     zExpectArg(self, "self").toBeEnum(1, 2)
-    zExpectArg(predicate, "predicate").toBeCallable(0, 2)
-    predicate := zz_func.wrapIteratee(predicate)
-    for key, value in zz_gen.withIndexing(self) {
-        if predicate(key, value) {
-            return value
-        }
-    }
-    return unset
+    zExpectArg(predicate, "predicate").toBeCallable(1, 2)
+    return zz_arr.find(self, predicate)
 }
 
 /**
- * Returns True if there exists a value matching `predicate` in `self`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two parameters. If `Enum2`, the first param is taken to be a key.
- * @param predicate `val => ?` or `(key, val) => ?` A predicate used to search for a matching value.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with 2 params. The key will be `A_Index`.
+ * Seaches an array, map, or similar for the key-value pair for a given value, or `""` if none is found.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`?`} value A value to look for.
+ * @param {`bool`} caseSense Whether the search is case-sensitive (False).
+ * @returns {`{Key, Value}` or `""`} The key-value pair being searched for, or `""` if not found.
  * @example
- * if zEnumExists([1, 2, 3], x => Mod(x, 2) == 0) {
- *     OutputDebug("Found even number!")
- * }
+ * ; Find the index of the value "c":
+ * zEnumKvpOf(["a", "b", "c"], "c").Key ; 3
+ * ; Check if an array doesn't have "c":
+ * not EnumKvpOf(["a", "b"], "c") ; True
  */
-zEnumExists(self, predicate) {
-    key := zEnumFindKey(self, predicate) ?? unset
-    return IsSet(key)
+zEnumKvpOf(self, value, caseSense := False) {
+    return zEnumFind(self, x => caseSense ? x == value : x = value)
 }
 
 /**
- * Returns True if every value in `self` matches `predicate`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two parameters. If `Enum2`, the first param is taken to be a key.
- * @param predicate `val => ?` or `(key, val) => ?` The predicate.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with 2 params. The key will be `A_Index`.
+ * Checks if every item in an array, map, or similar matches `predicate`.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** predicate.
  * @example
- * if zEnumEvery([1, 2, 3], x => x is Integer) {
- *     OutputDebug("They were all integers!")
- * }
+ * ; Check if every number in an array is less than 5:
+ * zEnumEvery([1, 2, 3, 4], x => x < 5) ; True
+ * ; Check if every number in an array is even:
+ * zEnumEvery([1, 2, 3], x => Mod(x, 2) == 0) ; False
  */
 zEnumEvery(self, predicate) {
     predicate := zz_func.wrapIteratee(predicate)
-    return not zEnumExists(self, (k, v) => not predicate(k, v))
+    return not zEnumFind(self, (k, v) => not predicate(k, v))
 }
 
 /**
- * Applies the reduce operation, from left to right, on `self` starting with initial value
- * `initial`. This is a general form of aggregating a list, such as by summing, multiplying, or concatenating.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param accumulator `(acc, cur) => ?` or `(key, acc, cur) => ?` The accumulator function that generates the next value.
- * @param initial `?` Used as the initial value. If missing, the first value in `self` is used. If there is none, `UnsetError` is thrown.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with a key param. The key will be `A_Index`.
+ * Applies the reduce operation, from left to right, on an array, map, or similar, starting from a given initial value.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`acc(total, current) => ?` or `acc(key, total, current) => ?`} accumulator An **iteratee** accumulator.
+ * @param {`?`} initial The initial value. If missing, the first value of `self` is used.
+ * @throws {`UnsetError`} If initial is not given and `self` is empty.
  * @example
+ * ; Sum numbers in an array:
  * sum := zEnumReduce([1, 2, 3], (acc, cur) => acc + cur, 0) ; 6
- * product := zEnumReduce([1, 2, 3], (acc, cur) => acc * cur, 1) ; 6
+ * ; Multiply numbers in an array:
+ * product := zEnumReduce([2, 2, 2], (acc, cur) => acc * cur, 1) ; 8
+ * ; Concat strings in an array:
  * concat := zEnumReduce(["hello", " ", "world"], (acc, cur) => acc cur, "") ; "hello world"
  * @see https://docs.python.org/3/library/functools.html#functools.reduce
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
@@ -134,20 +91,61 @@ zEnumReduce(self, accumulator, initial := unset) {
 }
 
 /**
- * Sums the values of `self`, which are assumed to be numeric.
- * @param self An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
+ * Sums the values of an array, map, or similar.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence, assumed to be numeric.
  * @example
+ * ; Sum an array of numbers:
  * zEnumSum([2, 4, 8]) ; 14
+ * ; Sum an empty array:
  * zEnumSum([]) ; 0
  */
 zEnumSum(self) {
     return zEnumReduce(self, (key, acc, cur) => acc + cur, 0)
 }
+
+
 /**
- * Tries to determine the number of items in `self`. May enumerate `self`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two parameters
+ * Multiplies the values of an array, map, or similar.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence, assumed to be numeric.
+ * @example
+ * ; Multiply an array of numbers:
+ * zEnumProd([1, 2, 3]) ; 6
+ * ; Multiply an empty array:
+ * zEnumProd([]) ; 1
  */
-zEnumCount(self) {
+zEnumProd(self) {
+    return zEnumReduce(self, (key, acc, cur) => acc * cur, 1)
+}
+
+
+/**
+ * Computes the average of an array, map, or similar.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence, assumed to be numeric.
+ * @example
+ * ; Average of an array of numbers:
+ * zEnumAvg([1, 2, 3]) ; 2
+ * ; Average of an empty array:
+ * zEnumAvg([]) ; 0
+ */
+zEnumAvg(self) {
+    len := 0
+    total := zEnumReduce(self, (tot, cur) => len++, cur + tot)
+    if len == 0 {
+        return 0
+    }
+    return total / len
+}
+
+/**
+ * Tries to determine the *length* of an array, map, or similar. May enumerate it.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence. It may be enumerated.
+ * 
+ * @example
+ * zEnumLength([1, 2, 3]) ; 3
+ * zEnumLength(Map()) ; 0
+ * zEnumLength("hello") ; 5
+ */
+zEnumLength(self) {
     if self is String {
         return StrLen(self)
     }
@@ -173,45 +171,28 @@ zEnumCount(self) {
     return last
 }
 
-/**
- * Multiplies the values of `self`, which are assumed to be numeric.
- * @param self An enumerable with one or two params. If `Enum2`, the first param is a key.
- * @example
- * zEnumProd([1, 2, 3]) ; 6
- * zEnumProd([]) ; 1
- */
-zEnumProd(self) {
-    return zEnumReduce(self, (key, acc, cur) => acc * cur, 1)
-}
 
 /**
- * Computes the average or mean of `self`, which is assumed to be numeric.
- * @param self An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
+ * Groups the values in a map, array, or similar into arrays based on a generated key (as computed by a function), returning a new `Map` that links each key to a
+ * matching array.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`getKey(val) => ?` or `getKey(key, val) => ?`} getKey A key-generating **iteratee**.
+ * @param {`bool`} caseSense Whether the search is case-sensitive.
+ * 
  * @example
- * zEnumAvg([1, 2, 3]) ; 2
+ * ; Groups an array of full names by last name:
+ * everyone := ["Bill Gates", "Melinda Gates", "Bill Nye"]
+ * zEnumGroupBy(everyone, person => StrSplit(person, " ")[2]) ; Map(
+ * ; "Gates", ["Bill Gates", "Melinda Gates"],
+ * ; "Nye", ["Bill Nye"]
+ * ; )
  */
-zEnumAvg(self) {
-    return zEnumSum(self) / zEnumCount(self)
-}
-
-/**
- * Applies `getKey` on each value in `self`, groups the values with the same result into an array, and returns everything in a `Map`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param getKey `val => ?` or `(key, val) => ?` Used to determine the key for each value.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with a key param. The key will be `A_Index`.
- * Note that in any case, the key for the grouping comes from `getKey`.
- * @example
- * names := [{name: "Tony", data: 1}, {name: "Tony", data: 2}, {name: "Lyra", data: 0}]
- * gradesByName := zEnumGroupBy(names, x => x.name)
- * for key, datas in namesGroupedByFirstName {
- *     OutputDebug("The name " key " appears " datas.Length " times.")
- * }
- */
-zEnumGroupBy(self, getKey) {
+zEnumGroupBy(self, getKey, caseSense := False) {
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(getKey, "getKey").toBeCallable(1)
     getKey := zz_func.wrapIteratee(getKey)
     outMap := Map()
+    outMap.CaseSense := caseSense
     outMap.Default := []
     for key, val in zz_gen.withIndexing(self) {
         outMap[getKey(key, val)].Push(val)
@@ -220,47 +201,55 @@ zEnumGroupBy(self, getKey) {
 }
 
 /**
- * Returns an array consisting of values of `self` that match `predicate`.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param predicate `val => bool` or `(key, val) => bool` Called on each value or key-value to decide if it goes in the array.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with a key param. The key will be `A_Index`.
+ * Filters an array, map, or similar using a predicate and returns the results in an array.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`predicate(val) => bool` or `predicate(key, val) => bool`} predicate  An **iteratee** predicate. Determines which values to include.
  * @example
+ * ; Filters an array for even values:
  * zEnumFilter([1, 2, 3, 4, 5], x => Mod(x, 2) == 0) ; [2, 4]
+ * 
+ * ; Filters an array for strings of length 2:
  * zEnumFilter(["a", "b", "cc"], x => StrLen(x) == 2) ; ["cc"]
  */
 zEnumFilter(self, predicate) {
     zExpectArg(self, "self").toBeEnum(1, 2)
-    zExpectArg(predicate, "predicate").toBeCallable()
+    zExpectArg(predicate, "predicate").toBeCallable(1, 2)
     return zz_arr.filter(self, predicate)
 }
 
 /**
- * Applies `projection` on each value in `self`, returning the results in an array.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param projection `val => ?` or `(key, val) => ?` Applied on each value.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with a key param. The key will be `A_Index`.
+ * Applies a function on each value of an array, map, or similar, collecting the results in an array.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`project(val) => ?` or `project(key, val) => ?`} projection A function to apply on each key-value pair.
  * @example
+ * ; Multiplies every item in an array by 2:
  * zEnumMap([1, 2, 3], x => x * 2) ; [2, 4, 6]
+ * 
+ * ; Turns an array of strings into an array of their lengths:
  * zEnumMap(["a", "b", "c"], x => StrLen(x)) ; [1, 1, 1]
  */
 zEnumMap(self, projection) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(projection, "projection").toBeCallable()
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    zExpectArg(projection, "projection").toBeCallable(1, 2)
     projection := zz_func.wrapIteratee(projection)
     newArr := []
-    for index, item in self {
+    for index, item in zz_gen.withIndexing(self) {
         newArr.Push(projection(index, item))
     }
     return newArr
 }
 
 /**
- * Applies `projection` on each value in `self`, returning the results in an array. Any array results are merged together.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
- * @param projection `val => ?` or `(key, val) => ?` Applied on each value, and array returns are merged into the result.
- * @remarks If you pass in an `Enum1`, you can still pass in a predicate with a key param. The key will be `A_Index`.
+ * Applies a projection on each value of an array, map, or similar and collects the results in an array. Any
+ * arrays returned by the projection are flattened or merged into the results and not added as elements.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`project(val) => ?` or `project(key, val) => ?`} projection The function to apply on each value.
+ * @remarks Note that only arrays are flattened. Other collections or sequences are not flattened.
  * @example
- * zEnumFlatMap([2, 2], n => zArrRepeat(n, n)) ; [2, 2, 2, 2]
+ * ; Repeats each element in an array twice:
+ * zEnumFlatMap([2, 3, 4], n => [n, n]) ; [2, 2, 3, 3, 4, 4]
+ * ; Takes an array of pokemon and returns an array of all their moves:
+ * zEnumFlatMap([Pikachu, Bulbasaur, Eevee], x => x.moves) ; ["Electro Ball", "Thunderbolt", "Giga Drain", "Tackle"]
  */
 zEnumFlatMap(self, projection) {
     zExpectArg(self, "self").toBeEnum(1, 2)
@@ -279,15 +268,45 @@ zEnumFlatMap(self, projection) {
 }
 
 /**
- * Returns an array of the values of `self` in reverse order.
- * @param self `Enum1` or `Enum2` An enumerable with one or two params. If `Enum2`, the first param is taken to be a key.
+ * Takes an array, map, or similar and returns an array of its values in the reverse order.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @remarks This operation may not make sense on `Map` collections.
  * @example
+ * ; Reverses an array of numbers:
  * zEnumReverse([1, 2, 3]) ; [3, 2, 1]
+ * ; Reverses an empty array:
  * zEnumReverse([]) ; []
  */
 zEnumReverse(self) {
     zExpectArg(self, "self").toBeArray()
     return zz_arr.reverse(self)
+}
+
+/**
+ * Takes an array, map, or similar and returns an array consisting of values with distinct keys, 
+ * as determined by a key generating function.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`getKey(val) => ?` or `getKey(key, val) => ?`} getKey A key-generating **iteratee**.
+ * @param {`bool`} caseSense Whether uniqueness is case-sensitive.
+ * @example
+ * ; Distinct last names:
+ * zEnumUniqBy(["Bill Gates", "Steve Jobs", "Melinda Gates"], x => StrSplit(x, " ")[2]) ; ["Bill Gates", "Steve Jobs"]
+ */
+zEnumUniqBy(self, getKey, caseSense := False) {
+    return zEnumMap(zEnumGroupBy(self, getKey, caseSense), (k, vs) => vs[1])
+}
+/**
+ * Takes an array, map, or similar and returns an array consisting of only distinct values.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`bool`} caseSense Whether uniqueness is case-sensitive.
+ * @example
+ * ; Remove duplicate numbers:
+ * zEnumUniq([1, 2, 2, 3, 3, 1, 3]) ; [1, 2, 3]
+ * ; Split a sentence into words, remove duplicates:
+ * zEnumUniq(StrSplit("I wanna wanna sweetie", " ")) ; ["I", "wanna", "sweetie"]
+ */
+zEnumUniq(self, caseSense := False) {
+    return zEnumUniqBy(self, x => x, caseSense)
 }
 
 /**

@@ -5,11 +5,11 @@ class zChain {
     }
 
     Call(target) {
-        cur := obj
+        cur := target
         for segment in this._segments {
             prev := cur
             cur := cur.%segment%
-            if this._implicitCall and zz_func.isCallable(cur, 1){
+            if zz_func.isCallable(cur, 1){
                 cur := cur.Call(prev)
             }
         }

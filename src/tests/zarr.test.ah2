@@ -133,8 +133,8 @@ class Array_operations extends zTestSuite {
     }
 
     zArrReduce() {
-        zExpect(zArrReduce([1], () => 1)).toEqual(1)
-        zExpect(zArrReduce([1, 2, 3], (acc, cur) => acc + cur)).toEqual(6)
+        zExpect(zEnumReduce([1], () => 1)).toEqual(1)
+        zExpect(zEnumReduce([1, 2, 3], (acc, cur) => acc + cur)).toEqual(6)
         zExpect(zArrReduce([1, 2], (acc, cur, ix) => acc + cur * ix)).toEqual(5)
         zExpect(zArrReduce([1], (acc, cur) => acc + cur, 1)).toEqual(2)
         zExpect(zArrReduce([], () => 1, 5)).toEqual(5)

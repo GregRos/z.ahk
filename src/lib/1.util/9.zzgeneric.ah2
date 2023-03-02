@@ -31,10 +31,6 @@ class zz_gen {
         throw zBadInputError("Cannot get length of this object.", vector)
     }
 
-    static justValues(source) {
-
-    }
-
     static withIndexing(source) {
         pos := 0
         if zz_obj.isEnum(source, 2) {
@@ -45,43 +41,6 @@ class zz_gen {
         }
 
     }
-    static find(self, predicate, &key?, &value?) {
-        predicate := zz_func.wrapIteratee(predicate)
-        for i, x in zz_gen.withIndexing(self) {
-            if predicate(i, x) {
-                if IsSet(key) {
-                    key := i
-                }
-                if IsSet(value) {
-                    value := x
-                }
-                return True
-            }
-        }
-        return unset
-    }
-
-    static findKey(self, predicate) {
-        predicate := zz_func.wrapIteratee(predicate)
-        for i, x in zz_gen.withIndexing(self) {
-            if predicate(i, x) {
-                return i
-            }
-        }
-        return unset
-    }
-
-    static findLastKey(self, predicate) {
-        predicate := zz_func.wrapIteratee(predicate)
-        found := 0
-        for i, x in zz_gen.withIndexing(self) {
-            if predicate(i, x) {
-                found := i
-            }
-        }
-        return found
-    }
-
 
     static hasAny(arr, options*) {
         return zz_gen.has(options, arr, False)

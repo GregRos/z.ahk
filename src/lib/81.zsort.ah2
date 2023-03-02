@@ -1,6 +1,6 @@
 #include 1.util\0.index.ah2
 #include 4.assert\0.index.ah2
-class zSorter {
+class zOrdering {
     __New(how := "") {
         this._how := how
     }
@@ -8,7 +8,7 @@ class zSorter {
     Desc {
         get {
             how := this._how
-            return zSorter((b, a) => how(a, b))
+            return zOrdering((b, a) => how(a, b))
         }
     }
 
@@ -43,8 +43,7 @@ class zSorter {
     }
 
     /**
-     * Defines a `zSorter`, which is used to compare values and sort collections. Its behavior
-     * depends on the type of `how`.
+     * Creates an ordering
      * ### Case `unset`
      * Defaults to using `<`.
      * ### Case `(a, b) => bool`
@@ -71,7 +70,7 @@ class zSorter {
         } else if how == "<" or how == ">" {
             return super(how)
         } else {
-            zExpectArg(how, "how").fail("be a valid definition for zSorter.")
+            zExpectArg(how, "how").fail("be a valid definition for zOrdering.")
         }
     }
 }

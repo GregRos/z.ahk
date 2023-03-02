@@ -41,16 +41,6 @@ zArrRepeat(self, count) {
     return arr
 }
 
-
-
-
-
-
-
-
-
-
-
 ; Adds an element to the start of `self`.
 zArrPrepend(self, items*) {
     zExpectArg(self, "self").toBeArray()
@@ -100,40 +90,6 @@ zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
     zExpectArg(self, "self").toBeArray()
     zExpectArg(getKey, "getKey").toBeCallable()
     return zArrSort(self, zz_keyComparer(getKey, comparer))
-}
-
-
-
-zArrUniq(self, caseSense := False) {
-    zExpectArg(self, "self").toBeEnum()
-    myMap := Map()
-    myMap.CaseSense := caseSense
-    for x in self {
-        myMap.Set(x, x)
-    }
-    arr := []
-    for k, v in myMap {
-        arr.Push(k)
-    }
-    return arr
-}
-
-zArrUniqBy(self, getKey, caseSense := False) {
-    zExpectArg(self, "self").toBeEnum()
-    getKey := zz_func.wrapIteratee(getKey)
-    myMap := Map()
-    myMap.CaseSense := caseSense
-    for i, x in self {
-        key := getKey(i, x)
-        if not myMap.Has(key) {
-            myMap.set(key, x)
-        }
-    }
-    arr := []
-    for k, v in myMap {
-        arr.Push(v)
-    }
-    return arr
 }
 
 zArrZip(sources*) {
@@ -186,7 +142,3 @@ zArrToMap(self) {
         
     }
 }
-
-zArrIndexOf := zEnumKeyOf
-zArrFindIndex := zEnumFindKey
-zArrFindLastIndex := zEnumFind

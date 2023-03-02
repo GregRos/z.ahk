@@ -22,7 +22,7 @@ class zTemplate {
         }
 
         Call(value) {
-            result := this.Path(value)
+            result := this.Path.Call(value)
             return Format(this.FormatTK, result)
         }
     }
