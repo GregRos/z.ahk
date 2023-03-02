@@ -3,7 +3,9 @@ class zError extends Error {
 }
 
 class zInvalidCallError extends zError {
-
+    __New(func, message) {
+        super.__New(Format("Function {1} was invoked illegaly. {2}", zz_func.getName(func), message), func)
+    }
 }
 
 class zSyntaxError extends zBadInputError {

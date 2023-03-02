@@ -1,3 +1,23 @@
+class zExpectCollection extends zExpect {
+    with(required) {
+
+    }
+
+    withAllOf(required*) {
+
+    }
+
+    withOneOf(options*) {
+
+    }
+
+    ofLength(min, max := min) {
+
+    }
+
+
+}
+
 class zExpect {
     _notMode := False
     __New(REAL) {
@@ -12,37 +32,45 @@ class zExpect {
 
     }
 
+    fail(assertionText) {
+        this._type(False, assertionText)
+    }
+
     _getNotMode() {
         old := this._notMode
         this._notMode := False
         return old
     }
 
-    _relation(pass, relation, other) {
-        assertion := zz_assert.RelativeAssertion(this._getNotMode(), this.REAL, relation, other)
+    _createRelative(relation, other) => zz_assert.RelativeAssertion(this._getNotMode(), this.REAL, relation, other)
+    _createUnary(type) => zz_assert.UnaryAssertion(this._getNotMode(), this.REAL, type)
+
+    _test(pass, assertion) {
         if pass == assertion.IsInverted {
             this.onFailedAssertion(assertion)
         } else {
             this.onPassedAssertion(assertion)
         }
+    }
+
+    _relation(pass, relation, other) {
+        this._test(pass, this._createRelative(relation, other))
         return this
     }
-
-    _type(pass, type) {
-        assertion := zz_assert.UnaryAssertion(this._getNotMode(), this.REAL, type)
-        if pass == assertion.IsInverted {
-            this.onFailedAssertion(assertion)
-        } else {
-            this.onPassedAssertion(assertion)
-        }
-    }
-
+    
     not {
         get {
-            this._notMode := True
+            this._notMode := true
             return this
         }
     }
+
+
+    _type(pass, type) {
+        this._test(pass, this._createUnary(type))
+        return this
+    }
+
 
     toBe(other) {
         return this._type(this.REAL == other, "an object")
@@ -62,6 +90,10 @@ class zExpect {
 
     toBeAtLeast(other) {
         return this._relation(this.REAL >= other, "be at least", other)
+    }
+
+    toBeMap() {
+        return this._type(this.REAL is Map, "be a Map")
     }
 
     toBeAtMost(other) {
@@ -96,6 +128,14 @@ class zExpect {
         return this._relation(zz_gen.contains(this.REAL, value), "contain", value)
     }
 
+    toHaveLength(len) {
+        return this._relation(zz_gen.length(this.REAL), "have length", len)
+    }
+
+    toBeOneOf(options*) {
+        return this._relation(zArrHas(options, this.REAL), "")
+    }
+
     toBeArray(predicate?) {
         this._type(this.REAL is Array, "be an array")
         if IsSet(predicate) {
@@ -103,7 +143,12 @@ class zExpect {
                 this._type(predicate(item), "match predicate")
             }
         }
+        return this
+    }
 
+    toBeArrayLike() {
+        this._type(zz_obj.isArrayLike(this.REAL), "be array-like")
+        return this
     }
 
     toThrow() {
@@ -116,16 +161,27 @@ class zExpect {
         this._type(!!ex, "throwing")
     }
 
-    toBeCallable() {
-        return this._type(zz_func.isCallable(this.REAL), "be a function")
+    toBeCallable(wMinParams := unset, wMaxParams := unset) {
+        wMaxParams := wMaxParams ?? wMinParams ?? unset
+        this._type(zz_func.isCallable(this.REAL), "be a function")
+        maxParams := zz_func.getMaxParams(this.REAL)
+        minParams := zz_func.getMinParams(this.REAL)
+        if IsSet(wMaxParams) {
+            this._type(maxParams <= wMaxParams, Format("accept at most {1} params", wMaxParams))
+        }
+        if IsSet(wMinParams) and not zz_func.getIsVariadic(this.REAL) {
+            this._type(minParams >= wMinParams, Format("accept at least {1} params", wMinParams))
+        }
+
     }
 
     toBeBool() {
         return this._type(this.REAL == True or this.REAL == False, "be boolean")
     }
 
-    toBeEnum() {
-        return this._type(this.REAL.HasMethod("__Enum") or this.REAL.HasProp("__Enum"), "be enumerable")
+    toBeEnum(count?) {
+        trailer := IsSet(count) ? Format("with {1} parameters", count) : ""
+        return this._type(zz_obj.isEnum(this.REAL, count?), "be enumerable " trailer)
     }
 
     toHaveMethods(names*) {
@@ -170,7 +226,7 @@ class zExpectArg extends zExpect {
 
     onFailedAssertion(assertion) {
         static relTemplate := zTemplate("Argument {1.Name} was expected {2}to {3.Relation} {3.Value}, but was {3.Real}.")
-        static typeTemplate := zTemplate("Argument {1.Name} was expected {2}to be {3.Type}, but was {3.Real}")
+        static typeTemplate := zTemplate("Argument {1.Name} was expected {2}to be {3.Operator}, but was {3.Real}")
         prefix := assertion.IsInverted ? "not " : ""
         if assertion is zz_assert.RelativeAssertion {
             throw zBadInputError(relTemplate(

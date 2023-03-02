@@ -18,9 +18,38 @@ class zz_func {
             case 5:
                 return (a, b, c, d, e) => fVariadic.Call(a, b, c, d, e)
             default:
-                throw zInvalidCallError(Format("Doesn't support {1} parameters.", paramCount))
+                throw zNotImplementedError(Format("Not implemented for {1} parameters.", paramCount))
         }
     }
+
+
+    static wrapJoinIteratee(dimension, f) {
+        f := zz_func.getIsVariadic(f)
+        maxParams := zz_func.getMaxParams(f)
+        ; Variadic functions don't need to be wrapped
+        if f {
+            return f
+        } else if maxParams == dimension + 1 {
+            ; This means it's a complete join iteratee, no need to change anything.
+            return f
+        } else if maxParams > dimension + 1 {
+            ; This means it requires more parameters than is allowed.
+            throw zInvalidCallError(f, Format("Function takes {1} params, but expected up to {2}.", f.MaxParams, dimension + 1))
+        } else {
+            ; The full signature of a join iteratee is (key, item1, ..., itemN) => joinResult
+            ; However, you can pass in a function taking fewer parameters so the later inputs are ignored.
+
+            invokeJoinIteratee(args*) {
+                ; Next we trim the number of args to be the maximum allowed.
+                args.Length := maxParams
+                return f.Call(args*)
+            }
+            return invokeIteratee
+        }
+
+
+    }
+
 
     static refArgsToArrayReturn(f, count) {
         arr := []
@@ -31,29 +60,29 @@ class zz_func {
                     if not f() {
                         return False
                     }
-                        return arr
-                    case 1:
-                        if f(&r1) {
-                            arr.Push(r1)
-                        }
-                        case 2:
-                            if f(&r1, &r2) {
-                                arr.Push(r1, r2)
-                            }
-                            case 3:
-                                if f(&r1, &r2, &r3) {
-                                    arr.Push(r1, r2, r3)
-                                }
-                                case 4:
-                                    if f(&r1, &r2, &r3, &r4) {
-                                        arr.Push(r1, r2, r3, r4)
-                                    }
-                                    case 5:
-                                        if f(&r1, &r2, &r3, &r4, &r5) {
-                                            arr.Push(r1, r2, r3, r4, r5)
-                                        }
-                                        default:
-                                            throw zNotImplementedError("Iter(args*) for more than 5 arguments")
+                    return arr
+                case 1:
+                    if f(&r1) {
+                        arr.Push(r1)
+                    }
+                case 2:
+                    if f(&r1, &r2) {
+                        arr.Push(r1, r2)
+                    }
+                case 3:
+                    if f(&r1, &r2, &r3) {
+                        arr.Push(r1, r2, r3)
+                    }
+                case 4:
+                    if f(&r1, &r2, &r3, &r4) {
+                        arr.Push(r1, r2, r3, r4)
+                    }
+                case 5:
+                    if f(&r1, &r2, &r3, &r4, &r5) {
+                        arr.Push(r1, r2, r3, r4, r5)
+                    }
+                default:
+                    throw zNotImplementedError("Iter(args*) for more than 5 arguments")
             }
             if arr.Length = 0 {
                 return False
@@ -62,9 +91,25 @@ class zz_func {
         }
         return next
     }
-    static isCallable(input) {
-        return HasMethod(input, "Call")
+
+    static isCallable(input, withParams?) {
+        if not HasMethod(input) {
+            return False
+        }
+        if not IsSet(withParams) {
+            return True
+        }
+        minParams := this.getMinParams(input)
+        maxParams := this.getMaxParams(input)
+        return withParams >= minParams and withParams <= maxParams
     }
+    static getName(f) {
+        if f is Func {
+            return f.Name
+        }
+        return "<anonymous>"
+    }
+
     static getMinParams(f) {
         if f is Func {
             return f.MinParams
@@ -95,16 +140,16 @@ class zz_func {
     }
 
     static wrapAccumulator(f) {
-        if this.getMaxParams(f) = 3 or this.getIsVariadic(f) {
+        if this.isCallable(f, 3) {
             return f
         }
         switch this.getMaxParams(f) {
             case 2:
-                return (acc, cur, index) => f(acc, cur)
+                return (key, acc, cur) => f(acc, cur)
             case 1:
-                return (acc, cur, index) => f(acc)
+                return (key, acc, cur) => f(acc)
             case 0:
-                return (acc, cur, index) => f()
+                return (key, acc, cur) => f()
         }
         return f
     }

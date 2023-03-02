@@ -6,6 +6,17 @@ zz_normIndex(index, len) {
 }
 
 class zz_arr {
+    static fromSeq(seq) {
+        if seq is Array {
+            return seq.Clone()
+        }
+        arr := []
+        for x in seq {
+            arr.Push(x)
+        }
+        return arr
+    }
+
     static mergeSort(arr, work, comparer) {
         ; Merge sort because it's a stable sort
         merge(arr, begin, middle, end, work) {
@@ -17,7 +28,7 @@ class zz_arr {
                 if ix >= end {
                     break
                 }
-                if begin2 < middle and (end2 >= end or comparer(arr[begin2], arr[end2]) <= 0) {
+                if begin2 < middle and (end2 >= end or not comparer(arr[end2], arr[begin2])) {
                     work[ix] := arr[begin2]
                     begin2++
                 } else {
@@ -64,34 +75,6 @@ class zz_arr {
         return this.take(arr, start, count)
     }
 
-    static findIndex(self, predicate) {
-        predicate := zz_func.wrapIteratee(predicate)
-        for i, x in self {
-            if predicate(i, x) {
-                return i
-            }
-        }
-        return 0
-    }
-
-    static first(self, predicate?) {
-        if not IsSet(predicate) {
-            return self[1]
-        }
-        ix := this.findIndex(self, predicate)
-        return self[ix]
-    }
-
-    static findLastIndex(self, predicate) {
-        predicate := zz_func.wrapIteratee(predicate)
-        found := 0
-        for i, x in self {
-            if predicate(i, x) {
-                found := i
-            }
-        }
-        return found
-    }
 
     static filter(self, predicate) {
         newArr := []
@@ -124,16 +107,7 @@ class zz_arr {
         return arr
     }
 
-    static has(arr, item, caseMode := False) {
-        for x in arr {
-            if item == x {
-                return True
-            } else if not caseMode and item = x {
-                return True
-            }
-        }
-        return False
-    }
+
 
     static map(self, projection) {
         projection := zz_func.wrapIteratee(projection)
@@ -145,9 +119,6 @@ class zz_arr {
     }
 
 
-    static hasAny(arr, options*) {
-        return zz_arr.has(options, arr, False)
-    }
 
     static reverse(self) {
         newArr := []

@@ -28,8 +28,13 @@ class Array_operations extends zTestSuite {
         zExpect(() => zArrRange(0, 0, 0)).toThrow()
     }
 
-    zArrFrom() {
 
+    zArrGroupBy() {
+
+        zExpect(zArrGroupBy([], x => 1)).toEqual(Map())
+        zExpect(zArrGroupBy([1, 2, 3], x => 1)).toEqual(Map(1, [1, 2, 3]))
+        zExpect(zArrGroupBy([1, 2], x => x)).toEqual(Map(1, 1, 2, 2))
+        
     }
 
     zArrRepeat() {

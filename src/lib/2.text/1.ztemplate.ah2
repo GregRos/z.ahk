@@ -16,13 +16,13 @@ class zTemplate {
         __New(name, path := "", format := "") {
 
             this.Name := name == "" ? 1 : name
-            this.Path := StrSplit(path, ".")
+            this.Path := zChain(path)
             this.Format := format
             this.FormatTK := "{1:" this.Format "}"
         }
 
         Call(value) {
-            result := zz_obj.evalPath(value, this.Path)
+            result := this.Path(value)
             return Format(this.FormatTK, result)
         }
     }

@@ -7,13 +7,5 @@ class zz_map {
         return arr
     }
 
-    static wrapJoinIteratee(dimension, f) {
-        f := zz_func.getIsVariadic(f)
-        ; Variadic functions don't need to be 
-        if f {
-            return f
-        }
-        
-    }
 
 }

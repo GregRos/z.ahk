@@ -1,3 +1,23 @@
+class zChain {
+    __New(segments, implicitCall := False) {
+        this._segments := StrSplit(segments, ".")
+        this._implicitCall := implicitCall
+    }
+
+    Call(target) {
+        cur := obj
+        for segment in this._segments {
+            prev := cur
+            cur := cur.%segment%
+            if this._implicitCall and zz_func.isCallable(cur, 1){
+                cur := cur.Call(prev)
+            }
+        }
+
+        return cur
+    }
+}
+
 class zz_obj {
     static assign(self, sources*) {
         for i, source in sources {
@@ -14,20 +34,39 @@ class zz_obj {
         }
         return self
     }
-    static evalPath(obj, pathSegments) {
-        cur := obj
-        for segment in pathSegments {
-            prev := cur
-            cur := cur.%segment%
-            if zz_func.isCallable(cur) and zz_func.getMinParams(cur) == 1 {
-                cur := cur.Call(prev)
-            }
-        }
-        if IsObject(cur) {
-            return Type(cur)
-        }
-        return cur
+
+    static hasName(obj, name) {
+        return ObjHasMethod(obj, name) or ObjHasProp(obj, name)
     }
+
+    static hasIndexer(obj, arity?) {
+        if not HasProp(obj, "__Item") {
+            return False
+        }
+        indexer := obj.__Enum
+        return zz_func.isCallable(indexer, arity?)
+    }
+
+    static isArrayLike(obj) {
+        return HasProp(obj, "Length") and zz_obj.isEnum(obj, 1) and this.hasIndexer(obj, 1)
+    }
+
+    static isEnum(obj, arity?) {
+        if zz_func.isCallable(obj, arity?) {
+            return True
+        }
+        if not IsSet(arity) {
+            return True
+        }
+        try {
+            iterator := obj.__Enum(arity)
+            return zz_func.isCallable(iterator, arity)
+        } catch Error as e {
+            return False
+        }
+    }
+
+
 
     static toMap(obj) {
         if not obj {

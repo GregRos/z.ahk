@@ -81,24 +81,24 @@ class zz_reporter {
         getAssertionTitle(assertion) {
             static relationTemplate := zTemplate("Expected [!real]🟥 real[!][!operator] {.Operator}[!] [!expected]🟢 expected[!]")
             static typeTemplate := zTemplate("Expected [!real]🟥 real[!][!type]{.Operator}[!]")
-            if assertion is zz_assert.UnaryAssertion {
-                return typeTemplate(assertion)
-            } else if assertion is zz_assert.RelativeAssertion {
+            if assertion is zz_assert.RelativeAssertion {
                 return relationTemplate(assertion)
+            } else if assertion is zz_assert.UnaryAssertion {
+                return typeTemplate(assertion)
             }
         }
 
         getAssertionFull(assertion) {
-            if (assertion is zz_assert.UnaryAssertion) {
-                return ""
-            }
             out := ""
             writer := zWriter(&out)
 
             writer.Put("[!real]🟥 real: ")
             writer.PutLn(zPrint(assertion.real) "[!]")
-            writer.Put("[!expected]🟢 expected: ")
-            writer.Put(zPrint(assertion.value) "[!]")
+            if assertion is zz_assert.RelativeAssertion {
+                writer.Put("[!expected]🟢 expected: ")
+                writer.Put(zPrint(assertion.value) "[!]")
+            }
+
             writer.Flush()
             return out
         }
@@ -117,7 +117,7 @@ class zz_reporter {
                 }
                 _writer.Put("[!black bold]{1}[!]", this._statusLine(r))
                 anyFails := True
-                
+
                 if r.isError {
                     trace := zTrace(r.result)
                     _writer.Indent("[!brightYellow]▐  [!]")

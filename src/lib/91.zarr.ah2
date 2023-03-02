@@ -1,9 +1,9 @@
+#include 90.zenum.ah2
 #include 93.zstr.ah2
 
-; Takes any number of arguments and joins them up into an array.
-; A non-array argument
+; Takes an enumerable[T] or enumerator[T] into an Array[T].
 zArr(iterable := []) {
-    zExpectArg(iterable, "iterable").toBeEnum()
+    zExpectArg(iterable, "iterable").toBeEnum(1)
     arr := []
     for x in iterable {
         arr.Push(x)
@@ -11,10 +11,7 @@ zArr(iterable := []) {
     return arr
 }
 
-
-
-zArrRange(start, end, step := 1) {
-    
+zArrRange(start, end, step := 1) { 
     zExpectArg(step, "step").toNotEqual(0)
     if start > end and step > 0 {
         step := -step
@@ -30,112 +27,29 @@ zArrRange(start, end, step := 1) {
     return result
 }
 
-zArrFrom(iterable) {
-    zExpectArg(iterable, "iterable").toBeEnum()
-    arr := []
-    for x in iterable {
-        arr.Push(x)
-    }
-    return arr
-}
-
-zArrUnset(length) {
+zArrCreate(length) {
     arr := []
     arr.Length := length
     return arr
 }
 
 zArrRepeat(self, count) {
-    arr := zArrUnset(count)
+    arr := zArrCreate(count)
     Loop count {
         arr[A_Index] := self
     }
     return arr
 }
 
-zArrFindIndex(self, predicate) {
-    return zz_arr.findIndex(self, predicate)
-}
-
-; Returns the position of the first occurence of `what` in `self`.
-zArrIndexOf(self, what, caseSensitive := False) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(caseSensitive, "caseSensitive").toBeBool()
-    for ix, value in self {
-        if (!caseSensitive and what = value) or what == value {
-            return ix
-        }
-    }
-    return False
-}
-
-; Returns if `self` is an array including value `what`.
-zArrHas(self, what) {
-    zExpectArg(self, "self").toBeEnum()
-    return zArrIndexOf(self, what) > 0
-}
 
 
-; Returns a new array made of elements from `self` that satisfy `predicate`.
-zArrFilter(self, predicate) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(predicate, "predicate").toBeCallable()
-    return zz_arr.filter(self, predicate)
-}
 
-; Creates a new array, its elements the result of applying `projection` on elements of `self.`
-zArrMap(self, projection) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(projection, "projection").toBeCallable()
-    projection := zz_func.wrapIteratee(projection)
-    newArr := []
-    for index, item in self {
-        newArr.Push(projection(index, item))
-    }
-    return newArr
-}
 
-; Returns the first element in `self` that match `predicate`. `predicate` can be a function name or function object.
-zArrFind(self, predicate) {
-    result := zArrFilter(self, predicate)
-    if result.Length > 0 {
-        return result[1]
-    }
-    return ""
-}
 
-; Returns true if `self` contains an element matching `predicate`.
-zArrExists(self, predicate) {
-    return zArrFindIndex(self, predicate) != 0
-}
 
-; Returns true if every element of `self` matches `predicate`.
-zArrEvery(self, predicate) {
-    return zArrFilter(self, predicate).Length == self.Length
-}
 
-; Returns a new array by applying `projection` to each element of `self` and concatenating the resulting arrays.
-zArrFlatMap(self, projection) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(projection, "projection").toBeCallable()
-    arr := []
-    projection := zz_func.wrapIteratee(projection)
-    for index, item in self {
-        result := projection(index, item)
-        if result is Array {
-            arr.Push(result*)
-        } else {
-            arr.Push(result)
-        }
-    }
-    return arr
-}
 
-; Returns a new array consisting of the elements of `self` in a reversed order.
-zArrReverse(self) {
-    zExpectArg(self, "self").toBeArray()
-    return zz_arr.reverse(self)
-}
+
 
 ; Adds an element to the start of `self`.
 zArrPrepend(self, items*) {
@@ -153,24 +67,6 @@ zArrSlice(self, start := 1, end := 0) {
 
 }
 
-; Applies an accumulator on `self`, with the initial value `initial`.
-zArrReduce(self, accumulator, initial := unset) {
-    zExpectArg(self, "self").toBeEnum()
-    zExpectArg(accumulator, "accumulator").toBeCallable()
-    accumulator := zz_func.wrapAccumulator(accumulator)
-    current := initial ?? unset
-    for index, item in self {
-        if not IsSet(current) {
-            current := item
-            continue
-        }
-        current := accumulator(current, item, index)
-    }
-    if not IsSet(current) {
-        throw zBadInputError(Format("Can't get initial value from array because it's empty."))
-    }
-    return current
-}
 
 ; Removes all appearances of `values` from `self`.
 zArrPull(self, values*) {
@@ -197,21 +93,7 @@ zArrSort(self, comparer := zz_defaultComparer) {
     return self
 }
 
-; Returns a copy of this array, its elements sorted using `comparer`.
-zArrOrder(self, comparer := zz_defaultComparer) {
-    zExpectArg(self, "self").toBeArray()
-    clone := self.Clone()
-    work := self.Clone()
-    zz_arr.mergeSort(clone, work, comparer)
-    return clone
-}
 
-; Returns a copy of this array, its elements sorted by applying `getKey` to each element and then sorting using `comparer`.
-zArrOrderBy(self, getKey, comparer := zz_defaultComparer) {
-    zExpectArg(self, "self").toBeArray()
-    zExpectArg(getKey, "getKey").toBeCallable()
-    return zArrOrder(self, zz_keyComparer(getKey, comparer))
-}
 
 ; Sorts `self` in place according
 zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
@@ -219,6 +101,8 @@ zArrSortBy(self, getKey, comparer := zz_defaultComparer) {
     zExpectArg(getKey, "getKey").toBeCallable()
     return zArrSort(self, zz_keyComparer(getKey, comparer))
 }
+
+
 
 zArrUniq(self, caseSense := False) {
     zExpectArg(self, "self").toBeEnum()
@@ -302,3 +186,7 @@ zArrToMap(self) {
         
     }
 }
+
+zArrIndexOf := zEnumKeyOf
+zArrFindIndex := zEnumFindKey
+zArrFindLastIndex := zEnumFind

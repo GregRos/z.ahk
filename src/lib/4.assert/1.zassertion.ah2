@@ -30,22 +30,15 @@ class zz_assert {
         }
     }
 
-    class RelativeAssertion extends zz_assert.Assertion {
+    class RelativeAssertion extends zz_assert.UnaryAssertion {
         kind := "relative"
         __New(isInverted, real, operator, value) {
-            super.__New(isInverted, real)
-            this.Operator := operator
+            super.__New(isInverted, real, operator)
             this.Value := value
         }
 
-        Text {
-            get {
-                return Format("{1}to {2}", this.IsInverted ? " not" : "", this.Operator)
-            }
-        }
-
         ToString() {
-            return Format("Expected REAL {1}, but it was {2}", this.Text, zz_obj.toShortStr(this.REAL))
+            return Format("Expected REAL {1} {2}, but it was {3} ", this.Text, zz_obj.toShortStr(this.Value), zz_obj.toShortStr(this.REAL))
         }
     }
 
