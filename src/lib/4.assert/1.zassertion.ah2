@@ -38,7 +38,7 @@ class zz_assert {
         }
 
         ToString() {
-            return Format("Expected REAL {1} {2}, but it was {3} ", this.Text, zz_obj.toShortStr(this.Value), zz_obj.toShortStr(this.REAL))
+            return Format("Expected REAL {1} {2}, but it was {3} ", this.Text, zz_Inspect(this.Value).shortString, zz_Inspect(this.REAL).shortString)
         }
     }
 

@@ -1,5 +1,0 @@
-class zz_map {
-
-
-
-}

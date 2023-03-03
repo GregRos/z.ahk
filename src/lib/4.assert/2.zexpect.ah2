@@ -126,11 +126,11 @@ class zExpect {
     }
 
     toContain(value) {
-        return this._relation(zz_gen.contains(this.REAL, value), "contain", value)
+        return this._relation(this._inspect.contains( value), "contain", value)
     }
 
     toHaveLength(len) {
-        return this._relation(zz_gen.length(this.REAL), "have length", len)
+        return this._relation(this._inspect.Length, "have length", len)
     }
 
     toBeOneOf(options*) {

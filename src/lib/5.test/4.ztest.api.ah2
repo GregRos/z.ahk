@@ -31,13 +31,13 @@ class zTestSuite {
             value := inst.%key%
 
             if inspected.next(value).isCallable() {
-                exec_test(value, inst) {
+                execute_test(value, inst) {
                     inst.AssertionCount := 0
                     value.Call(inst)
                     return inst.AssertionCount
                 }
                 bound := ObjBindMethod(inst, key)
-                tests.Push(zz_Test(key, exec_test.Bind(value, inst)))
+                tests.Push(zz_Test(key, execute_test.Bind(value, inst)))
             }
         }
         return zz_TestSuite(inst.Name, tests)

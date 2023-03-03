@@ -149,6 +149,9 @@ zTrace(err := Error()) {
     if head.File.Path != err.File or head.Line != err.Line {
         trace.Push(zz_trace.Frame(err.File, err.Line))
     }
-
+    indexOfExecutor := zz_arr.findLast(trace, x => x.Function.Name = "execute_test")
+    if indexOfExecutor {
+        trace := zz_arr.slice(trace, 1, indexOfExecutor.Key)
+    }
     return zz_trace.Trace(trace)
 }

@@ -99,6 +99,7 @@ class Array_operations extends zTestSuite {
         zExpect(zArrPrepend([0], 1, 2)).toEqual([1, 2, 0])
         zExpect(zArrPrepend([0])).toEqual([0])
         zExpect(zArrPrepend([], 1)).toEqual([1])
+        zExpect([1, 2, 3]).toEqual([2])
     }
 
     zArrSlice() {
