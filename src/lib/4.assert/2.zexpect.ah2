@@ -1,24 +1,19 @@
-class zExpectCollection extends zExpect {
-    with(required) {
-
+class zz_ExpectContinuation extends zExpect {
+    __New(continuation) {
+        this._continuation := continuation
     }
 
-    withAllOf(required*) {
-
+    onSuccessfulAssertion(assertion) {
+        this._continuation.Call(True, assertion)
     }
 
-    withOneOf(options*) {
-
+    onFailedAssertion(assertion) {
+        this._continuation.Call(False, assertion)
     }
-
-    ofLength(min, max := min) {
-
-    }
-
 
 }
-
 class zExpect {
+
     _notMode := False
     __New(REAL) {
         this.REAL := REAL
@@ -58,7 +53,7 @@ class zExpect {
         this._test(pass, this._createRelative(relation, other))
         return this
     }
-    
+
     not {
         get {
             this._notMode := true
@@ -70,6 +65,40 @@ class zExpect {
     _type(pass, type) {
         this._test(pass, this._createUnary(type))
         return this
+    }
+
+    _startPropertyAssertion(property) {
+        outer := this
+        myNot := this._getNotMode()
+        finish_assertion(pass, assertion) {
+            if assertion.kind == "property" {
+                throw zBadInputError("You can't nest property assertions.")
+            }
+            outer._test(pass, zz_assert.PropertyAssertion(myNot, property, outer.REAL, assertion))
+        }
+        return zz_ExpectContinuation(finish_assertion)
+    }
+
+    every {
+        get {
+            return this._startPropertyAssertion("every element")
+        }
+    }
+
+    some {
+        get {
+            return this._startPropertyAssertion("some element")
+        }
+    }
+
+    length {
+        get {
+            return this._startPropertyAssertion("length")
+        }
+    }
+
+    atPosition(index) {
+        return this._startPropertyAssertion("element at index " index)
     }
 
 
@@ -110,7 +139,7 @@ class zExpect {
     }
 
     toBeInstanceOf(ctor) {
-        return this._type(this.REAL is ctor, "be instanceof", zz_obj.toShortStr(ctor))
+        return this._type(this.REAL is ctor, "be instanceof", zz_Inspect(ctor).shortString)
     }
 
     toBeIntLike() {
@@ -126,7 +155,7 @@ class zExpect {
     }
 
     toContain(value) {
-        return this._relation(this._inspect.contains( value), "contain", value)
+        return this._relation(this._inspect.contains(value), "contain", value)
     }
 
     toHaveLength(len) {
@@ -229,7 +258,7 @@ class zExpectArg extends zExpect {
     }
 
     onFailedAssertion(assertion) {
-        static relTemplate := zTemplate("Argument {1.Name} was expected {2}to {3.Relation} {3.Value}, but was {3.Real}.")
+        static relTemplate := zTemplate("Argument {1.Name} was expected {2}to {3.Operator} {3.Value}, but was {3.Real}.")
         static typeTemplate := zTemplate("Argument {1.Name} was expected {2}to be {3.Operator}, but was {3.Real}")
         prefix := assertion.IsInverted ? "not " : ""
         if assertion is zz_assert.RelativeAssertion {
