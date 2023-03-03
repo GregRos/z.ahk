@@ -110,7 +110,13 @@ class zz_trace {
             return zz_trace.Trace(zz_arr.filter(this._frames, predicate))
         }
 
+        FindIndex(predicate) {
+            return zz_arr.find(this._frames, predicate).Key
+        }
 
+        FindLastIndex(predicate) {
+            return zz_arr.findLast(this._frames, predicate).Key
+        }
 
     }
 }

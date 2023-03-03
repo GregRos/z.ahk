@@ -270,7 +270,7 @@ class zz_color {
                 return formatters[1]
             }
             if formatters.Length = 0 {
-                return zz_func.id
+                return x => x
             }
             return zz_color.Combined(formatters)
         }
@@ -306,7 +306,7 @@ class zz_color {
         }
 
         Keys {
-            get => zz_map.keys(this._formatters)
+            get => zz_Inspect(this._formatters).keys
         }
 
         __Enum(x) {

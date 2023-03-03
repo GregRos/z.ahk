@@ -69,6 +69,17 @@ class zz_Inspect {
         }
     }
 
+    keys {
+        get {
+            mp := this.REAL
+            arr := []
+            for key, val in mp {
+                arr.Push(key)
+            }
+            return arr
+        }
+    }
+
     length {
         get {
             vector := this.REAL
@@ -175,6 +186,30 @@ class zz_Inspect {
             }
             return "<anonymous>"
         }
+    }
+
+    normalizeJoinIteratee(dimension) {
+        f := this.REAL
+        maxParams := this.maxParams
+        ; Variadic functions don't need to be wrapped
+        if this.isVariadic or this.maxParams == dimension + 1 {
+            return f
+        } else if maxParams > dimension + 1 {
+            ; This means it requires more parameters than is allowed.
+            throw zInvalidCallError(f, Format("Function takes {1} params, but expected up to {2}.", f.MaxParams, dimension + 1))
+        } else {
+            ; The full signature of a join iteratee is (key, item1, ..., itemN) => joinResult
+            ; However, you can pass in a function taking fewer parameters so the later inputs are ignored.
+
+            invokeJoinIteratee(args*) {
+                ; Next we trim the number of args to be the maximum allowed.
+                args.Length := maxParams
+                return f.Call(args*)
+            }
+            return invokeIteratee
+        }
+
+
     }
 
 

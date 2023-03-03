@@ -1,7 +1,7 @@
 #Include 4.assert\0.index.ah2
 #include 81.zsort.ah2
 /**
- * Searches an array, map, or similar for a key-value pair that fulfills a predicate, returning "" if none is found.
+ * Searches an array, map, or similar for the first key-value pair that fulfills a predicate, returning "" if none is found.
  * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
  * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** search predicate.
  * @returns {`{Key, Value}` or `""`} The key-value pair being searched for, or `""` if not found.
@@ -26,7 +26,32 @@ zEnumFind(self, predicate) {
 }
 
 /**
- * Seaches an array, map, or similar for the key-value pair for a given value, or `""` if none is found.
+ * Searches an array, map, or similar for the last key-value pair that fulfills a predicate, returning "" if none is found.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** search predicate.
+ * @returns {`{Key, Value}` or `""`} The key-value pair being searched for, or `""` if not found.
+ * @example
+ * ; Find the last string with length 2:
+ * zEnumFindLast( ["a", "bb", "ccc", "dd"], x => StrLen(x) == 2) ; {Key: 4, Value: "dd"}
+ * ; Find the last kvp (silly):
+ * zEnumFindLast(Map("a", 1, "b", 2), (k, v) => True) ; {Key: "b", Value: 2}
+ * ; Try to find 5 in an array that doesn't have it:
+ * zEnumFindLast([1, 2, 3], x => x = 5) ; ""
+ * ; Use an `if` with an assignment:
+ * if kvp := zEnumFindLast(arr, x => x.IsTrue) {
+ *  zOut("Key: {.Key}, Value: {.Value}", kvp)
+ * }
+ * ; Or, if you're brave, skip the `if`:
+ * key := zEnumFindLast([1, 2, 3], x => Mod(x, 2) == 0).Key
+ */
+zEnumFindLast(self, predicate) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    zExpectArg(predicate, "predicate").toBeCallable(1, 2)
+    return zz_arr.find(self, predicate)
+}
+
+/**
+ * Seaches an array, map, or similar for the first key-value pair for a given value, or `""` if none is found.
  * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
  * @param {`?`} value A value to look for.
  * @param {`bool`} caseSense Whether the search is case-sensitive (False).
@@ -38,6 +63,21 @@ zEnumFind(self, predicate) {
  * not EnumKvpOf(["a", "b"], "c") ; True
  */
 zEnumKvpOf(self, value, caseSense := False) {
+    return zEnumFind(self, x => caseSense ? x == value : x = value)
+}
+
+/**
+ * Seaches an array, map, or similar for the last key-value pair for a given value, or `""` if none is found.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`?`} value A value to look for.
+ * @param {`bool`} caseSense Whether the search is case-sensitive (False).
+ * @returns {`{Key, Value}` or `""`} The key-value pair being searched for, or `""` if not found.
+ * @example
+ * ; Find the last index of the value "c":
+ * zEnumLastKvpOf(["c", "b", "c"], "c").Key ; 3
+
+ */
+zEnumLastKvpOf(self, value, caseSense := False) {
     return zEnumFind(self, x => caseSense ? x == value : x = value)
 }
 
@@ -193,7 +233,6 @@ zEnumGroupBy(self, getKey, caseSense := False) {
     getKey := zz_Inspect(getKey).normalizeIteratee()
     outMap := Map()
     outMap.CaseSense := caseSense
-    outMap.Default := []
     for key, val in zz_Inspect(self).withIndexing() {
         groupKey := getKey(key, val)
         if not outMap.Has(groupKey) {

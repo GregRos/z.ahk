@@ -24,6 +24,17 @@ class zz_arr {
         }
     }
 
+    static findLast(self, predicate) {
+        predicate := zz_Inspect(predicate).normalizeIteratee()
+        
+        for key, value in zz_Inspect(self).withIndexing() {
+            if predicate(key, value) {
+                kvp := zz_Kvp(key, value)
+            }
+        }
+        return kvp ?? ""
+    }
+
     static fromSeq(seq) {
         if seq is Array {
             return seq.Clone()
@@ -136,8 +147,4 @@ class zz_arr {
         return newArr
     }
 
-
-    static reverse(self) {
-
-    }
 }

@@ -1,4 +1,3 @@
-#include 4.zzfunc.ah2
 class zz_gen {
 
     static hasAny(arr, options*) {
