@@ -1,5 +1,8 @@
 class zChain {
     __New(segments, implicitCall := False) {
+        if zz_str.startsWith(segments, ".") {
+            segments := SubStr(segments, 2)
+        }
         this._segments := StrSplit(segments, ".")
         this._implicitCall := implicitCall
     }
@@ -9,7 +12,9 @@ class zChain {
         for segment in this._segments {
             prev := cur
             cur := cur.%segment%
-            if zz_func.isCallable(cur, 1){
+            if zz_func.isCallable(cur, 0){
+                cur := cur.Call()
+            } else if zz_func.isCallable(cur, 1) {
                 cur := cur.Call(prev)
             }
         }
@@ -132,6 +137,18 @@ class zz_obj {
                     return a.Has(A_Index) == b.Has(A_Index)
                 }
                 if not zz_obj.equal(a[A_Index], b[A_Index]) {
+                    return False
+                }
+            }
+            return True
+        }
+        if protoA == Map.Prototype {
+            if a.Count != b.Count {
+                return False
+            }
+
+            for key, value in a {
+                if not zz_obj.equal(value, b[key]) {
                     return False
                 }
             }

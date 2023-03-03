@@ -28,7 +28,7 @@ class zz_str {
     }
 
     static startsWith(haystack, needle, caseSense := False) {
-        subhaystack := SubStr(haystack, StrLen(needle.Count))
+        subhaystack := SubStr(haystack, StrLen(needle))
         if caseSense {
             return subhaystack == needle
         } else {

@@ -1,76 +1,61 @@
 #include 1.util\0.index.ah2
 #include 4.assert\0.index.ah2
-class zOrdering {
-    __New(how := "") {
-        this._how := how
+
+/**
+ * A callable that implements a custom less-than `<` operator. Used to sort arrays, maps, and similar.
+ */
+class zz_Ordering {
+
+    __New(operator?) {
+        this._operator := operator ?? (left, right) => left < right
     }
 
-    Desc {
+    /**
+     * Creates an operator that orders values by key.
+     * @param {`getKey(val): bool} The key generating function.
+     */
+    static byKey(getKey) {
+        return zz_Ordering((a, b) => getKey(a) < getKey(b))
+    }
+
+
+    /**
+     * Flips the ordering, turning ascending into descending order (and vice versa).
+     */
+    Flip {
         get {
-            how := this._how
-            return zOrdering((b, a) => how(a, b))
+            operator := this._operator
+            return zz_Ordering((b, a) => operator(a, b))
         }
     }
 
     /**
-     * Returns a sorted array containing all the items in `seq`.
+     * Returns a sorted array from an input array or collection.
+     * @param {`Enum1(value)` or `Enum2(key, value)`} seq An array- or map-like collection or sequence.
      */
-    Order(seq) {
+    ToArray(seq) {
         arr := zz_arr.fromSeq(seq)
-        zz_arr.mergeSort(arr, arr.Clone(), this)
-    }
-
-    Sort(arrayLike) {
-        zExpectArg(arrayLike, "arrayLike").toBeArrayLike()
-        clone := zz_arr.fromSeq(arrayLike)
-        zz_arr.mergeSort(arrayLike, clone, this)
+        zz_arr.mergeSort(arr, arr.Clone(), this._operator)
+        return arr
     }
 
     /**
-     * Gets if `left < right` via this sorter.
+     * Sorts an array-like collection in-place and returns it.
+     * @param {`ArrayLike`} arrayLike An array-like collection. Should have `.Length`, `.__Item[index]`, and `__Enum(1)`.
+     */
+    InPlace(arrayLike) {
+        clone := zz_arr.fromSeq(arrayLike)
+        zz_arr.mergeSort(arrayLike, clone, this._operator)
+        return arrayLike
+    }
+
+    /**
+     * Invokes this ordering's comparison logic.
      * @param left Left-hand value.
      * @param right Right-hand value.
      */
-    Call(left, right) {
-        if this._how == "<" {
-            return left < right
-        } else if this._how == ">" {
-            return left > right
-        } else {
-            return this._how.Call(left, right)
-        }
-
+    Compare(left, right) {
+        return this._impl.Call(left, right)
     }
 
-    /**
-     * Creates an ordering
-     * ### Case `unset`
-     * Defaults to using `<`.
-     * ### Case `(a, b) => bool`
-     * `how` returns `True` if `a < b`.
-     * ### Case `val => ?`
-     * Evaluates `how(val)` to get each value's sorting key, then uses `<`.
-     * ### Case `".prop1.prop2"` prop chain
-     * Evaluates the property chain on each value to get its sorting key, then uses `<`.
-     * ### Case `"<"` or `""`
-     * Uses `<`, giving an ascending ordering.
-     * ### Case `">"`
-     * Uses `>`, giving a descending ordering.
-     */
-    static Call(how) {
-        if how == "" {
-            how := "<"
-        }
-        if zz_func.isCallable(how, 2) {
-            return super(how)
-        } else if zz_func.isCallable(how, 1) {
-            return super((a, b) => how(a) < how (b))
-        } else if how is String and zz_str.startsWith(how, ".") {
-            return this(zChain(how))
-        } else if how == "<" or how == ">" {
-            return super(how)
-        } else {
-            zExpectArg(how, "how").fail("be a valid definition for zOrdering.")
-        }
-    }
 }

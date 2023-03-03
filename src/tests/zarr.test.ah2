@@ -29,11 +29,10 @@ class Array_operations extends zTestSuite {
     }
 
 
-    zArrGroupBy() {
-
-        zExpect(zArrGroupBy([], x => 1)).toEqual(Map())
-        zExpect(zArrGroupBy([1, 2, 3], x => 1)).toEqual(Map(1, [1, 2, 3]))
-        zExpect(zArrGroupBy([1, 2], x => x)).toEqual(Map(1, 1, 2, 2))
+    zEnumGroupBy() {
+        zExpect(zEnumGroupBy([], x => 1)).toEqual(Map())
+        zExpect(zEnumGroupBy([1, 2, 3], x => 1)).toEqual(Map(1, [1, 2, 3]))
+        zExpect(zEnumGroupBy([1, 2], x => x)).toEqual(Map(1, [1], 2, [2]))
         
     }
 
@@ -43,76 +42,57 @@ class Array_operations extends zTestSuite {
         zExpect(() => zArrRepeat("a", -1)).toThrow()
     }
 
-    zArrFindIndex() {
+    zEnumFind() {
         arr := [0, 5, 10]
-        zExpect(zArrFindIndex(arr, x => x == 5)).toEqual(2)
-        zExpect(zArrFindIndex(arr, x => x == 100)).toEqual(0)
-        zExpect(() => zArrFindIndex(arr, "a")).toThrow()
+        zExpect(zEnumFind(arr, a => a == 5)).toEqual(zz_Kvp(2, 5))
+        zExpect(zEnumFind(arr, x => x == 100)).toBe("")
+        zExpect(() => zEnumFind(arr, "a")).toThrow()
         ; With index:
-        zExpect(zArrFindIndex(arr, (i, x) => i == 1 and x == 0)).toEqual(1)
+        zExpect(zEnumFind(arr, (i, x) => i == 1 and x == 0).Key).toEqual(1)
     }
 
-    zArrIndexOf() {
+    zEnumIndexOf() {
         arr := [0, 5, 10]
-        zExpect(zArrIndexOf(arr, 5)).toEqual(2)
-        zExpect(zArrIndexOf(arr, 0)).toEqual(1)
-        zExpect(zArrIndexOf(arr, 100)).toEqual(0)
+        zExpect(zEnumKvpOf(arr, 5).Key).toEqual(2)
+        zExpect(zEnumKvpOf(arr, 0).Key).toEqual(1)
+        zExpect(zEnumKvpOf(arr, 100)).toBe("")
     }
 
-    zArrHas() {
+
+    zEnumFilter() {
         arr := [0, 5, 10]
-        zExpect(zArrHas(arr, 5)).toBeTrue()
-        zExpect(zArrHas(arr, -1)).toBeFalse()
+        zExpect(zEnumFilter(arr, x => x == 5)).toEqual([5])
+        zExpect(zEnumFilter(arr, x => x == -1)).toEqual([])
+        zExpect(zEnumFilter(arr, x => True)).toEqual(arr)
+        zExpect(zEnumFilter(arr, (i, x) => Mod(i, 2) == 0 and x == 5)).toEqual([5])
     }
 
-    zArrFilter() {
+    zEnumMap() {
         arr := [0, 5, 10]
-        zExpect(zArrFilter(arr, x => x == 5)).toEqual([5])
-        zExpect(zArrFilter(arr, x => x == -1)).toEqual([])
-        zExpect(zArrFilter(arr, x => True)).toEqual(arr)
-        zExpect(zArrFilter(arr, (i, x) => Mod(i, 2) == 0 and x == 5)).toEqual([5])
+        zExpect(zEnumMap(arr, x => x + 1)).toEqual([1, 6, 11])
+        zExpect(zEnumMap(arr, x => {})).toEqual([{}, {}, {}])
+        zExpect(zEnumMap(arr, (i, x) => x + i)).toEqual([1, 7, 13])
     }
 
-    zArrMap() {
+    zEnumEvery() {
         arr := [0, 5, 10]
-        zExpect(zArrMap(arr, x => x + 1)).toEqual([1, 6, 11])
-        zExpect(zArrMap(arr, x => {})).toEqual([{}, {}, {}])
-        zExpect(zArrMap(arr, (i, x) => x + i)).toEqual([1, 7, 13])
+        zExpect(zEnumEvery(arr, x => x == 5)).toEqual(False)
+        zExpect(zEnumEvery(arr, x => x < 11)).toEqual(True)
+        zExpect(zEnumEvery(arr, (i, x) => i < 4 and x < 11)).toEqual(True)
     }
 
-    zArrFind() {
+    zEnumFlatMap() {
         arr := [0, 5, 10]
-        zExpect(zArrFind(arr, x => x == 5)).toEqual(5)
-        zExpect(zArrFind(arr, (i, x) => x == 5 and i == 2)).toEqual(5)
-        zExpect(zArrFind(arr, x => x == 11)).toEqual("")
+        zExpect(zEnumFlatMap(arr, x => [x, x])).toEqual([0, 0, 5, 5, 10, 10])
+        zExpect(zEnumFlatMap(arr, x => [])).toEqual([])
+        zExpect(zEnumFlatMap(arr, (i, x) => [i, x])).toEqual([1, 0, 2, 5, 3, 10])
+        zExpect(() => zEnumFlatMap(arr, "a")).toThrow()
     }
 
-    zArrExists() {
+    zEnumReverse() {
         arr := [0, 5, 10]
-        zExpect(zArrExists(arr, x => x == 5)).toEqual(True)
-        zExpect(zArrExists(arr, x => x == 1111)).toEqual(False)
-        zExpect(zArrExistS(arr, (i, x) => i == 2 and x == 5)).toEqual(True)
-    }
-
-    zArrEvery() {
-        arr := [0, 5, 10]
-        zExpect(zArrEvery(arr, x => x == 5)).toEqual(False)
-        zExpect(zArrEvery(arr, x => x < 11)).toEqual(True)
-        zExpect(zArrEvery(arr, (i, x) => i < 4 and x < 11)).toEqual(True)
-    }
-
-    zArrFlatMap() {
-        arr := [0, 5, 10]
-        zExpect(zArrFlatMap(arr, x => [x, x])).toEqual([0, 0, 5, 5, 10, 10])
-        zExpect(zArrFlatMap(arr, x => [])).toEqual([])
-        zExpect(zArrFlatMap(arr, (i, x) => [i, x])).toEqual([1, 0, 2, 5, 3, 10])
-        zExpect(() => zArrFlatMap(arr, "a")).toThrow()
-    }
-
-    zArrReverse() {
-        arr := [0, 5, 10]
-        zExpect(zArrReverse(arr)).toEqual([10, 5, 0])
-        zExpect(zArrReverse([])).toEqual([])
+        zExpect(zEnumReverse(arr)).toEqual([10, 5, 0])
+        zExpect(zEnumReverse([])).toEqual([])
     }
 
     zArrPrepend() {
@@ -132,13 +112,13 @@ class Array_operations extends zTestSuite {
 
     }
 
-    zArrReduce() {
-        zExpect(zEnumReduce([1], () => 1)).toEqual(1)
+    zEnumReduce() {
+        zExpect(zEnumReduce([1], (acc, cur) => 1)).toEqual(1)
         zExpect(zEnumReduce([1, 2, 3], (acc, cur) => acc + cur)).toEqual(6)
-        zExpect(zArrReduce([1, 2], (acc, cur, ix) => acc + cur * ix)).toEqual(5)
-        zExpect(zArrReduce([1], (acc, cur) => acc + cur, 1)).toEqual(2)
-        zExpect(zArrReduce([], () => 1, 5)).toEqual(5)
-        zExpect(() => zArrReduce([], () => 1)).toThrow()
+        zExpect(zEnumReduce([1, 2], (ix, acc, cur) => acc + cur * ix)).toEqual(5)
+        zExpect(zEnumReduce([1], (acc, cur) => acc + cur, 1)).toEqual(2)
+        zExpect(zEnumReduce([], (a, b) => 1, 5)).toEqual(5)
+        zExpect(() => zEnumReduce([], (a, b) => 1)).toThrow()
     }
 
     zArrPull() {
@@ -148,61 +128,54 @@ class Array_operations extends zTestSuite {
         zExpect(zArrPull([1, 2, 3], 1, 2, 3)).toEqual([])
     }
 
-    zArrSort() {
-        zExpect(zArrSort([5, 2, 10])).toEqual([2, 5, 10])
+    zEnumSort() {
+        zExpect(zEnumSort([5, 2, 10])).toEqual([2, 5, 10])
         arr := [0, 5, -1]
-        zArrSort(arr)
+        zEnumSort(arr)
         zExpect(arr).toEqual([-1, 0, 5])
-        zExpect(zArrSort([])).toEqual([])
-        zExpect(zArrSort([1])).toEqual([1])
+        zExpect(zEnumSort([])).toEqual([])
+        zExpect(zEnumSort([1])).toEqual([1])
     }
 
-    zArrOrder() {
-        zExpect(zArrOrder([5, 2, 10])).toEqual([2, 5, 10])
+    zEnumOrder() {
+        zExpect(zEnumOrder([5, 2, 10])).toEqual([2, 5, 10])
         arr := [0, 5, -1]
-        zArrOrder(arr)
+        zEnumOrder(arr)
         zExpect(arr).toEqual([0, 5, -1])
-        zExpect(zArrOrder([])).toEqual([])
-        zExpect(zArrOrder([1])).toEqual([1])
+        zExpect(zEnumOrder([])).toEqual([])
+        zExpect(zEnumOrder([1])).toEqual([1])
     }
 
-    zArrOrderBy() {
+    zEnumOrderBy() {
         arr := makeArrayOfObjects(5, 2, 10)
         orig := arr.Clone()
-        zExpect(zArrOrderBy(arr, x => x.a)).toEqual(makeArrayOfObjects(2, 5, 10))
+        zExpect(zEnumOrderBy(arr, x => x.a)).toEqual(makeArrayOfObjects(2, 5, 10))
         ; Stability:
-        zExpect(zArrOrderBy(arr, x => x.a == 5 ? 1 : 2)).toEqual(makeArrayOfObjects(5, 2, 10))
+        zExpect(zEnumOrderBy(arr, x => x.a == 5 ? 1 : 2)).toEqual(makeArrayOfObjects(5, 2, 10))
         zExpect(arr).toEqual(orig)
     }
 
-    zArrSortBy() {
+    zEnumSortBy() {
         arr := makeArrayOfObjects(5, 2, 10)
         orig := arr.Clone()
-        zExpect(zArrSortBy(arr, x => x.a)).toEqual(makeArrayOfObjects(2, 5, 10))
+        zExpect(zEnumSortBy(arr, x => x.a)).toEqual(makeArrayOfObjects(2, 5, 10))
 
 
     }
 
-    zArrUniq() {
+    zEnumUniq() {
         arr := [1, 1, 2, 2]
-        zExpect(zArrUniq(arr)).toEqual([1, 2])
-        zExpect(zArrUniq([])).toEqual([])
-        zExpect(zArrUniq(["a", "A"])).toEqual(["a"])
-        zExpect(zArrUniq(["a", "A"], True)).toEqual(["a", "A"])
+        zExpect(zEnumUniq(arr)).toEqual([1, 2])
+        zExpect(zEnumUniq([])).toEqual([])
+        zExpect(zEnumUniq(["a", "A"])).toEqual(["a"])
+        zExpect(zEnumUniq(["a", "A"], True)).toEqual(["a", "A"])
     }
 
-    zArrUniqBy() {
+    zEnumUniqBy() {
         arr := makeArrayOfObjects(1, 1, 2, 2)
-        zExpect(zArrUniqBy(arr, x => x.a)).toEqual(makeArrayOfObjects(1, 2))
-        zExpect(zArrUniqBy(arr, x => 1)).toEqual(makeArrayOfObjects(1))
-        zExpect(zArrUniqBy(arr, x => "a")).toEqual(makeArrayOfObjects(1))
+        zExpect(zEnumUniqBy(arr, x => x.a)).toEqual(makeArrayOfObjects(1, 2))
+        zExpect(zEnumUniqBy(arr, x => 1)).toEqual(makeArrayOfObjects(1))
+        zExpect(zEnumUniqBy(arr, x => "a")).toEqual(makeArrayOfObjects(1))
     }
 
-    zArrZip() {
-        arr := [[1, 2, 3], [1, 2, 3], [1, 2, 3]]
-        zExpect(zArrZip(arr*)).toEqual([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
-        zExpect(zArrZip([], [], [])).toEqual([])
-        zExpect(zArrZip([], [1], [1])).toEqual([])
-        zExpect(zArrZip([, 2], [1, 1])).toEqual([[, 1], [2, 1]])
-    }
 }

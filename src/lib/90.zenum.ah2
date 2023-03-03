@@ -1,5 +1,5 @@
 #Include 4.assert\0.index.ah2
-
+#include 81.zsort.ah2
 /**
  * Searches an array, map, or similar for a key-value pair that fulfills a predicate, returning "" if none is found.
  * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
@@ -195,7 +195,13 @@ zEnumGroupBy(self, getKey, caseSense := False) {
     outMap.CaseSense := caseSense
     outMap.Default := []
     for key, val in zz_gen.withIndexing(self) {
-        outMap[getKey(key, val)].Push(val)
+        groupKey := getKey(key, val)
+        if not outMap.Has(groupKey) {
+            bucket := outMap[groupKey] := []
+        } else {
+            bucket := outMap[groupKey]
+        }
+        bucket.Push(val)
     }
     return outMap
 }
@@ -310,21 +316,81 @@ zEnumUniq(self, caseSense := False) {
 }
 
 /**
- * Returns an array of the values of `self in sorted order.
- * @param self `Enum1` or `Enum2` 
- * @param 
+ * Takes an array, map, or similar and returns a new array with the same elements sorted in ascending order.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
  */
-zArrOrder(self, comparer := zz_defaultComparer) {
-    zExpectArg(self, "self").toBeArray()
-    clone := self.Clone()
-    work := self.Clone()
-    zz_arr.mergeSort(clone, work, comparer)
-    return clone
+zEnumOrder(self) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    return zz_Ordering().ToArray(self)
 }
 
-; Returns a copy of this array, its elements sorted by applying `getKey` to each element and then sorting using `comparer`.
-zArrOrderBy(self, getKey, comparer := zz_defaultComparer) {
-    zExpectArg(self, "self").toBeArray()
-    zExpectArg(getKey, "getKey").toBeCallable()
-    return zArrOrder(self, zz_keyComparer(getKey, comparer))
+/**
+ * Takes an array, map, or similar and returns a new array with the same elements sorted in descending order.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ */
+zEnumOrderDesc(self) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    return zz_Ordering().Flip.ToArray(self)
+}
+
+/**
+ * Takes an array, map, or similar and returns a new array with the same elements sorted in ascending order by key.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`getOrderingKey(val): ?`} getOrderingKey A function that gets the key of each value.
+ */
+zEnumOrderBy(self, getOrderingKey) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
+    return zz_Ordering.byKey(getOrderingKey).ToArray(self)
+}
+
+/**
+ * Takes an array, map, or similar and returns a new array with the same elements sorted in descending order by key.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`getOrderingKey(val): ?`} getOrderingKey A function that gets the key of each value.
+ */
+zEnumOrderByDesc(self, getOrderingKey) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
+    return zz_Ordering.byKey(getOrderingKey).Flip.ToArray(self)
+}
+
+/**
+ * Sorts an array-like collection in ascending order.
+ * @param {`ArrayLike`} self An array-like collection.
+ */
+zEnumSort(self) {
+    zExpectArg(self, "self").toBeArrayLike()
+    return zz_Ordering().InPlace(self)
+}
+
+/**
+ * Sorts an array-like collection in descending order.
+ * @param {`ArrayLike`} self An array-like collection.
+ */
+zEnumSortDesc(self) {
+    zExpectArg(self, "self").toBeArrayLike()
+    return zz_Ordering().Flip.InPlace(self)
+}
+
+/**
+ * Sorts an array-like collection in ascending order by key.
+ * @param {`ArrayLike`} self An array-like collection.
+ * @param {`getOrderingKey(val): ?`} getOrderingKey A function that gets the key of each value.
+ */
+zEnumSortBy(self, getOrderingKey) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
+    return zz_Ordering.byKey(getOrderingKey).ToArray(self)
+}
+
+/**
+ * Sorts an array-like collection in descending order by key.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
+ * @param {`getOrderingKey(val): ?`} getOrderingKey A function that gets the key of each value.
+ */
+zEnumSortByDesc(self, getOrderingKey) {
+    zExpectArg(self, "self").toBeEnum(1, 2)
+    zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
+    return zz_Ordering.byKey(getOrderingKey).Flip.ToArray(self)
 }

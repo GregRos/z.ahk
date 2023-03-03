@@ -179,9 +179,13 @@ class zExpect {
         return this._type(this.REAL == True or this.REAL == False, "be boolean")
     }
 
-    toBeEnum(count?) {
-        trailer := IsSet(count) ? Format("with {1} parameters", count) : ""
-        return this._type(zz_obj.isEnum(this.REAL, count?), "be enumerable " trailer)
+    toBeEnum(options*) {
+        trailer := zz_str.join(options, ", ")
+        anyMatching := False
+        for option in options {
+            anyMatching |= zz_obj.isEnum(this.REAL, option)
+        }
+        return this._type(anyMatching, "be enumerable with: " trailer)
     }
 
     toHaveMethods(names*) {

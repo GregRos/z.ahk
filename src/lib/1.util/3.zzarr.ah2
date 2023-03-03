@@ -18,8 +18,8 @@ class zz_arr {
         predicate := zz_func.wrapIteratee(predicate)
 
         for key, value in zz_gen.withIndexing(self) {
-            if predicate(k, v) {
-                return zz_Kvp(k, v)
+            if predicate(key, value) {
+                return zz_Kvp(key, value)
             }
         }
     }

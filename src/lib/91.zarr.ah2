@@ -67,7 +67,7 @@ zArrPull(self, values*) {
             break
         }
         cur := self[A_Index]
-        if zArrHas(values, cur) {
+        if zEnumKvpOf(values, cur) {
             self.RemoveAt(A_Index)
             A_Index--
         }
