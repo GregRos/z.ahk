@@ -1,5 +1,28 @@
-#include 50.zmap.ah2
+#include ./4.assert/0.index.ah2
 
+
+class zz_IterateProps {
+    _session := ""
+    __New(target, noGetters := False, inherited := False) {
+        this.Target := target
+        this.NoGetters := noGetters
+        this.Inherited := inherited
+    }
+
+    Call(key, val?) {
+        
+    }
+}
+
+
+zDict(self, inherited := False) {
+    zExpectArg(self, "self").toBeObj()
+    zExpectArg(inherited, "inherited").toBeBool()
+
+    for key, val in ObjOwnProps(self) {
+
+    }
+}
 
 zObjProps(self, inherited := False) {
     zExpectArg(self, "self").toBeObjectLike()

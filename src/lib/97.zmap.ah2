@@ -4,6 +4,7 @@
 #include 1.util\0.index.ah2
 
 
+
 ; Converts an `Array[T]`, `Enumerable[T]`, or `Enumerator[T]` into a `Map[T, T]`.
 zMap1(obj := [], caseSense := False) {
     zExpectArg(obj, "obj").toBeEnum(1)

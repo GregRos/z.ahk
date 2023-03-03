@@ -8,19 +8,7 @@ class zz_Inspect {
     }
 
     isEnum(arity?) {
-        obj := this.REAL
-        if this.isCallable(arity?) {
-            return True
-        }
-        if not IsSet(arity) {
-            return True
-        }
-        try {
-            iterator := obj.__Enum(arity)
-            return this.next(iterator).isCallable(arity)
-        } catch Error as e {
-            return False
-        }
+        return zIsEnumerable(this.REAL, arity?)
     }
 
     HasProp(name) {
@@ -29,28 +17,19 @@ class zz_Inspect {
 
     isArrayLike {
         get {
-            obj := this.REAL
-            return this.HasProp("Length") and this.isEnum(1) and this.hasIndexer(1)
+            return zIsArrayLike(this.REAL)
         }
     }
 
     minParams {
         get {
-            f := this.REAL
-            if f is Func {
-                return f.MinParams
-            }
-            return f.Call.MinParams - 1
+            return zFuncMinParams(this.REAL)
         }
     }
 
     isVariadic {
         get {
-            f := this.REAL
-            if f is Func {
-                return f.IsVariadic
-            }
-            return f.Call.IsVariadic
+            return zFuncIsVariadic(this.REAL)
         }
     }
 
@@ -61,11 +40,7 @@ class zz_Inspect {
 
     maxParams {
         get {
-            f := this.REAL
-            if f is Func {
-                return f.MaxParams
-            }
-            return f.Call.MaxParams - 1
+            return zFuncMaxParams(this.REAL)
         }
     }
 
@@ -113,15 +88,7 @@ class zz_Inspect {
     }
 
     isCallable(withParams?) {
-        input := this.REAL
-        if not HasMethod(input) {
-            return False
-        }
-        if not IsSet(withParams) {
-            return True
-        }
-
-        return withParams >= this.minParams and withParams <= this.maxParams
+        return zIsCallable(this.REAL, withParams?)
     }
 
     normalizeIteratee() {

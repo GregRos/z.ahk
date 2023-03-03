@@ -397,6 +397,7 @@ zEnumOrderByDesc(self, getOrderingKey) {
  * @param {`ArrayLike`} self An array-like collection.
  */
 zEnumSort(self) {
+    OutputDebug(zIsIndexed(self, 1))
     zExpectArg(self, "self").toBeArrayLike()
     return zz_Ordering().InPlace(self)
 }

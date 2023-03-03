@@ -4,3 +4,4 @@
 #include 5.zzobj.ah2
 #include 7.zzsys.ah2
 #include 8.zzstr.ah2
+#include 9.zshort.ah2
