@@ -9,12 +9,14 @@ class zChain {
 
     Call(target) {
         cur := target
+        inspected := zz_Inspect()
         for segment in this._segments {
             prev := cur
             cur := cur.%segment%
-            if zz_func.isCallable(cur, 0){
+            inspected := inspected.next(cur)
+            if inspected.isCallable(0){
                 cur := cur.Call()
-            } else if zz_func.isCallable(cur, 1) {
+            } else if inspected.isCallable(1) {
                 cur := cur.Call(prev)
             }
         }
@@ -39,39 +41,6 @@ class zz_obj {
         }
         return self
     }
-
-    static hasName(obj, name) {
-        return ObjHasMethod(obj, name) or ObjHasProp(obj, name)
-    }
-
-    static hasIndexer(obj, arity?) {
-        if not HasProp(obj, "__Item") {
-            return False
-        }
-        indexer := obj.__Enum
-        return zz_func.isCallable(indexer, arity?)
-    }
-
-    static isArrayLike(obj) {
-        return HasProp(obj, "Length") and zz_obj.isEnum(obj, 1) and this.hasIndexer(obj, 1)
-    }
-
-    static isEnum(obj, arity?) {
-        if zz_func.isCallable(obj, arity?) {
-            return True
-        }
-        if not IsSet(arity) {
-            return True
-        }
-        try {
-            iterator := obj.__Enum(arity)
-            return zz_func.isCallable(iterator, arity)
-        } catch Error as e {
-            return False
-        }
-    }
-
-
 
     static toMap(obj) {
         if not obj {
@@ -107,16 +76,6 @@ class zz_obj {
         return target
     }
 
-    static toShortStr(self) {
-        if IsObject(self) {
-            if self.HasMethod("ToString") or self.HasProp("ToString") {
-                return self.ToString()
-            }
-            return Type(self)
-        } else {
-            return String(self)
-        }
-    }
 
     static equal(a, b, caseMode := False) {
         if not (IsObject(a) and IsObject(b)) {

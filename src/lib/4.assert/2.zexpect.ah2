@@ -22,6 +22,7 @@ class zExpect {
     _notMode := False
     __New(REAL) {
         this.REAL := REAL
+        this._inspect := zz_Inspect(this.REAL)
     }
 
     onFailedAssertion(assertion) {
@@ -147,7 +148,7 @@ class zExpect {
     }
 
     toBeArrayLike() {
-        this._type(zz_obj.isArrayLike(this.REAL), "be array-like")
+        this._type(this._inspect.isArrayLike, "be array-like")
         return this
     }
 
@@ -163,14 +164,13 @@ class zExpect {
 
     toBeCallable(wMinParams := unset, wMaxParams := unset) {
         wMaxParams := wMaxParams ?? wMinParams ?? unset
-        this._type(zz_func.isCallable(this.REAL), "be a function")
-        maxParams := zz_func.getMaxParams(this.REAL)
-        minParams := zz_func.getMinParams(this.REAL)
+        inspected := this._inspect
+        this._type(inspected.isCallable(), "be a function")
         if IsSet(wMaxParams) {
-            this._type(maxParams <= wMaxParams, Format("accept at most {1} params", wMaxParams))
+            this._type(inspected.maxParams <= wMaxParams, Format("accept at most {1} params", wMaxParams))
         }
-        if IsSet(wMinParams) and not zz_func.getIsVariadic(this.REAL) {
-            this._type(minParams >= wMinParams, Format("accept at least {1} params", wMinParams))
+        if IsSet(wMinParams) and not inspected.isVariadic {
+            this._type(inspected.minParams >= wMinParams, Format("accept at least {1} params", wMinParams))
         }
 
     }
@@ -183,7 +183,7 @@ class zExpect {
         trailer := zz_str.join(options, ", ")
         anyMatching := False
         for option in options {
-            anyMatching |= zz_obj.isEnum(this.REAL, option)
+            anyMatching |= zz_Inspect(this.REAL).isEnum(option)
         }
         return this._type(anyMatching, "be enumerable with: " trailer)
     }

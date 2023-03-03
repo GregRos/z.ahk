@@ -1,3 +1,4 @@
+#include ../1.util/0.index.ah2
 zz_test_runner := zz_TestRunner()
 
 
@@ -25,9 +26,11 @@ class zTestSuite {
     static fromClass(cls) {
         tests := []
         inst := cls()
+        inspected := zz_Inspect()
         for key in ObjOwnProps(cls.Prototype) {
             value := inst.%key%
-            if zz_func.isCallable(value) {
+
+            if inspected.next(value).isCallable() {
                 exec_test(value, inst) {
                     inst.AssertionCount := 0
                     value.Call(inst)

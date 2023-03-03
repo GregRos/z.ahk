@@ -52,7 +52,7 @@ zEnumKvpOf(self, value, caseSense := False) {
  * zEnumEvery([1, 2, 3], x => Mod(x, 2) == 0) ; False
  */
 zEnumEvery(self, predicate) {
-    predicate := zz_func.wrapIteratee(predicate)
+    predicate := zz_Inspect(predicate).normalizeIteratee()
     return not zEnumFind(self, (k, v) => not predicate(k, v))
 }
 
@@ -75,7 +75,7 @@ zEnumEvery(self, predicate) {
 zEnumReduce(self, accumulator, initial := unset) {
     zExpectArg(self, "self").toBeEnum(2)
     zExpectArg(accumulator, "accumulator").toBeCallable(2, 3)
-    accumulator := zz_func.wrapAccumulator(accumulator)
+    accumulator := zz_Inspect(accumulator).normalizeAccumulator()
     current := initial ?? unset
     for index, item in self {
         if not IsSet(current) {
@@ -157,11 +157,11 @@ zEnumLength(self) {
     } else if HasProp(self, "Count") {
         return self.Count
     }
-    if zz_obj.isEnum(self, 1) {
+    if zz_Inspect(self).isEnum(1) {
         for x in self {
             last := A_Index
         }
-    } else if zz_obj.isEnum(self, 2) {
+    } else if zz_Inspect(self).isEnum(2) {
         for a, b in self {
             last := A_Index
         }
@@ -190,11 +190,11 @@ zEnumLength(self) {
 zEnumGroupBy(self, getKey, caseSense := False) {
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(getKey, "getKey").toBeCallable(1)
-    getKey := zz_func.wrapIteratee(getKey)
+    getKey := zz_Inspect(getKey).normalizeIteratee()
     outMap := Map()
     outMap.CaseSense := caseSense
     outMap.Default := []
-    for key, val in zz_gen.withIndexing(self) {
+    for key, val in zz_Inspect(self).withIndexing() {
         groupKey := getKey(key, val)
         if not outMap.Has(groupKey) {
             bucket := outMap[groupKey] := []
@@ -237,12 +237,7 @@ zEnumFilter(self, predicate) {
 zEnumMap(self, projection) {
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(projection, "projection").toBeCallable(1, 2)
-    projection := zz_func.wrapIteratee(projection)
-    newArr := []
-    for index, item in zz_gen.withIndexing(self) {
-        newArr.Push(projection(index, item))
-    }
-    return newArr
+    return zz_arr.map(self, projection)
 }
 
 /**
@@ -261,7 +256,7 @@ zEnumFlatMap(self, projection) {
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(projection, "projection").toBeCallable(1, 2)
     arr := []
-    projection := zz_func.wrapIteratee(projection)
+    projection := zz_Inspect(projection).normalizeIteratee()
     for index, item in self {
         result := projection(index, item)
         if result is Array {
@@ -274,9 +269,8 @@ zEnumFlatMap(self, projection) {
 }
 
 /**
- * Takes an array, map, or similar and returns an array of its values in the reverse order.
- * @param {`Enum1(value)` or `Enum2(key, value)`} self An array- or map-like collection or sequence.
- * @remarks This operation may not make sense on `Map` collections.
+ * Takes an array-like collection and returns a new array with the same elements in reverse order.
+ * @param {`ArrayLike`} self An array-like collection.
  * @example
  * ; Reverses an array of numbers:
  * zEnumReverse([1, 2, 3]) ; [3, 2, 1]
@@ -284,8 +278,12 @@ zEnumFlatMap(self, projection) {
  * zEnumReverse([]) ; []
  */
 zEnumReverse(self) {
-    zExpectArg(self, "self").toBeArray()
-    return zz_arr.reverse(self)
+    zExpectArg(self, "self").toBeArrayLike()
+    newArr := []
+    Loop self.Length {
+        newArr.Push(self[self.Length - A_Index + 1])
+    }
+    return newArr
 }
 
 /**

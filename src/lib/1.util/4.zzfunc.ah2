@@ -92,67 +92,7 @@ class zz_func {
         return next
     }
 
-    static isCallable(input, withParams?) {
-        if not HasMethod(input) {
-            return False
-        }
-        if not IsSet(withParams) {
-            return True
-        }
-        minParams := this.getMinParams(input)
-        maxParams := this.getMaxParams(input)
-        return withParams >= minParams and withParams <= maxParams
-    }
-    static getName(f) {
-        if f is Func {
-            return f.Name
-        }
-        return "<anonymous>"
-    }
 
-    static getMinParams(f) {
-        if f is Func {
-            return f.MinParams
-        }
-        return f.Call.MinParams - 1
-    }
-    static getMaxParams(f) {
-        if f is Func {
-            return f.MaxParams
-        }
-        return f.Call.MaxParams - 1
-    }
-    static getIsVariadic(f) {
-        if f is Func {
-            return f.IsVariadic
-        }
-        return f.Call.IsVariadic
-    }
-    static wrapIteratee(f) {
-        if this.getMaxParams(f) = 2 or this.getIsVariadic(f) {
-            return f
-        }
-        if this.getMaxParams(f) = 1 {
-            return (i, x) => f(x)
-        }
-
-        throw zBadInputError("Expected function to take 1 or 2 parameters", f.MaxParams)
-    }
-
-    static wrapAccumulator(f) {
-        if this.isCallable(f, 3) {
-            return f
-        }
-        switch this.getMaxParams(f) {
-            case 2:
-                return (key, acc, cur) => f(acc, cur)
-            case 1:
-                return (key, acc, cur) => f(acc)
-            case 0:
-                return (key, acc, cur) => f()
-        }
-        return f
-    }
 
     static normalize2(f) {
         if not f is Func {

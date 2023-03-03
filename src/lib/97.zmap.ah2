@@ -10,7 +10,7 @@ zMap1(obj := [], caseSense := False) {
     zExpectArg(caseSense, "caseSense").toBeBool()
     result := Map()
     result.CaseSense := caseSense
-    if zz_obj.isEnum(obj, 1) {
+    if zz_Inspect(obj).isEnum(1) {
         for x in obj {
             if not result.Has(x) {
                 result[x] := x
@@ -26,7 +26,7 @@ zMap2(obj := [], caseSense := False) {
     zExpectArg(caseSense, "caseSense").toBeBool()
     result := Map()
     result.CaseSense := caseSense
-    if zz_obj.isEnum(obj, 2) {
+    if zz_Inspect(obj).isEnum(2) {
         for k, v in obj {
             result[k] := v
         }
@@ -43,7 +43,7 @@ zMap2(obj := [], caseSense := False) {
 zMapMap(self, projection) {
     zExpectArg(self, "self").toBeMap()
     zExpectArg(projection, "projection").toBeCallable(1, 2)
-    projection := zz_func.wrapIteratee(projection)
+    projection := zz_Inspect(projection).normalizeIteratee()
     myMap := Map()
     for k, v in self {
         myMap[k] := projection(k, v)

@@ -23,6 +23,9 @@ class zTemplate {
 
         Call(value) {
             result := this.Path.Call(value)
+            if IsObject(result) {
+                result := zz_Inspect(result).shortString
+            }
             return Format(this.FormatTK, result)
         }
     }

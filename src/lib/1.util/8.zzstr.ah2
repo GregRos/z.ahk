@@ -62,13 +62,14 @@ class zz_str {
         results := []
         oldMatchEnd := startingPos
         matches := zz_str.matchAll(haystack, needle, startingPos)
+        inspector := zz_Inspect()
         for match in matches {
             matchStart := match.Pos
             slice := SubStr(haystack, oldMatchEnd, matchStart - oldMatchEnd)
             if slice != "" {
                 results.Push(slice)
             }
-            if zz_func.isCallable(matchAction) {
+            if inspector.next(matchAction).isCallable() {
                 result := matchAction(match)
             } else if IsObject(matchAction) {
                 zz_throw.badParam("matchAction", "a value or a callable object", matchAction)
