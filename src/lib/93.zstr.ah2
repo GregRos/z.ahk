@@ -1,26 +1,5 @@
 
-zStrJoin(delim, arr) {
-    zExpectArg(delim, "delim").toBeStringLike()
-    zExpectArg(arr, "arr").toBeArray()
-    return zz_str.join(arr, delim)
-}
 
-; zStr(x) - Stringifies 
-zStr(obj*) {
-
-    if not IsObject(obj) {
-        return Format('"{1}"', obj)
-    }
-    if HasMethod(obj, "ToString") {
-        return String(obj)
-    }
-    if obj is Array {
-        return Format("[{1}]", zStrJoin(", ", zArrMap(obj, zStr)))
-    }
-    if obj is Map {
-        
-    }
-}
 
 zStrFormat(template, args) {
     zExpectArg(args, "args").toBeObjectLike()
@@ -28,7 +7,6 @@ zStrFormat(template, args) {
     if args is Array {
         return Format(template, args*)
     }
-    
 }
 
 ; Returns a string that's `self` repeated `count` times, deparated by `delim`.

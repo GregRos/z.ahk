@@ -1,4 +1,3 @@
-
 class zz_str {
 
     static padEnd(self, toWidth, padding := " ") {
@@ -100,11 +99,11 @@ class zz_str {
 
     static join(arr, delim := "") {
         result := ""
-        for i, x in arr {
-            if i != 1 {
+        for x in arr {
+            if A_Index != 1 {
                 result .= delim
             }
-            result .= x
+            result .= String(x)
         }
         return result
     }
@@ -119,6 +118,8 @@ class zz_str {
         end := end == 0 ? StrLen(self) : end
         end := zz_normIndex(end, StrLen(self))
         start := zz_normIndex(start, StrLen(self))
+        zExpectArg(end, "end").toBeAtLeast(start)
+
         return SubStr(self, start, end - start + 1)
     }
 

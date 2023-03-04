@@ -99,6 +99,9 @@ zGetPropDesc(target, name) {
  * @param arity Optionally, also checks the value is indexable with this many params.
  */
 zIsIndexed(target, arity?) {
+    if target is Array or target is Map {
+        return True
+    }
     if not HasProp(target, "__Item") {
         return False
     }
@@ -112,10 +115,10 @@ zIsIndexed(target, arity?) {
 /**
  * Checks if something is array-like. Array-like means:
  * * `Length` property.
- * * Enumerable with 1 param.
+ * * `__Enum` method.
  * * Indexable with 1 param.
  * @param target The value to test.
  */
 zIsArrayLike(target) {
-    return HasProp(target, "Length") and zIsEnumerable(target, 1) and zIsIndexed(target, 1)
+    return HasProp(target, "Length") and HasMethod(target, "__Enum") and zIsIndexed(target, 1)
 }

@@ -151,7 +151,7 @@ zTrace(err := Error()) {
     }
     indexOfExecutor := zz_arr.findLast(trace, x => x.Function.Name = "execute_test")
     if indexOfExecutor {
-        trace := zz_arr.slice(trace, 1, indexOfExecutor.Key)
+        trace := zz_arr.slice(trace, 1, indexOfExecutor.Key - 1)
     }
     return zz_trace.Trace(trace)
 }

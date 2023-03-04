@@ -1,6 +1,5 @@
 #include ../lib/4.assert/0.index.ah2
 #include 93.zstr.ah2
-#include 91.zarr.ah2
 #include 1.util\0.index.ah2
 
 
@@ -38,18 +37,6 @@ zMap2(obj := [], caseSense := False) {
     }
 
     return result
-}
-
-; Maps each value in `self` via `projection`.
-zMapMap(self, projection) {
-    zExpectArg(self, "self").toBeMap()
-    zExpectArg(projection, "projection").toBeCallable(1, 2)
-    projection := zz_Inspect(projection).normalizeIteratee()
-    myMap := Map()
-    for k, v in self {
-        myMap[k] := projection(k, v)
-    }
-    return myMap
 }
 
 /** Similar to `zMapMerge`, with...
@@ -96,36 +83,7 @@ zMapMerge(maps*) {
     return newMap
 }
 
-zMapAssign(target, maps*) {
-    zExpectArg(target, "target").toBeMap()
-    if maps.Length = 0 {
-        return target
-    }
-    merged := maps.Length == 1 ? maps[1] : zMapMerge(zArrReverse(maps*)*)
-    for key, value in merged {
-        target[key] := value
-    }
-    return target
-}
 
-zMapDefaults(target, defaults*) {
-    zExpectArg(target, "target").toBeMap()
-    merged := zMapMerge(defaults*)
-    for key, value in merged {
-        if not target.Has(key) {
-            target[key] := value
-        }
-    }
-    return target
-}
-
-zMapKeys(map) {
-    keys := []
-    for key, value in map {
-        keys.Push(key)
-    }
-    return key
-}
 
 zMapReduce(self, reducer, initial?) {
     zExpectArg(self, "self").toBeMap()
@@ -144,10 +102,3 @@ zMapReduce(self, reducer, initial?) {
     return initial
 }
 
-zMapVals(map) {
-    values := []
-    for key, value in map {
-        values.Push(value)
-    }
-    return values
-}

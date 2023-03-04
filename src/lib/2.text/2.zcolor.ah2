@@ -301,7 +301,7 @@ class zz_color {
             ; Apply all the formatters from the directives to each line of the run.
             lines := zz_arr.map(lines, formatter)
             ; Join the lines back up
-            text := zStrJoin("`n", lines)
+            text := zJoin(lines, "`n")
             return text
         }
 

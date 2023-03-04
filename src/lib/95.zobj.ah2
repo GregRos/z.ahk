@@ -1,18 +1,6 @@
 #include ./4.assert/0.index.ah2
 
 
-class zz_IterateProps {
-    _session := ""
-    __New(target, noGetters := False, inherited := False) {
-        this.Target := target
-        this.NoGetters := noGetters
-        this.Inherited := inherited
-    }
-
-    Call(key, val?) {
-        
-    }
-}
 
 
 zDict(self, inherited := False) {
@@ -114,15 +102,4 @@ gObj_Omit(self, keys*) {
 ; Assigns all the keys from sources, in order, to `self`.
 zObjAssign(self, sources*) {
     return zz_obj.assign(self, sources*)
-}
-
-; Returns a new object with defaults from `sources`.
-zObjDefaults(self, sources*) {
-    for i, source in sources {
-        for key, value in source {
-            if not self.HasKey()
-        }
-    }
-
-    return self
 }

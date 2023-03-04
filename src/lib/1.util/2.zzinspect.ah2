@@ -123,7 +123,7 @@ class zz_Inspect {
         get {
             self := this.REAL
             if IsObject(self) {
-                if HasMethod(self, "ToString") or HasProp(self, "ToString") {
+                if HasMethod(self, "ToString") {
                     return self.ToString()
                 }
                 return Type(self)

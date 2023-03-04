@@ -122,6 +122,10 @@ class zExpect {
         return this._relation(this.REAL >= other, "be at least", other)
     }
 
+    toBeMoreThan(other) {
+        return this._relation(this.REAL > other, "be more than", other)
+    }
+
     toBeMap() {
         return this._type(this.REAL is Map, "be a Map")
     }

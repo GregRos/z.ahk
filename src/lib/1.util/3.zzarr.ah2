@@ -10,6 +10,10 @@ class zz_Kvp {
         this.Key := key
         this.Value := value
     }
+
+    ToString() {
+        return zz_str.join([this.Key, this.Value], " => ")
+    }
 }
 
 class zz_arr {
@@ -99,8 +103,11 @@ class zz_arr {
 
     static slice(arr, start := 1, end := -1) {
         start := zz_normIndex(start, arr.Length)
-        end := zz_normIndex(end, arr.Length + 1)
-        count := end - start
+        end := zz_normIndex(end, arr.Length)
+        if end < start {
+            return []
+        }
+        count := end - start + 1
         return this.take(arr, start, count)
     }
 
