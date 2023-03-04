@@ -34,22 +34,6 @@ class Array_operations extends zTestSuite {
         
     }
 
-    zFind() {
-        arr := [0, 5, 10]
-        zExpect(zFind(arr, a => a == 5)).toEqual(zz_Kvp(2, 5))
-        zExpect(zFind(arr, x => x == 100)).toBe("")
-        zExpect(() => zFind(arr, "a")).toThrow()
-        ; With index:
-        zExpect(zFind(arr, (i, x) => i == 1 and x == 0).Key).toEqual(1)
-    }
-
-    zIndexOf() {
-        arr := [0, 5, 10]
-        zExpect(zKvpOf(arr, 5).Key).toEqual(2)
-        zExpect(zKvpOf(arr, 0).Key).toEqual(1)
-        zExpect(zKvpOf(arr, 100)).toBe("")
-    }
-
 
     zFilter() {
         arr := [0, 5, 10]

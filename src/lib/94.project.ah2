@@ -36,14 +36,13 @@ zGroupBy(self, getKey, caseSense := False) {
 }
 
 /**
- * Filters the values in an input array, map, or collection. It will go over each element and apply a predicate,
+ * Goes over each element and apply a predicate,
  * returning an array of all the elements for which the predicate returns True.
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self n array, map, or sequence. Strings are treated as arrays of characters.
  * @param {`predicate(val) => bool` or `predicate(key, val) => bool`} predicate  An **iteratee** predicate. Determines which values to include.
  * @example
  * ; Filters an array for even values:
  * zFilter([1, 2, 3, 4, 5], x => Mod(x, 2) == 0) ; [2, 4]
- * 
  * ; Filters an array for strings of length 2:
  * zFilter(["a", "b", "cc"], x => StrLen(x) == 2) ; ["cc"]
  */
