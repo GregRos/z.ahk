@@ -28,14 +28,6 @@ zObjProps(self, inherited := False) {
     return keys
 }
 
-zObjGetOwnDescs(self) {
-    zExpectArg(self, "self").toBeObjectLike()
-    descs := {}
-    for k in self.OwnProps() {
-        descs[k] := self.GetOwnPropDesc(k)
-    }
-    return descs
-}
 
 zObjGetDescsDownTo(self, stopPrototype := Object.Prototype) {
     zExpectArg(self, "self").toBeObjectLike()

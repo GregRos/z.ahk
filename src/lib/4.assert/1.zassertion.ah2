@@ -20,7 +20,7 @@ class zz_assert {
         kind := "unary"
         __New(isInverted, real, operator) {
             super.__New(isInverted, real)
-            this.Operator := Format("{1}to {2}", this._txtToComponent, operator)
+            this.Operator := Format("{1} {2}", this._txtToComponent, operator)
         }
 
         Text {
@@ -30,9 +30,8 @@ class zz_assert {
         }
 
         ToString() {
-            static relTemplate := zTemplate("Expected REAL {1}to {2.Type}, but was {2.Real}")
+            static relTemplate := zTemplate("Expected REAL {1.Operator}, but was {1.Real}")
             return relTemplate(
-                zz_assert.strToPart(this.IsInverted),
                 this
             )
         }

@@ -10,6 +10,7 @@
 zSystemOops()
 
 #include tests\14.zmaybe.ah2
+#include tests\find.test.ah2
 #include tests\zarr.test.ah2
 #include tests\zstr.test.ah2
 

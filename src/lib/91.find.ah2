@@ -55,7 +55,7 @@ zFindLast(self, predicate) {
     }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(predicate, "predicate").toBeCallable(1, 2)
-    return zz_arr.find(self, predicate)
+    return zz_arr.findLast(self, predicate)
 }
 
 /**
@@ -75,10 +75,7 @@ zFindLast(self, predicate) {
 zKvpOf(self, value, caseSense := False) {
     if self is String {
         pos := InStr(self, value, caseSense)
-        return pos ? {
-            Key : pos,
-        Value: value
-            } : ""
+        return pos ? zz_Kvp(pos, value) : ""
     }
     return zFind(self, x => caseSense ? x == value : x = value)
 }
@@ -123,7 +120,7 @@ zLastKvpOf(self, value, caseSense := False) {
 zAt(self, key) {
     if self is String {
         zExpectArg(key, "key").toBeIntLike()
-        return SubStr(self, key)
+        return SubStr(self, key, 1)
     }
     if zIsIndexed(self, 1) {
         return self[key]

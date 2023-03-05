@@ -103,7 +103,7 @@ class zExpect {
 
 
     toBe(other) {
-        return this._type(this.REAL == other, "an object")
+        return this._relation(this.REAL == other, "be", String(other))
     }
 
     toBeObj() {
@@ -111,6 +111,11 @@ class zExpect {
     }
 
     toEqual(other) {
+        return this._relation(zz_obj.equal(this.REAL, other), "equal", other)
+    }
+
+    toBeKvp(key, value) {
+        other := zz_Kvp(key, value)
         return this._relation(zz_obj.equal(this.REAL, other), "equal", other)
     }
 
