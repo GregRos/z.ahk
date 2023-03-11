@@ -13,7 +13,9 @@ zSystemOops()
 #include tests\14.zmaybe.ah2
 #include tests\find.test.ah2
 #include tests\zarr.test.ah2
-#include tests\zstr.test.ah2
+#include tests\order.test.ah2
+#include tests\function.test.ah2
+#include tests\fold.test.ah2
 
 
 ; class Example_tests extends zTestSuite {

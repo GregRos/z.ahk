@@ -73,7 +73,7 @@ zReduce(self, accumulator, initial := unset) {
  */
 zSum(args*) {
     flat := zSelectMany(args, x => x)
-    return zReduce(flat, (key, acc, cur) => acc * cur, 0)
+    return zReduce(flat, (key, acc, cur) => acc + cur, 0)
 }
 
 
@@ -82,15 +82,15 @@ zSum(args*) {
  * @param args One or more numbers and number-valued collections.
  * @example
  * ; Multiply an array of numbers:
- * zMultiply([1, 2, 3]) ; 6
+ * zProduct([1, 2, 3]) ; 6
  * ; Multiply an empty array:
- * zMultiply([]) ; 1
+ * zProduct([]) ; 1
  * ; Mutliply some numbers:
- * zMultiply(1, 2) ; 2
+ * zProduct(1, 2) ; 2
  * ; Multiply numbers with arrays:
- * zMultiply(1, [2, 3], 2) ; 12
+ * zProduct(1, [2, 3], 2) ; 12
  */
-zMultiply(args*) {
+zProduct(args*) {
     flat := zSelectMany(args, x => x)
     return zReduce(flat, (key, acc, cur) => acc * cur, 1)
 }
@@ -154,6 +154,32 @@ zLength(self) {
     return last
 }
 
+/**
+ * Gets the minimum value in a number-valued collection.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
+ * @example
+ * ; Get the minimum value in an array:
+ * zMin([1, 2, 3]) ; 1
+ * ; Get the minimum value in a map:
+ * zMin(Map("a", 1, "b", 2)) ; 1
+ */
+zMin(self) {
+    return Min(zArr(self)*)
+}
+
+/**
+ * Gets the maximum value in a number-valued collection.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
+ * @example
+ * ; Get the maximum value in an array:
+ * zMax([1, 2, 3]) ; 3
+ * ; Get the maximum value in a map:
+ * zMax(Map("a", 1, "b", 2)) ; 2
+ * ; Gets the maximum of an empty arra
+ */
+zMax(self) {
+    return Max(zArr(self)*)
+}
 /**
  * Turns every value in a collection into a string and then joins them up with a delimeter.
  * @param {`Enum1(val)` or `Enum2(key, val)`} self The collection to join.

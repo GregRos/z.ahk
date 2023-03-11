@@ -96,10 +96,7 @@ zPairOf(self, value, caseSense := False) {
 zLastPairOf(self, value, caseSense := False) {
     if self is String {
         pos := InStr(self, value, caseSense, -1)
-        return pos ? {
-            Key : pos,
-        Value: value
-            } : ""
+        return pos ? zz_Kvp(pos, value) : ""
     }
     return zFindLast(self, x => caseSense ? x == value : x = value)
 }

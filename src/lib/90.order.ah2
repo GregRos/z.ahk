@@ -37,9 +37,6 @@ zReverse(self) {
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. Strings are treated as arrays of characters.
  */
 zOrder(self) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     return zz_Ordering().ToArray(self)
 }
@@ -49,9 +46,6 @@ zOrder(self) {
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. Strings are treated as arrays of characters.
  */
 zOrderDesc(self) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     return zz_Ordering().Flip.ToArray(self)
 }
@@ -62,9 +56,6 @@ zOrderDesc(self) {
  * @param {`getOrderingKey(val): ?`} getOrderingKey A function that gets the key of each value.
  */
 zOrderBy(self, getOrderingKey) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
     return zz_Ordering.byKey(getOrderingKey).ToArray(self)
@@ -76,9 +67,6 @@ zOrderBy(self, getOrderingKey) {
  * @param {`getOrderingKey(val): ?`} getOrderingKey A function that gets the key of each value.
  */
 zOrderByDesc(self, getOrderingKey) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
     return zz_Ordering.byKey(getOrderingKey).Flip.ToArray(self)
@@ -110,7 +98,7 @@ zSortDesc(self) {
 zSortBy(self, getOrderingKey) {
     zExpectArg(self, "self").toBeArrayLike()
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
-    return zz_Ordering.byKey(getOrderingKey).ToArray(self)
+    return zz_Ordering.byKey(getOrderingKey).InPlace(self)
 }
 
 /**
@@ -121,10 +109,15 @@ zSortBy(self, getOrderingKey) {
 zSortByDesc(self, getOrderingKey) {
     zExpectArg(self, "self").toBeArrayLike()
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
-    return zz_Ordering.byKey(getOrderingKey).Flip.ToArray(self)
+    return zz_Ordering.byKey(getOrderingKey).Flip.InPlace(self)
 }
 
-
+zz_lessThan(a, b) {
+    if a is string {
+        return StrCompare(a, b) < 0
+    }
+    return a < b
+}
 
 
 /**
@@ -133,7 +126,7 @@ zSortByDesc(self, getOrderingKey) {
 class zz_Ordering {
 
     __New(operator?) {
-        this._operator := operator ?? (left, right) => left < right
+        this._operator := operator ?? zz_lessThan
     }
 
     /**
@@ -141,7 +134,7 @@ class zz_Ordering {
      * @param {`getKey(val): bool} The key generating function.
      */
     static byKey(getKey) {
-        return zz_Ordering((a, b) => getKey(a) < getKey(b))
+        return zz_Ordering((a, b) => zz_lessThan(getKey(a), getKey(b)))
     }
 
 
