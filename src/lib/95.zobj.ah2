@@ -3,14 +3,7 @@
 
 
 
-zDict(self, inherited := False) {
-    zExpectArg(self, "self").toBeObj()
-    zExpectArg(inherited, "inherited").toBeBool()
 
-    for key, val in ObjOwnProps(self) {
-
-    }
-}
 
 zObjProps(self, inherited := False) {
     zExpectArg(self, "self").toBeObjectLike()

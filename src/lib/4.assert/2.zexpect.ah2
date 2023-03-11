@@ -163,6 +163,8 @@ class zExpect {
         return this._type( not IsObject(this.REAL), "be string-like")
     }
 
+
+
     toContain(value) {
         return this._relation(this._inspect.contains(value), "contain", value)
     }
@@ -202,13 +204,12 @@ class zExpect {
 
     toBeCallable(wMinParams := unset, wMaxParams := unset) {
         wMaxParams := wMaxParams ?? wMinParams ?? unset
-        inspected := this._inspect
-        this._type(inspected.isCallable(), "be a function")
+        inspected := zGetCallableInfo(this.REAL)
         if IsSet(wMaxParams) {
-            this._type(inspected.maxParams <= wMaxParams, Format("accept at most {1} params", wMaxParams))
+            this._type(inspected.MaxParams <= wMaxParams, Format("accept at most {1} params", wMaxParams))
         }
         if IsSet(wMinParams) and not inspected.isVariadic {
-            this._type(inspected.minParams >= wMinParams, Format("accept at least {1} params", wMinParams))
+            this._type(inspected.MinParams >= wMinParams, Format("accept at least {1} params", wMinParams))
         }
 
     }

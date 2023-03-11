@@ -60,26 +60,25 @@ zPull(self, values*) {
     }
     return zRemove(self, v => toRemove.Has(v))
 }
-
-zMapAssign(target, maps*) {
+/**
+ * Merges zero or Maps into a target Map, with the last one taking precedence.
+ * @param {`Map`} target The target Map.
+ * @param {`Map`} maps Zero or more Maps to merge.
+ * @returns A reference to the target Map.
+ * @example
+ * existing := Map("a", 1)
+ * zAssign(existing, Map("b", 2)) ; Map("a", 1, "b", 2)
+ * zAssign(existing, Map("b", -2)) ; Map("a", 1, "b", -2)
+ * zAssign(existing, Map()) ; Map("a", 1, "b", -2)
+ */
+zAssign(target, maps*) {
     zExpectArg(target, "target").toBeMap()
     if maps.Length = 0 {
         return target
     }
-    merged := maps.Length == 1 ? maps[1] : zMapMerge(zArrReverse(maps*)*)
+    merged := maps.Length == 1 ? maps[1] : zMerge(zReverse(maps*)*)
     for key, value in merged {
         target[key] := value
-    }
-    return target
-}
-
-zMapDefaults(target, defaults*) {
-    zExpectArg(target, "target").toBeMap()
-    merged := zMapMerge(defaults*)
-    for key, value in merged {
-        if not target.Has(key) {
-            target[key] := value
-        }
     }
     return target
 }

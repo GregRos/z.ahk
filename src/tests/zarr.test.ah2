@@ -43,11 +43,11 @@ class Array_operations extends zTestSuite {
         zExpect(zFilter(arr, (i, x) => Mod(i, 2) == 0 and x == 5)).toEqual([5])
     }
 
-    zMap() {
+    zSelect() {
         arr := [0, 5, 10]
-        zExpect(zMap(arr, x => x + 1)).toEqual([1, 6, 11])
-        zExpect(zMap(arr, x => {})).toEqual([{}, {}, {}])
-        zExpect(zMap(arr, (i, x) => x + i)).toEqual([1, 7, 13])
+        zExpect(zSelect(arr, x => x + 1)).toEqual([1, 6, 11])
+        zExpect(zSelect(arr, x => {})).toEqual([{}, {}, {}])
+        zExpect(zSelect(arr, (i, x) => x + i)).toEqual([1, 7, 13])
     }
 
     zEvery() {
@@ -57,12 +57,12 @@ class Array_operations extends zTestSuite {
         zExpect(zEvery(arr, (i, x) => i < 4 and x < 11)).toEqual(True)
     }
 
-    zFlatMap() {
+    zSelectMany() {
         arr := [0, 5, 10]
-        zExpect(zFlatMap(arr, x => [x, x])).toEqual([0, 0, 5, 5, 10, 10])
-        zExpect(zFlatMap(arr, x => [])).toEqual([])
-        zExpect(zFlatMap(arr, (i, x) => [i, x])).toEqual([1, 0, 2, 5, 3, 10])
-        zExpect(() => zFlatMap(arr, "a")).toThrow()
+        zExpect(zSelectMany(arr, x => [x, x])).toEqual([0, 0, 5, 5, 10, 10])
+        zExpect(zSelectMany(arr, x => [])).toEqual([])
+        zExpect(zSelectMany(arr, (i, x) => [i, x])).toEqual([1, 0, 2, 5, 3, 10])
+        zExpect(() => zSelectMany(arr, "a")).toThrow()
     }
 
     zReverse() {

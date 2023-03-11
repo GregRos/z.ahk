@@ -40,7 +40,7 @@ class zz_Inspect {
 
     maxParams {
         get {
-            return zFuncMaxParams(this.REAL)
+            return zGetCallableInfo(this.REAL).MaxParams
         }
     }
 
@@ -92,11 +92,12 @@ class zz_Inspect {
     }
 
     normalizeIteratee() {
+        info := zGetCallableInfo(this.REAL)
         f := this.REAL
-        if this.maxParams = 2 or this.isVariadic {
+        if info.maxParams = 2 or info.isVariadic {
             return f
         }
-        if this.maxParams = 1 {
+        if info.maxParams = 1 {
             return (i, x) => f(x)
         }
 
@@ -145,21 +146,14 @@ class zz_Inspect {
 
     }
 
-    funcName {
-        get {
-            f := this.REAL
-            if f is Func {
-                return f.Name
-            }
-            return "<anonymous>"
-        }
-    }
+
 
     normalizeJoinIteratee(dimension) {
         f := this.REAL
-        maxParams := this.maxParams
+        info := zGetCallableInfo(f)
+        maxParams := info.maxParams
         ; Variadic functions don't need to be wrapped
-        if this.isVariadic or this.maxParams == dimension + 1 {
+        if info.isVariadic or info.maxParams == dimension + 1 {
             return f
         } else if maxParams > dimension + 1 {
             ; This means it requires more parameters than is allowed.

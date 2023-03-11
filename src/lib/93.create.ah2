@@ -1,5 +1,4 @@
-
-#include 93.zstr.ah2
+#include 95.string.ah2
 
 /**
  * Creates an array from collections, a string, a value to repeat and a count, and more. See examples.
@@ -87,5 +86,76 @@ zRange(start, end, step := 1) {
     return result
 }
 
+/**
+ * Returns a string or array made of the input concatenated to itself a number of times.
+ * @param input The string or array to repeat.
+ * @param times The number of times to repeat it.
+ * @example
+ * ; Repeat a string 3 times:
+ * zRepeat("abc", 3) ; => "abcabcabc"
+ * ; Repeat an array 2 times:
+ * zRepeat([1, 2, 3], 2) ; => [1, 2, 3, 1, 2, 3]
+ * ; Repeat a string 0 times:
+ * zRepeat("abc", 0) ; => ""
+ * ; Repeat an array 0 times:
+ * zRepeat([1, 2, 3], 0) ; => []
+ */
+zRepeat(input, times) {
+    if input is Array {
+        result := []
+        loop times {
+            result.Push(input*)
+        }
+        return result
+    } else if input is String {
+        result := ""
+        loop times {
+            result .= collection
+        }
+        return result
+    }
 
+}
 
+/**
+ * Creates a Map from the own properties of an object, using property names as keys.
+ * @param {Object} self The object to create a Map from.
+ * @example
+ * ; Create a Map from an object:
+ * zDict({a: 1, b: 2}) ; => Map("a", 1, "b", 2)
+ * ; Create a Map from an empty object:
+ * zDict({}) ; => Map()
+ */
+zDict(self) {
+    zExpectArg(self, "self").toBeObj()
+    zExpectArg(inherited, "inherited").toBeBool()
+    dict := Map()
+    for key, val in ObjOwnProps(self) {
+        dict[key] := val
+    }
+    return dict
+}
+/**
+ * Creates a new Map by merging the input maps, with the last Map taking precedence.
+ * @param {`Map*`} maps The Maps to merge.
+ * @example
+ * ; Merge two Maps:
+ * zMerge(Map("a", 1), Map("b", 2)) ; => Map("a", 1, "b", 2)
+ * ; Merge three Maps:
+ * zMerge(Map("a", 1), Map("b", 2), Map("c", 3)) ; => Map("a", 1, "b", 2, "c", 3)
+ * ; Merge zero maps:
+ * zMerge() ; => Map()
+ * ; Merge one map:
+ * zMerge(Map("a", 1)) ; => Map("a", 1)
+ */
+zMerge(maps*) {
+    newMap := Map()
+    for cur in zReverse(maps) {
+        for key, value in cur {
+            if not newMap.Has(key) {
+                newMap[key] := value
+            }
+        }
+    }
+    return newMap
+}

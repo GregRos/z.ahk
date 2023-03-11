@@ -66,13 +66,13 @@ zFindLast(self, predicate) {
  * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
  * @example
  * ; Find the index of the value "c":
- * zKvpOf(["a", "b", "c"], "c").Key ; 3
+ * zPairOf(["a", "b", "c"], "c").Key ; 3
  * ; Check if an array doesn't have "c":
- * not zKvpOf(["a", "b"], "c") ; True
+ * not zPairOf(["a", "b"], "c") ; True
  * ; Get the position of the first "@" symbol in a string:
- * zKvpOf("hello@world.com", "@").Key ; 6
+ * zPairOf("hello@world.com", "@").Key ; 6
  */
-zKvpOf(self, value, caseSense := False) {
+zPairOf(self, value, caseSense := False) {
     if self is String {
         pos := InStr(self, value, caseSense)
         return pos ? zz_Kvp(pos, value) : ""
@@ -88,12 +88,12 @@ zKvpOf(self, value, caseSense := False) {
  * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
  * @example
  * ; Find the last index of the value "c":
- * zLastKvpOf(["c", "b", "c"], "c").Key ; 3
+ * zLastPairOf(["c", "b", "c"], "c").Key ; 3
  * ; Find the last occurence of the world "very":
- * zLastKvpOf("a very very very big rock", "very").Key ; 13
+ * zLastPairOf("a very very very big rock", "very").Key ; 13
  * 
  */
-zLastKvpOf(self, value, caseSense := False) {
+zLastPairOf(self, value, caseSense := False) {
     if self is String {
         pos := InStr(self, value, caseSense, -1)
         return pos ? {

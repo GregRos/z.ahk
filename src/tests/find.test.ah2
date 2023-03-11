@@ -23,22 +23,22 @@ class Find_operations extends zTestSuite {
         zExpect(zFind(mp, x => False)).toBe("")
     }
 
-    zKvpOf_array() {
+    zPairOf_array() {
         arr := [5, 5, 0, 10]
-        zExpect(zKvpOf(arr, 5).Key).toEqual(1)
-        zExpect(zKvpOf(arr, 0).Key).toEqual(3)
-        zExpect(zKvpOf(arr, 100)).toBe("")
+        zExpect(zPairOf(arr, 5).Key).toEqual(1)
+        zExpect(zPairOf(arr, 0).Key).toEqual(3)
+        zExpect(zPairOf(arr, 100)).toBe("")
     }
 
-    zKvpOf_map() {
+    zPairOf_map() {
         mp := Map("a", 2, "b", 2)
-        zExpect(zKvpOf(mp, 2)).toBeKvp("a", 2)
-        zExpect(zKvpOf(mp, 100)).toBe("")
+        zExpect(zPairOf(mp, 2)).toBeKvp("a", 2)
+        zExpect(zPairOf(mp, 100)).toBe("")
     }
 
-    zKvpOf_str() {
+    zPairOf_str() {
         str := "acc"
-        zExpect(zKvpOf(str, "c")).toBeKvp(2, "c")
+        zExpect(zPairOf(str, "c")).toBeKvp(2, "c")
     }
 
     zFindLast_array() {
@@ -53,9 +53,19 @@ class Find_operations extends zTestSuite {
 
     }
 
-    zLastKvpOf_array() {
+    zLastPairOf_array() {
         arr := [1, 2, 2]
-        zExpect(zLastKvpOf(arr, 2)).toBeKvp(3, 2)
+        zExpect(zLastPairOf(arr, 2)).toBeKvp(3, 2)
+    }
+
+    zLastPairOf_map() {
+        mp := Map("a", 2, "b", 2)
+        zExpect(zLastPairOf(mp, 2)).toBeKvp("b", 2)
+    }
+
+    zLastPairOf_str() {
+        str := "acc"
+        zExpect(zLastPairOf(str, "c")).toBeKvp(3, "c")
     }
 
     zAt_array() {

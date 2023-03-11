@@ -72,7 +72,7 @@ zReduce(self, accumulator, initial := unset) {
  * zSum(Map("a", 1), Map("b", 2)) ; 3
  */
 zSum(args*) {
-    flat := zFlatMap(args, x => x)
+    flat := zSelectMany(args, x => x)
     return zReduce(flat, (key, acc, cur) => acc * cur, 0)
 }
 
@@ -91,7 +91,7 @@ zSum(args*) {
  * zMultiply(1, [2, 3], 2) ; 12
  */
 zMultiply(args*) {
-    flat := zFlatMap(args, x => x)
+    flat := zSelectMany(args, x => x)
     return zReduce(flat, (key, acc, cur) => acc * cur, 1)
 }
 
@@ -108,7 +108,7 @@ zMultiply(args*) {
  * zAvg(2, 2, 1) ; 5/3
  */
 zAvg(args*) {
-    flat := zFlatMap(args, x => x)
+    flat := zSelectMany(args, x => x)
     len := 0
     total := zReduce(flat, (tot, cur) => len++, cur + tot)
     if len == 0 {
@@ -121,11 +121,11 @@ zAvg(args*) {
  * Gets or computes the length of a collection or string. May enumerate.
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string. It may be enumerated.
  * @example
- * ; Get the length of an array:
+ * ; Get the length of an array (Length)
  * zLength([1, 2, 3]) ; 3
- * ; Get the length of a Map:
+ * ; Get the length of a Map (Count):
  * zLength(Map()) ; 0
- * ; Get the length of a string:
+ * ; Get the length of a string (via StrLen):
  * zLength("hello") ; 5
  */
 zLength(self) {

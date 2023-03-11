@@ -1,4 +1,3 @@
-nn 
 /**
  * For each value in a collection, computes a key and then groups the values into arrays based on their key. 
  * Returns a map of key to array of values.
@@ -65,7 +64,7 @@ zFilter(self, predicate) {
  * zUniqBy(["Bill Gates", "Steve Jobs", "Melinda Gates"], x => StrSplit(x, " ")[2]) ; ["Bill Gates", "Steve Jobs"]
  */
 zUniqBy(self, getKey, caseSense := False) {
-    return zMap(zGroupBy(self, getKey, caseSense), (k, vs) => vs[1])
+    return zSelect(zGroupBy(self, getKey, caseSense), (k, vs) => vs[1])
 }
 /**
  * Takes a collection and returns an array consisting of only distinct values.
@@ -87,13 +86,13 @@ zUniq(self, caseSense := False) {
  * @param {`p(val) => ?` or `p(key, val) => ?`} projection A function to apply on each key-value pair.
  * @example
  * ; Multiplies every item in an array by 2:
- * zMap([1, 2, 3], x => x * 2) ; [2, 4, 6]
+ * zSelect([1, 2, 3], x => x * 2) ; [2, 4, 6]
  * ; Turns an array of strings into an array of their lengths:
- * zMap(["a", "b", "c"], x => StrLen(x)) ; [1, 1, 1]
+ * zSelect(["a", "b", "c"], x => StrLen(x)) ; [1, 1, 1]
  * ; Uppercases an array of strings
- * zMap(["hello", "world"], StrUpper) ; ["HELLO", "WORLD"]
+ * zSelect(["hello", "world"], StrUpper) ; ["HELLO", "WORLD"]
  */
-zMap(self, projection) {
+zSelect(self, projection) {
     if self is String {
         self := StrSplit(self)
     }
@@ -110,11 +109,11 @@ zMap(self, projection) {
  * @remarks Note that only arrays are flattened. Other collections or sequences are not flattened.
  * @example
  * ; Repeats each element in an array twice:
- * zFlatMap([2, 3, 4], n => [n, n]) ; [2, 2, 3, 3, 4, 4]
+ * zSelectMany([2, 3, 4], n => [n, n]) ; [2, 2, 3, 3, 4, 4]
  * ; Takes an array of pokemon and returns an array of all their moves:
- * zFlatMap([Pikachu, Bulbasaur, Eevee], x => x.moves) ; ["Electro Ball", "Thunderbolt", "Giga Drain", "Tackle"]
+ * zSelectMany([Pikachu, Bulbasaur, Eevee], x => x.moves) ; ["Electro Ball", "Thunderbolt", "Giga Drain", "Tackle"]
  */
-zFlatMap(self, projection) {
+zSelectMany(self, projection) {
     if self is string {
         self := StrSplit(self)
     }
@@ -212,11 +211,10 @@ zKeys(keyed) {
 
 /**
  * Returns all the values of a collection in an array.
- * @param {Enum1(val)} col A map, array, or other enumerable.
+ * @param {Enum1(val)} col A map, array, or other collection.
  * @example
  * ; Gets the values of a map:
  * zValues(Map(1, "a", 2, "b")) ; ["a", "b"]
- * 
  */
 zValues(col) {
     values := []
@@ -224,4 +222,22 @@ zValues(col) {
         values.Push(value)
     }
     return values
+}
+
+/**
+ * Returns a map with the keys and values swapped, the last value taking precedence.
+ * @param {Map} mapSelf A map.
+ * @example
+ * ; Inverts a map:
+ * zInvert(Map("a", 1, "b", 2)) ; Map(1, "a", 2, "b")
+ * ; Inverts a map with duplicate values:
+ * zInvert(Map("a", 1, "b", 1)) ; Map(1, "b")
+ */
+zInvert(mapSelf) {
+    zExpectArg(mapSelf, "mapSelf").toBeMap()
+    inverted := Map()
+    for key, value in mapSelf {
+        inverted[value] := key
+    }
+    return inverted
 }

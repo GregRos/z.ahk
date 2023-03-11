@@ -7,43 +7,59 @@ class zz_PropDescEnumerable {
 
     }
     __Enum(numParams) {
-        if numParams != 2 {
-            throw zInvalidCallError(this.__Enum, "you can only enumerate this with 2 params, but was " numParams)
-        }
+        zExpectArg(numParams, "numParams").toBeAtMost(2).toBeAtLeast(1)
+
         target := this.Target
         state := target.OwnProps().__Enum(1)
-        maxDepth := this.Depth
+        maxDepth := this.Depth == 0
         curDepth := 1
         iterate(&key, desc?) {
             if state(&key) {
-                desc := target.GetOwnPropDesc(key)
-                desc.DefineProp("owner", target)
-                desc.DefineProp("depth", curDepth)
+                if not IsSet(desc) {
+                    return True
+                }
+                %desc% := target.GetOwnPropDesc(key)
+                %desc%.DefineProp("owner", target)
+                %desc%.DefineProp("depth", curDepth)
                 return True
             }
-            if depth = 1 {
+            if curDepth = maxDepth and this.Depth != 0 {
                 return False
             }
-            if not state(&key) {
-                if depth = 1 {
-                    return False
-                }
-                depth--
-                target := target.Base
-                if not target {
-                    return False
-                }
-                state := target.OwnProps().__Enum(1)
-                return iterate(&key, desc)
+            curDepth++
+            target := target.Base
+            if not target {
+                return False
             }
+            state := target.OwnProps().__Enum(1)
+            return iterate(&key, desc)
 
         }
         return iterate
     }
 }
 
-zGetPropDescs(self, depth := 1) {
+class zz_ProtoEnumerable {
+    __New(target) {
+        this.target := target
+    }
+
+    __Enum(numParams) {
+        zExpectArg(numParams, "numParams").toBe(numParams)
+        target := this.Target
+        n := 1
+        iterate(&key, val?) {
+            key := 1
+            if IsSet(val) {
+                %val% := this.Target
+            }
+        }
+    }
+}
+
+zGetPropDescs(self, depth := 0) {
     zExpectArg(depth, "depth").toBeAtLeast(0).toBeIntLike()
     zExpectArg(self, "self").toBeObjectLike()
     return zz_PropDescEnumerable(self)
 }
+

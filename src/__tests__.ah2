@@ -6,7 +6,8 @@
 #include lib/3.system/0.index.ah2
 #include lib/4.assert/0.index.ah2
 #include lib/5.test/0.index.ah2
-
+#include lib/88.zfunction.ah2
+#include lib/98.regex.ah2
 zSystemOops()
 
 #include tests\14.zmaybe.ah2
@@ -14,9 +15,6 @@ zSystemOops()
 #include tests\zarr.test.ah2
 #include tests\zstr.test.ah2
 
-class Blah {
-    a := 1
-}
 
 ; class Example_tests extends zTestSuite {
 ;     should_throw() {
