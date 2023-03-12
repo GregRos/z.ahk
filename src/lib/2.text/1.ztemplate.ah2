@@ -15,7 +15,7 @@ class zTemplate {
         __New(name, path := "", format := "") {
 
             this.Name := name == "" ? 1 : name
-            this.Path := zChain(path)
+            this.Path := zz_Chain(path)
             this.Format := format
             this.FormatTK := "{1:" this.Format "}"
         }
@@ -56,7 +56,7 @@ class zTemplate {
 
     _evaluate(allArgs) {
         if not allArgs is Array {
-            throw zBadInputError("Internal error - allArgs must be an array.")
+            throw zz_BadInputError("Internal error - allArgs must be an array.")
         }
         text := ""
         for tk in this._tokens {
@@ -68,7 +68,7 @@ class zTemplate {
                 text .= tk(allArgs[tk.Name])
             } else {
                 ; Referring to a token with an invalid number
-                throw zBadInputError(Format("No value assigned to input number {1}.", tk.Name))
+                throw zz_BadInputError(Format("No value assigned to input number {1}.", tk.Name))
             }
 
         }

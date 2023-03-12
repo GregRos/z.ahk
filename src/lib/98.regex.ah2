@@ -102,13 +102,13 @@ class zRegEx {
             if A_Index = count {
                 break
             }
-            result.Push(zSlice(input, start, match.Pos - 1))
+            result.Push(zz_str.slice(input, start, match.Pos - 1))
             start := match.Pos + match.Len + 1
             loop match.Count {
                 result.Push(match.Match[A_Index])
             }
         }
-        result.Push(zSlice(input, start))
+        result.Push(zz_str.slice(input, start))
         return result
     }
 
@@ -138,7 +138,7 @@ class zRegEx {
                 count -= 1
             }
             replaced := replacer(match)
-            result .= zSlice(input, start, match.Pos - 1) replaced
+            result .= zz_str.slice(input, start, match.Pos - 1) replaced
             start := match.Pos + match.Len + 1
         }
         return result

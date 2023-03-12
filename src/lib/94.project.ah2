@@ -159,7 +159,7 @@ zFlat(params*) {
  * Returns a slice (a substring or subarray) of an array or string.
  * @param {Number} start The index at which to start, inclusive. 
  * @param {Number} end The index at which to end, also inclusive.
- * @throws {zBadInputError} If `start` indicates a position after `end`.
+ * @throws {zz_BadInputError} If `start` indicates a position after `end`.
  * @example
  * ; Returns a slice of an array with just the first item:
  * zSlice([1, 2], 1, 1) ; [1]

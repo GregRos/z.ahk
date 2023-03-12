@@ -72,7 +72,7 @@ class zExpect {
         myNot := this._getNotMode()
         finish_assertion(pass, assertion) {
             if assertion.kind == "property" {
-                throw zBadInputError("You can't nest property assertions.")
+                throw zz_BadInputError("You can't nest property assertions.")
             }
             outer._test(pass, zz_assert.PropertyAssertion(myNot, property, outer.REAL, assertion))
         }
@@ -272,12 +272,12 @@ class zExpectArg extends zExpect {
         static typeTemplate := zTemplate("Argument {1.Name} was expected {2}to be {3.Operator}, but was {3.Real}")
         prefix := assertion.IsInverted ? "not " : ""
         if assertion is zz_assert.RelativeAssertion {
-            throw zBadInputError(relTemplate(
+            throw zz_BadInputError(relTemplate(
                 this,
                 prefix,
                 assertion))
         } else if assertion is zz_assert.UnaryAssertion {
-            throw zBadInputError(typeTemplate(
+            throw zz_BadInputError(typeTemplate(
                 this,
                 prefix,
                 assertion))

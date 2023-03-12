@@ -2,13 +2,13 @@ class zError extends Error {
 
 }
 
-class zInvalidCallError extends zError {
+class zz_InvalidCallError extends zError {
     __New(func, message) {
         super.__New(Format("Function {1} was invoked illegaly. {2}", zGetCallableInfo(func).Name, message), func)
     }
 }
 
-class zSyntaxError extends zBadInputError {
+class zz_SyntaxError extends zz_BadInputError {
     __New(message, what, position) {
         text := what
         rows := StrSplit(text, "`n")
@@ -28,7 +28,7 @@ class zSyntaxError extends zBadInputError {
     }
 }
 
-class zBadInputError extends zError {
+class zz_BadInputError extends zError {
     __New(message, what?, extra?) {
         super.__New(message, what?, extra?)
     }

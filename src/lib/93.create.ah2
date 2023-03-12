@@ -61,7 +61,7 @@ zArr(thing?, count?) {
         }
         return arr
     }
-    throw zBadInputError("Value is not an array, string, or enumerable.", thing)
+    throw zz_BadInputError("Value is not an array, string, or enumerable.", thing)
 }
 
 /**

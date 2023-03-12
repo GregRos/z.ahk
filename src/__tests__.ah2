@@ -10,7 +10,6 @@
 #include lib/98.regex.ah2
 zSystemOops()
 
-#include tests\14.zmaybe.ah2
 #include tests\find.test.ah2
 #include tests\order.test.ah2
 #include tests\function.test.ah2
@@ -20,7 +19,7 @@ zSystemOops()
 #include tests\project.test.ah2
 ; class Example_tests extends zTestSuite {
 ;     should_throw() {
-;         throw zInvalidCallError("This is a test error")
+;         throw zz_InvalidCallError("This is a test error")
 ;     }
 ;     should_fail() {
 ;         this.isFalse(True)

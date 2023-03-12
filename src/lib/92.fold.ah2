@@ -157,7 +157,7 @@ zLength(self) {
         return StrLen(self)
     }
     if not IsObject(self) {
-        throw zBadInputError("The parameter 'self' must be an object or a string")
+        throw zz_BadInputError("The parameter 'self' must be an object or a string")
     }
     if HasProp(self, "Length") {
         return self.Length
@@ -173,7 +173,7 @@ zLength(self) {
             last := A_Index
         }
     } else {
-        throw zBadInputError("Parameter 'self' is not a valid enumerable.")
+        throw zz_BadInputError("Parameter 'self' is not a valid enumerable.")
     }
     return last
 }

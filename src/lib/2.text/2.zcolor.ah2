@@ -16,7 +16,7 @@ zColorParse(input) {
             }
         }
         ; We reached the end of the stack, but no run opener
-        throw zSyntaxError("Unexpected [!]", input, StrLen(input))
+        throw zz_SyntaxError("Unexpected [!]", input, StrLen(input))
     }
     stack := []
     ; apply the lexers to get tokens
@@ -38,7 +38,7 @@ zColorParse(input) {
             finalRunKids.Push(item)
         } else if item !== "" is zz_color.OpenRunToken {
             ; An unclosed run means missing [!]
-            throw zSyntaxError(
+            throw zz_SyntaxError(
                 Format("not terminated"),
                 input,
                 item.Pos
@@ -76,7 +76,7 @@ class zz_color {
         return zz_str.split(input, zz_color.tokenRegexp, m => m.1 != "" ? zz_color.OpenRunToken(m.Pos, m.1) : zz_none, , True)
     }
     static unexpectedError(expected, got) {
-        return zBadInputError(Format("Expected {0}", expected), )
+        return zz_BadInputError(Format("Expected {0}", expected), )
     }
 
     static verbatim(text) {
@@ -261,7 +261,7 @@ class zz_color {
                     continue
                 }
                 if not this.Has(kw) {
-                    throw zBadInputError(Format("Unknown formatting option '{1}'.", kw))
+                    throw zz_BadInputError(Format("Unknown formatting option '{1}'.", kw))
                 }
                 formatter := this[kw]
                 formatters.Push(formatter)

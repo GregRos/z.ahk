@@ -61,14 +61,14 @@ class zz_Inspect {
             if vector is String {
                 return StrLen(vector)
             } else if not this.isObject {
-                throw zBadInputError("Cannot get length of a number.", vector)
+                throw zz_BadInputError("Cannot get length of a number.", vector)
             }
             if this.HasProp("Count") {
                 return vector.Count
             } else if this.HasProp("Length") {
                 return vector.Length
             }
-            throw zBadInputError("Cannot get length of this object.", vector)
+            throw zz_BadInputError("Cannot get length of this object.", vector)
         }
     }
 
@@ -101,7 +101,7 @@ class zz_Inspect {
             return (i, x) => f(x)
         }
 
-        throw zBadInputError("Expected function to take 1 or 2 parameters", f.MaxParams)
+        throw zz_BadInputError("Expected function to take 1 or 2 parameters", f.MaxParams)
     }
 
     normalizeAccumulator() {
@@ -157,7 +157,7 @@ class zz_Inspect {
             return f
         } else if maxParams > dimension + 1 {
             ; This means it requires more parameters than is allowed.
-            throw zInvalidCallError(f, Format("Function takes {1} params, but expected up to {2}.", f.MaxParams, dimension + 1))
+            throw zz_InvalidCallError(f, Format("Function takes {1} params, but expected up to {2}.", f.MaxParams, dimension + 1))
         } else {
             ; The full signature of a join iteratee is (key, item1, ..., itemN) => joinResult
             ; However, you can pass in a function taking fewer parameters so the later inputs are ignored.

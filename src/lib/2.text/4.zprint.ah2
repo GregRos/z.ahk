@@ -250,7 +250,7 @@ zz_print(writer, v) {
         if tryScalar(v, writer) or tryLeafType(v, writer) or tryError(v) or tryArray(v) or tryMap(v) or tryObject(v) {
             return
         }
-        throw zBadInputError("The input for zPrint is invalid.")
+        throw zz_BadInputError("The input for zPrint is invalid.")
     }
     recursivePrint(v)
     writer.Flush()

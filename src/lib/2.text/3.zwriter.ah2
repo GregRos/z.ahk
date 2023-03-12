@@ -145,7 +145,7 @@ class zz_sink {
             } else if type = "stdout" {
                 this._out := "*"
             } else {
-                throw zBadInputError("Invalid std sink type '" type "'. Expected 'stdout' or 'stderr'.")
+                throw zz_BadInputError("Invalid std sink type '" type "'. Expected 'stdout' or 'stderr'.")
             }
         }
 
@@ -181,7 +181,7 @@ class zz_sink {
             return zz_sink.MemorySink(nameOrObject)
         }
         if not IsObject(nameOrObject) {
-            throw zBadInputError("Parameter 'sink' must be a sink or the name of a sink.")
+            throw zz_BadInputError("Parameter 'sink' must be a sink or the name of a sink.")
         }
         return nameOrObject
     }

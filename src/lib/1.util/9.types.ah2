@@ -19,7 +19,7 @@ class zz_CallableInfo {
         get {
             target := this.Target
             if not zIsCallable(target) {
-                throw zBadInputError("Value is not callable.")
+                throw zz_BadInputError("Value is not callable.")
             }
             if target is Func {
                 return target.MaxParams
@@ -31,7 +31,7 @@ class zz_CallableInfo {
         get {
             target := this.Target
             if not zIsCallable(target) {
-                throw zBadInputError("Value is not callable.")
+                throw zz_BadInputError("Value is not callable.")
             }
             if target is Func {
                 return target.MinParams
