@@ -1,3 +1,4 @@
+#include ../1.util/0.index.ah2
 class zz_ExpectContinuation extends zExpect {
     __New(continuation) {
         this._continuation := continuation
@@ -211,7 +212,10 @@ class zExpect {
         if IsSet(wMinParams) and not inspected.isVariadic {
             this._type(inspected.MinParams >= wMinParams, Format("accept at least {1} params", wMinParams))
         }
+    }
 
+    toBeCollection() {
+        return this._type(zIsCollection(this.REAL), "be a collection")
     }
 
     toBeBool() {

@@ -1,6 +1,6 @@
 /**
- * Checks if every item in an array, map, or similar matches `predicate`.
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. A string is treated as an array of chars.
+ * Checks if every item matches a predicate.
+ * @param {Collection} self A collection. A string is treated as an array of chars.
  * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** predicate.
  * @example
  * ; Check if every number in an array is less than 5:
@@ -142,7 +142,7 @@ zMax(args*) {
 }
 
 /**
- * Gets or computes the length of a collection or string. May enumerate.
+ * Gets the length of something that has a length.
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string. It may be enumerated.
  * @example
  * ; Get the length of an array (Length)

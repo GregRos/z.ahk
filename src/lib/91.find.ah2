@@ -1,8 +1,8 @@
 
 /**
- * Searches a collection for the first value that fulfills a predicate.
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string. A string is treated as an array of chars.
- * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** search predicate.
+ * Picks the first element for which a predicate returns True, returning its key and value.
+ * @param {Collection} self A map or an array.
+ * @param {`val => bool` or `(key, val) => bool`} predicate 
  * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
  * @remarks For an array, a value's index is its key.
  * @example

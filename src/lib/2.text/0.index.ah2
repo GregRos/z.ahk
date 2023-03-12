@@ -1,5 +1,5 @@
 #include .
-#include 1.ztemplate.ah2
-#include 2.zcolor.ah2
-#include 3.zwriter.ah2
-#include 4.zprint.ah2
+#include 1.template.ah2
+#include 2.color.ah2
+#include 3.writer.ah2
+#include 4.print.ah2
