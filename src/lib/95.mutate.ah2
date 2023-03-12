@@ -61,15 +61,20 @@ zPull(self, values*) {
     return zRemove(self, v => toRemove.Has(v))
 }
 /**
- * Merges zero or Maps into a target Map, with the last one taking precedence.
- * @param {`Map`} target The target Map.
- * @param {`Map`} maps Zero or more Maps to merge.
- * @returns A reference to the target Map.
+ * Merges zero or collections into a target collection by key. Arrays are keyed by index.
+ * @param {`Map or Array`} target The target collection.
+ * @param {`Map or Array`} maps Zero or more collections 
+ * @returns A reference to the target collection.
  * @example
+ * ; For Maps:
  * existing := Map("a", 1)
  * zAssign(existing, Map("b", 2)) ; Map("a", 1, "b", 2)
  * zAssign(existing, Map("b", -2)) ; Map("a", 1, "b", -2)
- * zAssign(existing, Map()) ; Map("a", 1, "b", -2)
+ * 
+ * ; For Arrays:
+ * existingArr := [1, 2]
+ * zAssign(existingArr, [3, 4]) ; [3, 4]
+ * zAssign(existingArr, [ , , 3, 4]) ; [3, 4, 3, 4]
  */
 zAssign(target, maps*) {
     zExpectArg(target, "target").toBeMap()

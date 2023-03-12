@@ -100,7 +100,7 @@ zIsEnumerable(target, arity?) {
         return True
     }
     if not IsSet(arity) {
-        return True
+        return target is Array or target is Map or HasMethod(target, "__Enum")
     }
     try {
         iterator := target.__Enum(arity)
@@ -189,4 +189,20 @@ zIsIndexed(target, arity?) {
  */
 zIsArrayLike(target) {
     return HasProp(target, "Length") and HasMethod(target, "__Enum") and zIsIndexed(target, 1)
+}
+
+/**
+ * Checks if something is a collection. Collections are `Array` and `Map`.
+ * @param target The value to test.
+ * @example
+ * ; Check if an array is a collection:
+ * zIsCollection([1, 2, 3]) ; True
+ * ; Check if a string is a collection:
+ * zIsCollection("abc") ; False
+ * ; Check if a map is a collection:
+ * zIsCollection(Map("a", 1)) ; True
+ * 
+ */
+zIsCollection(target) {
+    return target is Array or target is Map
 }

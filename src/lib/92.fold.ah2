@@ -1,4 +1,3 @@
-
 /**
  * Checks if every item in an array, map, or similar matches `predicate`.
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. A string is treated as an array of chars.
@@ -12,9 +11,6 @@
  * zEvery("aaaa", x => x == "a") ; True
  */
 zEvery(self, predicate) {
-    if self is String {
-        self := StrSplit(self)
-    }
     predicate := zz_Inspect(predicate).normalizeIteratee()
     return not zFind(self, (k, v) => not predicate(k, v))
 }
@@ -36,9 +32,6 @@ zEvery(self, predicate) {
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
  */
 zReduce(self, accumulator, initial := unset) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(2)
     zExpectArg(accumulator, "accumulator").toBeCallable(2, 3)
     accumulator := zz_Inspect(accumulator).normalizeAccumulator()
@@ -72,7 +65,7 @@ zReduce(self, accumulator, initial := unset) {
  * zSum(Map("a", 1), Map("b", 2)) ; 3
  */
 zSum(args*) {
-    flat := zSelectMany(args, x => x)
+    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
     return zReduce(flat, (key, acc, cur) => acc + cur, 0)
 }
 
@@ -91,7 +84,7 @@ zSum(args*) {
  * zProduct(1, [2, 3], 2) ; 12
  */
 zProduct(args*) {
-    flat := zSelectMany(args, x => x)
+    flat := zSelectMany(args, x => zIsEnumerable(x, 1) ? zArr(x) : x)
     return zReduce(flat, (key, acc, cur) => acc * cur, 1)
 }
 
@@ -108,13 +101,44 @@ zProduct(args*) {
  * zAvg(2, 2, 1) ; 5/3
  */
 zAvg(args*) {
-    flat := zSelectMany(args, x => x)
+    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
     len := 0
     total := zReduce(flat, (tot, cur) => len++, cur + tot)
     if len == 0 {
         return 0
     }
     return total / len
+}
+
+/**
+ * Gets the minimum value between one or more numbers and number-valued collections. Doesn't recurse.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
+ * @example
+ * ; Get the minimum value in an array:
+ * zMin([1, 2, 3]) ; 1
+ * ; Get the minimum value in a map:
+ * zMin(Map("a", 1, "b", 2)) ; 1
+ */
+zMin(args*) {
+    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
+
+    return Min(flat*)
+}
+
+/**
+ * Gets the maximum value in a number-valued collection.
+ * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
+ * @example
+ * ; Get the maximum value in an array:
+ * zMax([1, 2, 3]) ; 3
+ * ; Get the maximum value in a map:
+ * zMax(Map("a", 1, "b", 2)) ; 2
+ * ; Gets the maximum of an empty arra
+ */
+zMax(args*) {
+    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
+
+    return Max(flat*)
 }
 
 /**
@@ -154,32 +178,7 @@ zLength(self) {
     return last
 }
 
-/**
- * Gets the minimum value in a number-valued collection.
- * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
- * @example
- * ; Get the minimum value in an array:
- * zMin([1, 2, 3]) ; 1
- * ; Get the minimum value in a map:
- * zMin(Map("a", 1, "b", 2)) ; 1
- */
-zMin(self) {
-    return Min(zArr(self)*)
-}
 
-/**
- * Gets the maximum value in a number-valued collection.
- * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
- * @example
- * ; Get the maximum value in an array:
- * zMax([1, 2, 3]) ; 3
- * ; Get the maximum value in a map:
- * zMax(Map("a", 1, "b", 2)) ; 2
- * ; Gets the maximum of an empty arra
- */
-zMax(self) {
-    return Max(zArr(self)*)
-}
 /**
  * Turns every value in a collection into a string and then joins them up with a delimeter.
  * @param {`Enum1(val)` or `Enum2(key, val)`} self The collection to join.

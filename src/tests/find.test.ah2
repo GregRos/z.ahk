@@ -11,11 +11,6 @@ class Find_operations extends zTestSuite {
         zExpect(zFind(arr, (i, x) => i == 1 and x == 0).Key).toEqual(1)
     }
 
-    zFind_string() {
-        str := "abc"
-        zExpect(zFind(str, x => x == "a")).toBeKvp(1, "a")
-    }
-
     zFind_Map() {
         mp := Map("a", 1, "b", 2)
         zExpect(zFind(mp, x => x == 1)).toBeKvp("a", 1)

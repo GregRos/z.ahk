@@ -12,12 +12,12 @@ zSystemOops()
 
 #include tests\14.zmaybe.ah2
 #include tests\find.test.ah2
-#include tests\zarr.test.ah2
 #include tests\order.test.ah2
 #include tests\function.test.ah2
 #include tests\fold.test.ah2
-
-
+#include tests\create.test.ah2
+#include tests\mutate.test.ah2
+#include tests\project.test.ah2
 ; class Example_tests extends zTestSuite {
 ;     should_throw() {
 ;         throw zInvalidCallError("This is a test error")

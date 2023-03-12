@@ -45,9 +45,8 @@ class zz_reporter {
         }
 
         running(event) {
-            this._writer.Put("💫 [!white b]" zz_str.padEnd(event, 20) "[!]").Flush()
+            this._writer.Put("💫 [!white b]" zz_str.padEnd(event, 40) "[!]").Flush()
             a := 1
-            ; This event is not implemented here
         }
 
         _statusLine(event) {
@@ -121,8 +120,9 @@ class zz_reporter {
                 if r.isError {
                     trace := zTrace(r.result)
                     _writer.Indent("[!brightYellow]▐  [!]")
-                    _writer.PutLn("[!brightYellow][!b] :: 🗲 {.type}[!][!d] was unhandled[!][!]", {
-                        type: Type(r.result)
+                    _writer.PutLn("[!brightYellow][!b] {.title} :: 🗲 {.type}[!][!d] was unhandled[!][!]", {
+                        type: Type(r.result),
+                        title: r.Test
                     })
                     _writer.PutLn("[!brightYellow][!i]{ .message }`nWhat: {.what}`nExtra: {.Extra}[!][!]", r.result)
 

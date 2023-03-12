@@ -28,7 +28,7 @@ zz_print(writer, v) {
             writer.Put(Format("[!int]{1:d}[!]", v))
         } else if v is Float {
             writer.Put Format("[!float]{1:f}[!]", v)
-        } else  {
+        } else {
             writer.Put Format('[!string]"{1}"[!]', v)
         }
         return True
@@ -132,6 +132,7 @@ zz_print(writer, v) {
             writer.Put(tmpltEmptyMap(v))
             return True
         }
+        writer.PutLn("{").Indent("  ")
 
         stack.Set(v, v)
         if not stack.Count = 1 {
@@ -148,6 +149,8 @@ zz_print(writer, v) {
         if not stack.Count = 1 {
             writer.Unindent()
         }
+        writer.Unindent().PutLn("`n}")
+
         stack.Delete(v)
         return True
     }

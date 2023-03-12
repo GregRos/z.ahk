@@ -21,9 +21,6 @@
  *  
  */
 zFind(self, predicate) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(predicate, "predicate").toBeCallable(1, 2)
 
@@ -50,9 +47,6 @@ zFind(self, predicate) {
  * key := zFindLast([1, 2, 3], x => Mod(x, 2) == 0).Key
  */
 zFindLast(self, predicate) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(predicate, "predicate").toBeCallable(1, 2)
     return zz_arr.findLast(self, predicate)
@@ -102,7 +96,7 @@ zLastPairOf(self, value, caseSense := False) {
 }
 
 /**
- * Gets the value at a certain key (or index) from a collection, string, indexable, or enumerable.
+ * Gets the value at a certain key (or index) from a collection, string, or enumerable.
  * @param {`Enum1(val)` or `Enum2(key, val)` or `String`} self A collection, enumerable, or string.
  * @param {Number or String} key The key or index which to get.
  * @example

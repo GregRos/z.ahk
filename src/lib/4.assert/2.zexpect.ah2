@@ -107,7 +107,7 @@ class zExpect {
     }
 
     toBeObj() {
-        return this._relation(IsObject(this.REAL), "")
+        return this._type(IsObject(this.REAL), "be an object")
     }
 
     toEqual(other) {

@@ -78,7 +78,7 @@ zEscape(input) {
  * @see https://www.autohotkey.com/docs/v2/misc/EscapeChar.htm
  * @example
  * zUnescape("Hello``nWorld") ; => "Hello`nWorld"
- * zUnescape("`:`;``s") ; => ":; " zUnescape supports more sequences than zEscape.
+ * zUnescape("`:`;``s") ; => ":; "zUnescape supports more sequences than zEscape.
  */
 zUnescape(input) {
     for k, v in zz_unescapeSeqMap {

@@ -92,8 +92,8 @@ class zz_obj {
             }
 
             loop a.Length {
-                if not b.Has(A_Index) or not a.Has(A_Index) {
-                    return a.Has(A_Index) == b.Has(A_Index)
+                if not b.HasProp(A_Index) or not a.HasProp(A_Index) {
+                    return a.HasProp(A_Index) == b.HasProp(A_Index)
                 }
                 if not zz_obj.equal(a[A_Index], b[A_Index]) {
                     return False

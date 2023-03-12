@@ -1,4 +1,3 @@
-
 ; Like `Format`, but creates a template object that can be used to generate lots of different messages.
 class zTemplate {
     static replaceOpen := "[~[["
@@ -34,16 +33,21 @@ class zTemplate {
         template := zTemplate._encodeBraces(template)
         tokens := StrSplit(template, ["{", "}"])
 
-        loop tokens.Length {
-            if Mod(A_Index, 2) = 0 {
-                tk := Trim(tokens[A_Index])
-                splitFormat := StrSplit(tk, ":", , 2)
-                splitPath := StrSplit(splitFormat[1], ".", , 2)
-                stt := zTemplate.Token(splitPath[1], splitPath.Length > 1 ? splitPath[2] : unset, splitFormat.Length > 1 ? splitFormat[2] : unset)
-                tokens[A_Index] := stt
-            } else {
-                tokens[A_Index] := zTemplate._decodeBraces(tokens[A_Index])
+        try {
+            loop tokens.Length {
+                if Mod(A_Index, 2) = 0 {
+                    tk := Trim(tokens[A_Index])
+                    splitFormat := StrSplit(tk, ":", , 2)
+                    splitPath := StrSplit(splitFormat[1], ".", , 2)
+                    stt := zTemplate.Token(splitPath[1], splitPath.Length > 1 ? splitPath[2] : unset, splitFormat.Length > 1 ? splitFormat[2] : unset)
+                    tokens[A_Index] := stt
+                } else {
+                    tokens[A_Index] := zTemplate._decodeBraces(tokens[A_Index])
+                }
             }
+        } catch Error as e {
+            x := e
+            a := 1
         }
 
         this._tokens := tokens

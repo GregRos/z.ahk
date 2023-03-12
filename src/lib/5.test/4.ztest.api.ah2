@@ -54,7 +54,8 @@ zTest(config) {
     sink := zz_sink.GetSink(config.reporter)
     sink.PutLn("⚠️ THIS IS NOW A TEST SCRIPT ⚠️")
     config := zz_obj.defaults(config, {
-        reporter: "debug"
+        reporter: "debug",
+        filter: (x) => True
     })
     config.reporter := zz_reporter.TestReporter(
         sink,

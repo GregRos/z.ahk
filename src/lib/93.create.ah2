@@ -30,7 +30,7 @@ zArr(thing?, count?) {
         zExpectArg(count, "repeat").toBeIntLike().toBeAtLeast(0)
         if IsSet(thing) {
             loop count {
-                arr.Push(thing)
+                arr[A_Index] := thing
             }
         }
         return arr
@@ -48,12 +48,20 @@ zArr(thing?, count?) {
             arr[i] := v
         }
         return arr
+    } else if zIsEnumerable(thing, 2) {
+        arr := []
+        for k, v in thing {
+            arr.Push(v)
+        }
+        return arr
+    } else if zIsEnumerable(thing, 1) {
+        arr := []
+        for v in thing {
+            arr.Push(v)
+        }
+        return arr
     }
-    arr := []
-    for x in iterable {
-        arr.Push(x)
-    }
-    return arr
+    throw zBadInputError("Value is not an array, string, or enumerable.", thing)
 }
 
 /**
@@ -82,7 +90,7 @@ zRange(start, end, step := 1) {
     loop {
         result.Push(start)
         start += step
-    } until step < 0 ? start <= end : start >= end
+    } until step < 0 ? start < end : start > end
     return result
 }
 
@@ -101,24 +109,26 @@ zRange(start, end, step := 1) {
  * zRepeat([1, 2, 3], 0) ; => []
  */
 zRepeat(input, times) {
-    if input is Array {
-        result := []
-        loop times {
-            result.Push(input*)
-        }
-        return result
-    } else if input is String {
+    zExpectArg(times, "times").toBeIntLike().toBeAtLeast(0)
+    if input is String {
         result := ""
         loop times {
-            result .= collection
+            result .= input
         }
         return result
     }
-
+    zExpectArg(input, "input").toBeEnum(1)
+    result := []
+    loop times {
+        for x in input {
+            result.Push(x)
+        }
+    }
+    return result
 }
 
 /**
- * Creates a Map from the own properties of an object, using property names as keys.
+ * Creates a Map from the properties of an object. Arrays are keyed by index.
  * @param {Object} self The object to create a Map from.
  * @example
  * ; Create a Map from an object:
@@ -126,17 +136,21 @@ zRepeat(input, times) {
  * ; Create a Map from an empty object:
  * zDict({}) ; => Map()
  */
-zDict(self) {
+zDict(self := {}) {
     zExpectArg(self, "self").toBeObj()
-    zExpectArg(inherited, "inherited").toBeBool()
     dict := Map()
+    if self is Array {
+        Loop self.Length {
+            dict[A_Index] := self[A_Index]
+        }
+    }
     for key, val in ObjOwnProps(self) {
         dict[key] := val
     }
     return dict
 }
 /**
- * Creates a new Map by merging the input maps, with the last Map taking precedence.
+ * Creates a new collection by merging the input collections by key into a Map. Arrays are keyed by index.
  * @param {`Map*`} maps The Maps to merge.
  * @example
  * ; Merge two Maps:

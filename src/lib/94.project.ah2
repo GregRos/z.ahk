@@ -14,11 +14,8 @@
  * ; )
  */
 zGroupBy(self, getKey, caseSense := False) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
-    zExpectArg(getKey, "getKey").toBeCallable(1)
+    zExpectArg(getKey, "getKey").toBeCallable(1, 2)
     getKey := zz_Inspect(getKey).normalizeIteratee()
     outMap := Map()
     outMap.CaseSense := caseSense
@@ -46,9 +43,6 @@ zGroupBy(self, getKey, caseSense := False) {
  * zFilter(["a", "b", "cc"], x => StrLen(x) == 2) ; ["cc"]
  */
 zFilter(self, predicate) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(predicate, "predicate").toBeCallable(1, 2)
     return zz_arr.filter(self, predicate)
@@ -81,7 +75,7 @@ zUniq(self, caseSense := False) {
 }
 
 /**
- * Applies a projecting function on each value of an input collection, returning the results in a new array.
+ * Applies a projecting function on each value of an input collection or string, returning the results in a collection of the same type.
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. Strings are treated as arrays of characters.
  * @param {`p(val) => ?` or `p(key, val) => ?`} projection A function to apply on each key-value pair.
  * @example
@@ -93,9 +87,6 @@ zUniq(self, caseSense := False) {
  * zSelect(["hello", "world"], StrUpper) ; ["HELLO", "WORLD"]
  */
 zSelect(self, projection) {
-    if self is String {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(projection, "projection").toBeCallable(1, 2)
     return zz_arr.map(self, projection)
@@ -114,9 +105,6 @@ zSelect(self, projection) {
  * zSelectMany([Pikachu, Bulbasaur, Eevee], x => x.moves) ; ["Electro Ball", "Thunderbolt", "Giga Drain", "Tackle"]
  */
 zSelectMany(self, projection) {
-    if self is string {
-        self := StrSplit(self)
-    }
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(projection, "projection").toBeCallable(1, 2)
     arr := []
@@ -148,6 +136,8 @@ zSelectMany(self, projection) {
  * zFlat([1], 2, 3) ; [1, 2, 3]
  * ; Flattens a nested array:
  * zFlat([1, [1, 2]], 2) ; [1, 1, 2, 2]
+ * ; Maps and similar and not flattened:
+ * zFlat(Map()) ; [Map()]
  */
 zFlat(params*) {
     static inner_flat(arr, where) {
@@ -190,38 +180,6 @@ zSlice(self, start := 1, end := -1) {
     } else {
         zExpectArg(self, "self").fail("to be a string or array")
     }
-}
-
-/**
- * Returns all the keys of a collection in an array.
- * @param {Enum2(key, val)} keyed A map, array, or other enumerable.
- * @example
- * ; Gets the indexes of an array:
- * zKeys([10, -1, 5]) ; [1, 2, 3]
- * ; Gets the keys of a map:
- * zKeys(Map("a", 1, "b", 2)) ; ["a", "b"]
- */
-zKeys(keyed) {
-    keys := []
-    for key, value in keyed {
-        keys.Push(key)
-    }
-    return key
-}
-
-/**
- * Returns all the values of a collection in an array.
- * @param {Enum1(val)} col A map, array, or other collection.
- * @example
- * ; Gets the values of a map:
- * zValues(Map(1, "a", 2, "b")) ; ["a", "b"]
- */
-zValues(col) {
-    values := []
-    for key, value in col {
-        values.Push(value)
-    }
-    return values
 }
 
 /**
