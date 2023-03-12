@@ -1,29 +1,4 @@
-class zz_Chain {
-    __New(segments, implicitCall := False) {
-        if zz_str.startsWith(segments, ".") {
-            segments := SubStr(segments, 2)
-        }
-        this._segments := StrSplit(segments, ".")
-        this._implicitCall := implicitCall
-    }
 
-    Call(target) {
-        cur := target
-        inspected := zz_Inspect()
-        for segment in this._segments {
-            prev := cur
-            cur := cur.%segment%
-            inspected := inspected.next(cur)
-            if inspected.isCallable(0){
-                cur := cur.Call()
-            } else if inspected.isCallable(1) {
-                cur := cur.Call(prev)
-            }
-        }
-
-        return cur
-    }
-}
 
 class zz_obj {
     static assign(self, sources*) {
@@ -77,8 +52,11 @@ class zz_obj {
     }
 
 
-    static equal(a, b, caseMode := False) {
+    static equal(a, b, caseMode := False, noCoerce := False) {
         if not (IsObject(a) and IsObject(b)) {
+            if noCoerce and Type(a) != Type(b) {
+                return False
+            }
             return caseMode ? a == b : a = b
         }
         protoA := a.Base
@@ -86,7 +64,7 @@ class zz_obj {
         if protoA != protoB {
             return False
         }
-        if protoA = Array.Prototype {
+        if a is Array {
             if a.Length != b.Length {
                 return False
             }
@@ -95,19 +73,19 @@ class zz_obj {
                 if not b.HasProp(A_Index) or not a.HasProp(A_Index) {
                     return a.HasProp(A_Index) == b.HasProp(A_Index)
                 }
-                if not zz_obj.equal(a[A_Index], b[A_Index]) {
+                if not zz_obj.equal(a[A_Index], b[A_Index], caseMode, noCoerce) {
                     return False
                 }
             }
             return True
         }
-        if protoA == Map.Prototype {
+        if a is Map {
             if a.Count != b.Count {
                 return False
             }
 
             for key, value in a {
-                if not zz_obj.equal(value, b[key]) {
+                if not zz_obj.equal(value, b[key], caseMode, noCoerce) {
                     return False
                 }
             }
@@ -117,7 +95,7 @@ class zz_obj {
             return False
         }
         for key, value in ObjOwnProps(a) {
-            if not b.HasProp(key) or not zz_obj.equal(a.%key%, b.%key%, caseMode) {
+            if not b.HasProp(key) or not zz_obj.equal(a.%key%, b.%key%, caseMode, noCoerce) {
                 return False
             }
         }

@@ -31,14 +31,13 @@ zReverse(self) {
 }
 
 
-
 /**
  * Takes a collection and returns a new array with the same elements sorted in ascending order.
  * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. Strings are treated as arrays of characters.
  */
 zOrder(self) {
     zExpectArg(self, "self").toBeEnum(1, 2)
-    return zz_Ordering().ToArray(self)
+    return zz_Ordering.Default.ToArray(self)
 }
 
 /**
@@ -47,7 +46,7 @@ zOrder(self) {
  */
 zOrderDesc(self) {
     zExpectArg(self, "self").toBeEnum(1, 2)
-    return zz_Ordering().Flip.ToArray(self)
+    return zz_Ordering.Default.Flip.ToArray(self)
 }
 
 /**
@@ -58,7 +57,7 @@ zOrderDesc(self) {
 zOrderBy(self, getOrderingKey) {
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
-    return zz_Ordering.byKey(getOrderingKey).ToArray(self)
+    return zz_Ordering.Default.ByKey(getOrderingKey).ToArray(self)
 }
 
 /**
@@ -69,7 +68,7 @@ zOrderBy(self, getOrderingKey) {
 zOrderByDesc(self, getOrderingKey) {
     zExpectArg(self, "self").toBeEnum(1, 2)
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
-    return zz_Ordering.byKey(getOrderingKey).Flip.ToArray(self)
+    return zz_Ordering.Default.ByKey(getOrderingKey).Flip.ToArray(self)
 }
 
 /**
@@ -78,7 +77,7 @@ zOrderByDesc(self, getOrderingKey) {
  */
 zSort(self) {
     zExpectArg(self, "self").toBeArrayLike()
-    return zz_Ordering().InPlace(self)
+    return zz_Ordering.Default.InPlace(self)
 }
 
 /**
@@ -87,7 +86,7 @@ zSort(self) {
  */
 zSortDesc(self) {
     zExpectArg(self, "self").toBeArrayLike()
-    return zz_Ordering().Flip.InPlace(self)
+    return zz_Ordering.Default.Flip.InPlace(self)
 }
 
 /**
@@ -98,7 +97,7 @@ zSortDesc(self) {
 zSortBy(self, getOrderingKey) {
     zExpectArg(self, "self").toBeArrayLike()
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
-    return zz_Ordering.byKey(getOrderingKey).InPlace(self)
+    return zz_Ordering.Default.ByKey(getOrderingKey).InPlace(self)
 }
 
 /**
@@ -109,32 +108,32 @@ zSortBy(self, getOrderingKey) {
 zSortByDesc(self, getOrderingKey) {
     zExpectArg(self, "self").toBeArrayLike()
     zExpectArg(getOrderingKey, "getOrderingKey").toBeCallable(1)
-    return zz_Ordering.byKey(getOrderingKey).Flip.InPlace(self)
+    return zz_Ordering.Default.ByKey(getOrderingKey).Flip.InPlace(self)
 }
 
-zz_lessThan(a, b) {
-    if a is string {
-        return StrCompare(a, b) < 0
+zz_defaultLessThan(left, right) {
+    if left is string {
+        return StrCompare(left, right) < 0
     }
-    return a < b
+    return left < right
 }
-
-
 /**
  * A callable that implements a custom less-than `<` operator. Used to sort arrays, maps, and similar.
  */
 class zz_Ordering {
 
-    __New(operator?) {
-        this._operator := operator ?? zz_lessThan
+    static Default := zz_Ordering(zz_defaultLessThan)
+    __New(operator) {
+        this._operator := operator
     }
 
-    /**
-     * Creates an operator that orders values by key.
-     * @param {`getKey(val): bool} The key generating function.
-     */
-    static byKey(getKey) {
-        return zz_Ordering((a, b) => zz_lessThan(getKey(a), getKey(b)))
+
+    ByKey(getKey) {
+        self := this
+        keyedOrdering(left, right) {
+            return self(getKey(left), getKey(right))
+        }
+        return zz_Ordering(keyedOrdering)
     }
 
 
@@ -173,8 +172,7 @@ class zz_Ordering {
      * @param left Left-hand value.
      * @param right Right-hand value.
      */
-    Compare(left, right) {
-        return this._impl.Call(left, right)
+    Call(left, right) {
+        return this._operator.Call(left, right)
     }
-
 }

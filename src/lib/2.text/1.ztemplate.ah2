@@ -1,4 +1,32 @@
 ; Like `Format`, but creates a template object that can be used to generate lots of different messages.
+
+class zz_Chain {
+    __New(segments, implicitCall := False) {
+        if zz_str.startsWith(segments, ".") {
+            segments := SubStr(segments, 2)
+        }
+        this._segments := StrSplit(segments, ".")
+        this._implicitCall := implicitCall
+    }
+
+    Call(target) {
+        cur := target
+        inspected := zz_Inspect()
+        for segment in this._segments {
+            prev := cur
+            cur := cur.%segment%
+            inspected := inspected.next(cur)
+            if inspected.isCallable(0) {
+                cur := cur.Call()
+            } else if inspected.isCallable(1) {
+                cur := cur.Call(prev)
+            }
+        }
+
+        return cur
+    }
+}
+
 class zTemplate {
     static replaceOpen := "[~[["
     static replaceClose := "]~]]"
