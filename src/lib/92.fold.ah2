@@ -1,7 +1,7 @@
 /**
  * Checks if every item matches a predicate.
- * @param {Collection} self A collection. A string is treated as an array of chars.
- * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** predicate.
+ * @param {Collection} collection A map or array on which to apply the predicate.
+ * @param {`val => bool` or `(key, val) => bool`} predicate A map 
  * @example
  * ; Check if every number in an array is less than 5:
  * zEvery([1, 2, 3, 4], x => x < 5) ; True
@@ -10,20 +10,22 @@
  * ; Checks if a string consists of only "a"s:
  * zEvery("aaaa", x => x == "a") ; True
  */
-zEvery(self, predicate) {
+zEvery(collection, predicate) {
     predicate := zz_Inspect(predicate).normalizeIteratee()
-    return not zFind(self, (k, v) => not predicate(k, v))
+    return not zFirst(collection, (k, v) => not predicate(k, v))
 }
 
 /**
- * Applies the reduce (or fold) operation, from left to right, on a collection, starting from a given initial value.
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection. A string is treated as an array of chars.
- * @param {`acc(total, current) => ?` or `acc(key, total, current) => ?`} accumulator An **iteratee** accumulator.
- * @param {`?`} initial The initial value. If missing, the first value of `self` is used.
- * @throws {`UnsetError`} If initial is not given and `self` is empty.
+ * Applies the **reduce** (also called `Fold` or `Aggregate`) operation to a collection — a generalization of `zSum`, `zProduct`, `zAvg`, `zMin`, and `zMax`. 
+ * @param {Collection} collection A collection.
+ * @param {`(total, current) => ?` or `(key, total, current) => ?`} accumulator A function that takes an *element* and a *total*, returning a new total.
+ * @param {`?`} initial The initial value. If missing, the first value of `collection` is used.
+ * @throws {`UnsetError`} If initial is not given and `collection` is empty.
  * @example
  * ; Sum numbers in an array:
  * sum := zReduce([1, 2, 3], (acc, cur) => acc + cur, 0) ; 6
+ * ; sum numbers in an array, without an initial value:
+ * zReduce([1, 2, 3], (acc, cur) => acc + cur) ; 6
  * ; Multiply numbers in an array:
  * product := zReduce([2, 2, 2], (acc, cur) => acc * cur, 1) ; 8
  * ; Concat strings in an array:
@@ -31,12 +33,12 @@ zEvery(self, predicate) {
  * @see https://docs.python.org/3/library/functools.html#functools.reduce
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
  */
-zReduce(self, accumulator, initial := unset) {
-    zExpectArg(self, "self").toBeEnum(2)
+zReduce(collection, accumulator, initial := unset) {
+    zExpectArg(collection, "collection").toBeEnum(2)
     zExpectArg(accumulator, "accumulator").toBeCallable(2, 3)
     accumulator := zz_Inspect(accumulator).normalizeAccumulator()
     current := initial ?? unset
-    for index, item in self {
+    for index, item in collection {
         if not IsSet(current) {
             current := item
             continue
@@ -44,14 +46,14 @@ zReduce(self, accumulator, initial := unset) {
         current := accumulator(index, current, item)
     }
     if not IsSet(current) {
-        throw UnsetError("Parameter 'initial' was unset and 'self' was empty.")
+        throw UnsetError("Parameter 'initial' was unset and 'collection' was empty.")
     }
     return current
 }
 
 /**
- * Sums numbers and number-valued collections. Doesn't recurse.
- * @param args One or more numbers and number-valued collections.
+ * Sums numbers and values in collections. Doesn't recurse.
+ * @param colsAndVals One or more numbers and number-valued collections.
  * @example
  * ; Sum an array of numbers:
  * zSum([2, 4, 8]) ; 14
@@ -64,15 +66,15 @@ zReduce(self, accumulator, initial := unset) {
  * ; Sums values in maps:
  * zSum(Map("a", 1), Map("b", 2)) ; 3
  */
-zSum(args*) {
-    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
+zSum(colsAndVals*) {
+    flat := zSelectMany(colsAndVals, x => zIsEnumerable(x) ? zArr(x) : x)
     return zReduce(flat, (key, acc, cur) => acc + cur, 0)
 }
 
 
 /**
- * Multiplies several numbers and number-valued collections. Doesn't recurse.
- * @param args One or more numbers and number-valued collections.
+ * Multiplies numbers and values in collections. Doesn't recurse.
+ * @param colsAndVals One or more numbers and number-valued collections.
  * @example
  * ; Multiply an array of numbers:
  * zProduct([1, 2, 3]) ; 6
@@ -83,15 +85,15 @@ zSum(args*) {
  * ; Multiply numbers with arrays:
  * zProduct(1, [2, 3], 2) ; 12
  */
-zProduct(args*) {
-    flat := zSelectMany(args, x => zIsEnumerable(x, 1) ? zArr(x) : x)
+zProduct(colsAndVals*) {
+    flat := zSelectMany(colsAndVals, x => zIsEnumerable(x, 1) ? zArr(x) : x)
     return zReduce(flat, (key, acc, cur) => acc * cur, 1)
 }
 
 
 /**
- * Computes an average of numbers and number-valued collections. Doesn't recurse.
- * @param args One or more numbers and number-valued collections.
+ * Averages numbers and values in number-valued collections. Doesn't recurse.
+ * @param colsAndVals One or more numbers and number-valued collections.
  * @example
  * ; Average of an array of numbers:
  * zAvg([1, 2, 3]) ; 2
@@ -99,9 +101,11 @@ zProduct(args*) {
  * zAvg([]) ; 0
  * ; Average of some numbers:
  * zAvg(2, 2, 1) ; 5/3
+ * ; Average of numbers and arrays of numbers:
+ * zAvg(1, 1, [1, 1]) ; 1
  */
-zAvg(args*) {
-    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
+zAvg(colsAndVals*) {
+    flat := zSelectMany(colsAndVals, x => zIsEnumerable(x) ? zArr(x) : x)
     len := 0
     total := zReduce(flat, (tot, cur) => len++, cur + tot)
     if len == 0 {
@@ -111,39 +115,44 @@ zAvg(args*) {
 }
 
 /**
- * Gets the minimum value between one or more numbers and number-valued collections. Doesn't recurse.
- * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
+ * Gets the minimum value between one or more numbers and values of number-valued collections.
+ * @param colsAndVals One or more numbers and number-valued collections.
  * @example
  * ; Get the minimum value in an array:
  * zMin([1, 2, 3]) ; 1
  * ; Get the minimum value in a map:
  * zMin(Map("a", 1, "b", 2)) ; 1
+ * ; Gets the minimum of some numbers:
+ * zMin(1, 2, 3) ; 1
+ * ; Gets the minimum of some numbers and arrays of numbers:
+ * zMin(1, 2, [3, 4]) ; 1
  */
-zMin(args*) {
-    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
+zMin(colsAndVals*) {
+    flat := zSelectMany(colsAndVals, x => zIsEnumerable(x) ? zArr(x) : x)
 
     return Min(flat*)
 }
 
 /**
- * Gets the maximum value in a number-valued collection.
- * @param {`Enum1(value)` or `Enum2(key, value)`} self A collection of numbers.
+ * Gets the maximum value between one or more numbers and values of number-valued collections.
+ * @param colOrVals One or more numbers and number-valued collections.
  * @example
  * ; Get the maximum value in an array:
  * zMax([1, 2, 3]) ; 3
  * ; Get the maximum value in a map:
  * zMax(Map("a", 1, "b", 2)) ; 2
- * ; Gets the maximum of an empty arra
+ * ; Gets the maximum of arrays an numbers:
+ * zMax(1, 2, [3, 4]) ; 4
  */
-zMax(args*) {
-    flat := zSelectMany(args, x => zIsEnumerable(x) ? zArr(x) : x)
+zMax(colsAndVals*) {
+    flat := zSelectMany(colsAndVals, x => zIsEnumerable(x) ? zArr(x) : x)
 
     return Max(flat*)
 }
 
 /**
- * Gets the length of something that has a length.
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string. It may be enumerated.
+ * Computes the length of a collection or string.
+ * @param {Collection or String} strOrCollection A collection or string.
  * @example
  * ; Get the length of an array (Length)
  * zLength([1, 2, 3]) ; 3
@@ -152,26 +161,17 @@ zMax(args*) {
  * ; Get the length of a string (via StrLen):
  * zLength("hello") ; 5
  */
-zLength(self) {
-    if self is String {
-        return StrLen(self)
+zLength(strOrCollection) {
+    if strOrCollection is String {
+        return StrLen(strOrCollection)
     }
-    if not IsObject(self) {
-        throw zz_BadInputError("The parameter 'self' must be an object or a string")
+    if not IsObject(strOrCollection) {
+        throw zz_BadInputError("The parameter 'strOrCollection' must be an object or a string")
     }
-    if HasProp(self, "Length") {
-        return self.Length
-    } else if HasProp(self, "Count") {
-        return self.Count
-    }
-    if zIsEnumerable(self, 1) {
-        for x in self {
-            last := A_Index
-        }
-    } else if zIsEnumerable(self, 2) {
-        for a, b in self {
-            last := A_Index
-        }
+    if HasProp(strOrCollection, "Length") {
+        return strOrCollection.Length
+    } else if HasProp(strOrCollection, "Count") {
+        return strOrCollection.Count
     } else {
         throw zz_BadInputError("Parameter 'self' is not a valid enumerable.")
     }
@@ -180,9 +180,9 @@ zLength(self) {
 
 
 /**
- * Turns every value in a collection into a string and then joins them up with a delimeter.
- * @param {`Enum1(val)` or `Enum2(key, val)`} self The collection to join.
- * @param {`String`} delim The delimeter to place between each string. Defaults to none.
+ * Stringifies every value in a collection and joins them with a delimeter.
+ * @param {`Collection`} self The collection to join.
+ * @param {`String`} delim The delimeter. Defaults to none.
  * @example
  * ; Joins an array of strings:
  * zJoin(["you", "are", "beautiful"], " ") ; "you are beautiful"

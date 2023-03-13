@@ -1,16 +1,19 @@
-zz_setFlag(input, flag, value) {
+zz_setFlag(haystack, flag, value) {
     if value {
-        return StrReplace(input, flag, "")
+        return StrReplace(haystack, flag, "")
     } else {
-        return input flag
+        return haystack flag
     }
 }
 
+/**
+ * A regex class that wraps `RegExMatch` and `RegExReplace` with a more convenient API.
+ */
 class zRegEx {
 
     /**
-     * Creates a new regex object.
-     * @param pattern The regex pattern to use. May include flags embedded in the beginning, like `i)pattern`.
+     * Makes a new `zRegEx` object.
+     * @param pattern The regex pattern to use. May include flags in the beginning, like `i)pattern`.
      * @param moreFlags Any additional flags to use.
      * @example
      * ; Regex that matches a number:
@@ -34,9 +37,9 @@ class zRegEx {
     }
 
     /**
-     * Returns a new regex with the given flags set or unset.
-     * @param flags The flags to set. A string of characters.
-     * @param value Whether to set or unset the flags.
+     * Returns a new `zRegEx` with the given flags set or unset.
+     * @param flags A string of flags to set or unset. For example, `"ig"` to set the "i" and "g" flags.
+     * @param value Whether to set or unset the flags. Defaults to `True`, which means set.
      * @returns A new `zRegEx` object with the flags set or unset.
      * @example
      * regex := zRegEx("hello")
@@ -58,8 +61,8 @@ class zRegEx {
     }
 
     /**
-     * Returns the first match of this regex in the input string, as a MatchObject.
-     * @param input The string to search.
+     * Finds the first match of this regex in the haystack string, as a `MatchObject`.
+     * @param haystack The string to search.
      * @param start The index to start searching from.
      * @returns {MatchObject} A match object, or `""` if no match was found.
      * @example
@@ -68,20 +71,20 @@ class zRegEx {
      * ; First two numbers separated by a comma:
      * zRegEx("([0-9]+),([0-9]+)").First("123,456").Match[2] ; => "456"
      */
-    First(input, start := 1) {
-        zExpectArg(input, "input").toBeStringLike()
+    First(haystack, start := 1) {
+        zExpectArg(haystack, "haystack").toBeStringLike()
         zExpectArg(start, "start").toBeNumberLike()
-        input := String(input)
+        haystack := String(haystack)
         start := Number(start)
-        for x in this.Enumerate(input, start) {
+        for x in this.Enumerate(haystack, start) {
             return x
         }
         return ""
     }
 
     /**
-     * Splits a string into an array of substrings, using this regex as a delimiter. Any capture groups are included in the result.
-     * @param input The string to split.
+     * Splits a string into an array of substrings, using this regex as a delimiter. Any capture groups (other than 0) are included in the result.
+     * @param haystack The string to split.
      * @param count Maximum number of splits to perform. Defaults to -1, which means all matches.
      * @example
      * ; Split a string into an array of words:
@@ -91,30 +94,30 @@ class zRegEx {
      * ; Split a string into an array of words, including the spaces, but only the first two:
      * zRegEx("(\s+)").Split("hello world", 2) ; => ["hello", " "]
      */
-    Split(input, count := -1) {
-        zExpectArg(input, "input").toBeStringLike()
+    Split(haystack, count := -1) {
+        zExpectArg(haystack, "haystack").toBeStringLike()
         zExpectArg(count, "count").toBeNumberLike()
-        input := String(input)
+        haystack := String(haystack)
         count := Number(count)
         result := []
         start := 1
-        for match in this.Enumerate(input) {
+        for match in this.Enumerate(haystack) {
             if A_Index = count {
                 break
             }
-            result.Push(zz_str.slice(input, start, match.Pos - 1))
+            result.Push(zz_str.slice(haystack, start, match.Pos - 1))
             start := match.Pos + match.Len + 1
             loop match.Count {
                 result.Push(match.Match[A_Index])
             }
         }
-        result.Push(zz_str.slice(input, start))
+        result.Push(zz_str.slice(haystack, start))
         return result
     }
 
     /**
      * Returns a string with all matches of this regex replaced with a replacement string or function.
-     * @param input The string to search.
+     * @param haystack The string to search.
      * @param replacer A string to replace matches with, or a replacement function that takes a `MatchObject` and returns a `string`.
      * @param start The index to start searching from.
      * @param count The number of matches to replace. Defaults to -1, which means all matches.
@@ -126,11 +129,11 @@ class zRegEx {
      * ; Replace words beginning with "h" with uppercase:
      * zRegEx("(h[a-z]+)", "i").Replace("hello world", StrUpper) ; => "HELLO world"
      */
-    Replace(input, replacer, start := 1, count := -1) {
+    Replace(haystack, replacer, start := 1, count := -1) {
         result := ""
-        replacer := zIsCallable(replacer) ? replacer : zConst(replacer)
+        replacer := zIsCallable(replacer) ? replacer : (args*) => replacer
 
-        for match in this.Enumerate(input, start) {
+        for match in this.Enumerate(haystack, start) {
             if count = 0 {
                 break
             }
@@ -138,17 +141,16 @@ class zRegEx {
                 count -= 1
             }
             replaced := replacer(match)
-            result .= zz_str.slice(input, start, match.Pos - 1) replaced
+            result .= zz_str.slice(haystack, start, match.Pos - 1) replaced
             start := match.Pos + match.Len + 1
         }
         return result
     }
 
     /**
-     * Returns an object that enumerates all the matches of this regex in the input string.
-     * @param input The string to search.
+     * Returns an object that enumerates all the matches of this regex in the haystack string.
+     * @param haystack The string to search.
      * @param start The index to start searching from.
-     * @returns {Enum(MatchObject)}
      * @example
      * ; Match and output all numbers in a string:
      * regex := zRegEx("([0-9]+)")
@@ -156,13 +158,13 @@ class zRegEx {
      *    zOut(match.Match[]) ; => "123", "456"
      * }
      */
-    Enumerate(input, start := 1) {
+    Enumerate(haystack, start := 1) {
         __Enum(n) {
             current := start
             pattern := this.Pattern
             flags := this.Flags
             EnumerateMatches(args*) {
-                found := RegExMatch(input, this.Flags ")" this.Pattern, &out, current)
+                found := RegExMatch(haystack, this.Flags ")" this.Pattern, &out, current)
                 if not found {
                     return False
                 }

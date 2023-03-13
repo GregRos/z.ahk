@@ -186,7 +186,8 @@ class zExpect {
     }
 
     toBeOneOf(options*) {
-        return this._relation(zArrHas(options, this.REAL), "")
+        optionsString := zz_str.join(zz_arr.map(options, Type), ", ")
+        return this._type(zFirst(options, x => x == this.REAL), "be one of " optionsString)
     }
 
     toBeArray(predicate?) {
@@ -225,7 +226,9 @@ class zExpect {
         }
 
     }
-
+    toBeCollection() {
+        return this._type(zIsCollection(this.REAL), "be a collection")
+    }
     toBeBool() {
         return this._type(this.REAL == True or this.REAL == False, "be boolean")
     }

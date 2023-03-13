@@ -77,24 +77,24 @@ class Create_tests extends zTestSuite {
     }
 
     zDict_empty() {
-        zExpect(zDict()).toEqual(Map())
+        zExpect(zMap()).toEqual(Map())
     }
 
     zDict_empty_object() {
-        zExpect(zDict({})).toEqual(Map())
+        zExpect(zMap({})).toEqual(Map())
     }
 
     zDict_of_object() {
-        zExpect(zDict({a: 1, b: 2})).toEqual(Map("a", 1, "b", 2))
+        zExpect(zMap({a: 1, b: 2})).toEqual(Map("a", 1, "b", 2))
     }
 
     zDict_of_object_with_prototype() {
         o := {a: 1, b: 2}
         o.base := {c: 3}
-        zExpect(zDict(o)).toEqual(Map("a", 1, "b", 2))
+        zExpect(zMap(o)).toEqual(Map("a", 1, "b", 2))
     }
 
     zDict_of_array() {
-        zExpect(zDict([1, 2])).toEqual(Map(1, 1, 2, 2))
+        zExpect(zMap([1, 2])).toEqual(Map(1, 1, 2, 2))
     }
 }

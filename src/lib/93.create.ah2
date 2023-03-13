@@ -1,12 +1,11 @@
 #include 95.string.ah2
 
 /**
- * Creates an array from collections, a string, a value to repeat and a count, and more. See examples.
- * @param {`?`} what The thing to turn into an array.
- * @param {`Number`} repeat If specified, will create an array of `what` repeated this many times. Must be 0 or higher.
+ * Makes an array from a collection of things — a string, array, Map, or enumerable — OR a thing and a count.
+ * @param {`?`} thing The thing to turn into an array.
+ * @param {`Number`} repeat If specified, will create an array of `what` repeated this many times. If given, must be a positive integer.
  * @example
- * ; This just makes an empty array:
- * zArr() ; []
+ * 
  * ; Makes a shallow clone of the input array:
  * zArr([1, 2, 3]) ; [1, 2, 3]
  * ; Returns an array of the values in a Map:
@@ -22,12 +21,14 @@
  * zArr("dude", 0) ; []
  * ; If the `thing` parameter is empty but `count` is not, an unset array of that length will be created:
  * zArr( , 3) ; [ , , ]
+ * ; This just makes an empty array:
+ * zArr() ; []
  */
 zArr(thing?, count?) {
     if IsSet(count) {
+        zExpectArg(count, "count").toBeIntLike().toBeAtLeast(1)
         arr := []
         arr.Length := count
-        zExpectArg(count, "repeat").toBeIntLike().toBeAtLeast(0)
         if IsSet(thing) {
             loop count {
                 arr[A_Index] := thing
@@ -65,24 +66,30 @@ zArr(thing?, count?) {
 }
 
 /**
- * Returns a range of numbers in an array.
+ * Makes a range of numbers in an array.
  * @param {Number} start Initial value of the range, inclusive.
- * @param {Number} end End point, also inclusive.
+ * @param {Number} end Final value of the range, also inclusive.
  * @param {Number} step The difference between a number and the next, must be greater than 0.
  * @example
  * ; Range between 1 and 5:
  * zRange(1, 5) ; [1, 2, 3, 4, 5]
+ * ; A range with floats:
+ * zRange(1.5, 3.5) ; [1.5, 2.5, 3.5]
  * ; Range between 1 and 5 with an increment of 3:
  * zRange(1, 5, 3) ; [1, 4]
+ * ; Range between 1 and 3 with a step of 0.5:
+ * zRange(1, 3, 0.5) ; [1, 1.5, 2, 2.5, 3]
  * ; If start is greater than end, the range is reversed:
  * zRange(5, 1) ; [5, 4, 3, 2, 1]
  *  ; The step is always positive no matter the direction.
  * zRange(5, 1, 2) ; [5, 3, 1]
+ * ; This just gives an array with one element:
+ * zRange(5, 5) ; [5]
  */
 zRange(start, end, step := 1) {
     zExpectArg(start, "start").toBeNumLike()
     zExpectArg(end, "end").toBeNumLike()
-    zExpectArg(step, "step").toBeMoreThan(0)
+    zExpectArg(step, "step").toBeNumLike().toBeMoreThan(0)
     if start > end {
         step := -step
     }
@@ -95,8 +102,8 @@ zRange(start, end, step := 1) {
 }
 
 /**
- * Returns a string or array made of the input concatenated to itself a number of times.
- * @param input The string or array to repeat.
+ * Makees a string or array by repeating the input string or array a number of times.
+ * @param strOrArray The string or array to repeat.
  * @param times The number of times to repeat it.
  * @example
  * ; Repeat a string 3 times:
@@ -108,19 +115,19 @@ zRange(start, end, step := 1) {
  * ; Repeat an array 0 times:
  * zRepeat([1, 2, 3], 0) ; => []
  */
-zRepeat(input, times) {
+zRepeat(strOrArray, times) {
     zExpectArg(times, "times").toBeIntLike().toBeAtLeast(0)
-    if input is String {
+    zExpectArg(strOrArray, "strOrArray").toBeOneOf(String, Array)
+    if strOrArray is String {
         result := ""
         loop times {
-            result .= input
+            result .= strOrArray
         }
         return result
     }
-    zExpectArg(input, "input").toBeEnum(1)
     result := []
     loop times {
-        for x in input {
+        for x in strOrArray {
             result.Push(x)
         }
     }
@@ -128,29 +135,31 @@ zRepeat(input, times) {
 }
 
 /**
- * Creates a Map from the properties of an object. Arrays are keyed by index.
- * @param {Object} self The object to create a Map from.
+ * Makes a new Map from the properties of an object or the indexes and values of an array.
+ * @param {Object} objOrArray An object or array.
  * @example
  * ; Create a Map from an object:
- * zDict({a: 1, b: 2}) ; => Map("a", 1, "b", 2)
+ * zMap({a: 1, b: 2}) ; => Map("a", 1, "b", 2)
  * ; Create a Map from an empty object:
- * zDict({}) ; => Map()
+ * zMap({}) ; => Map()
+ * ; Create a map from an array:
+ * zMap([1, 2, 3]) ; Map(1 => 1, 2 => 2, 3 => 3)
  */
-zDict(self := {}) {
-    zExpectArg(self, "self").toBeObj()
+zMap(objOrArray := {}) {
+    zExpectArg(objOrArray, "objOrArray").toBeObj()
     dict := Map()
-    if self is Array {
-        Loop self.Length {
-            dict[A_Index] := self[A_Index]
+    if objOrArray is Array {
+        for ix, val in objOrArray {
+            dict[ix] := objOrArray[val]
         }
     }
-    for key, val in ObjOwnProps(self) {
+    for key, val in ObjOwnProps(objOrArray) {
         dict[key] := val
     }
     return dict
 }
 /**
- * Creates a new collection by merging the input collections by key into a Map. Arrays are keyed by index.
+ * Makes a new Map by merging one or more input Maps. If a key is in multiple Maps, the last value is used.
  * @param {`Map*`} maps The Maps to merge.
  * @example
  * ; Merge two Maps:

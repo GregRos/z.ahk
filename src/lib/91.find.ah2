@@ -1,104 +1,66 @@
 
 /**
- * Picks the first element for which a predicate returns True, returning its key and value.
+ * Picks the first element for which a predicate returns True. Returns its key and value.
  * @param {Collection} self A map or an array.
- * @param {`val => bool` or `(key, val) => bool`} predicate 
- * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
+ * @param {`val => bool` or `(key, val) => bool`} predicate Whether to pick the element. If omitted, the first element is picked.
+ * @returns {`{Key, Value}` or `""`} A Key-Value pair or an empty string if not found.
  * @remarks For an array, a value's index is its key.
  * @example
  * ; Find a string that has length 3:
- * zFind( ["a", "bb", "ccc"], x => StrLen(x) == 3) ; {Key: 3, Value: "ccc"}
+ * kvp := zFirst( ["a", "bb", "ccc"], x => StrLen(x) == 3) ; {Key: 3, Value: "ccc"}
+ * ; It's returned as a key-value pair. Usually you'll want to get the value out:
+ * kvp.Value ; "ccc"
  * ; Find the first kvp that has the value 2:
- * zFind(Map("a", 1, "b", 2), (k, v) => v == 2) ; {Key: "b", Value: 2}
+ * zFirst(Map("a", 1, "b", 2), (k, v) => v == 2) ; {Key: "b", Value: 2}
  * ; Try to find 5 in an array that doesn't have it:
- * zFind([1, 2, 3], x => x = 5) ; ""
+ * zFirst([1, 2, 3], x => x = 5) ; ""
  * ; Use an `if` with an assignment:
- * if kvp := zFind(arr, x => x.IsTrue) {
+ * if kvp := zFirst(arr, x => x.IsSomething) {
  *  zOut("Key: {.Key}, Value: {.Value}", kvp)
  * }
  * ; Or, if you're brave, skip the `if`:
- * key := zFind([1, 2, 3], x => Mod(x, 2) == 0).Key
- *  
+ * key := zFirst([1, 2, 3], x => Mod(x, 2) == 0).Key
+ * ; To just get the first element:
+ * zFirst(arr).Value
  */
-zFind(self, predicate) {
-    zExpectArg(self, "self").toBeEnum(1, 2)
+zFirst(self, predicate?) {
+    zExpectArg(self, "self").toBeCollection()
     zExpectArg(predicate, "predicate").toBeCallable(1, 2)
 
-    return zz_arr.find(self, predicate)
+    return zz_arr.find(self, predicate ?? x => True)
 }
 
 /**
- * Searches a collection for the last value that fulfills a predicate.
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string. A string is treated as an array of chars.
- * @param {`predicate(val): bool` or `predicate(key, val): bool`} predicate  An **iteratee** search predicate.
- * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
+ * Picks the last element for which a predicate returns True. Returns its key and value.
+ * @param {Collection} self A collection.
+ * @param {`val => bool` or `(key, val) => bool`} predicate Whether to pick the element. If omitted, the last element is picked.
+ * @returns {`{Key, Value}` or `""`} A Key-Value pair or an empty string if not found.
  * @example
  * ; Find the last string with length 2:
- * zFindLast( ["a", "bb", "ccc", "dd"], x => StrLen(x) == 2) ; {Key: 4, Value: "dd"}
+ * zLast( ["a", "bb", "ccc", "dd"], x => StrLen(x) == 2 ) ; {Key: 4, Value: "dd"}
  * ; Find the last kvp (silly):
- * zFindLast(Map("a", 1, "b", 2), (k, v) => True) ; {Key: "b", Value: 2}
+ * zLast( Map("a", 1, "b", 2), (k, v) => True ) ; {Key: "b", Value: 2}
  * ; Try to find 5 in an array that doesn't have it:
- * zFindLast([1, 2, 3], x => x = 5) ; ""
+ * zLast( [1, 2, 3], x => x = 5 ) ; ""
  * ; Use an `if` with an assignment:
- * if kvp := zFindLast(arr, x => x.IsTrue) {
- *  zOut("Key: {.Key}, Value: {.Value}", kvp)
+ * if kvp := zLast( arr, x => x.IsTrue ) {
+ *  zOut( "Key: {.Key}, Value: {.Value}", kvp)
  * }
  * ; Or, if you're brave, skip the `if`:
- * key := zFindLast([1, 2, 3], x => Mod(x, 2) == 0).Key
+ * key := zLast( [1, 2, 3], x => Mod( x, 2 ) == 0 ).Key ]
+ * ; To just get the last element:
+ * zLast( arr ).Value
  */
-zFindLast(self, predicate) {
-    zExpectArg(self, "self").toBeEnum(1, 2)
+zLast(self, predicate?) {
+    zExpectArg(self, "self").toBeCollection()
     zExpectArg(predicate, "predicate").toBeCallable(1, 2)
-    return zz_arr.findLast(self, predicate)
+    return zz_arr.findLast(self, predicate ?? x => True)
 }
 
 /**
- * Searches a collection for the first appearance of a value, or a string for the first appearance of a substring. 
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string.
- * @param {`?`} value A value or substring to look for.
- * @param {`bool`} caseSense Whether the search is case-sensitive (False).
- * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
- * @example
- * ; Find the index of the value "c":
- * zPairOf(["a", "b", "c"], "c").Key ; 3
- * ; Check if an array doesn't have "c":
- * not zPairOf(["a", "b"], "c") ; True
- * ; Get the position of the first "@" symbol in a string:
- * zPairOf("hello@world.com", "@").Key ; 6
- */
-zPairOf(self, value, caseSense := False) {
-    if self is String {
-        pos := InStr(self, value, caseSense)
-        return pos ? zz_Kvp(pos, value) : ""
-    }
-    return zFind(self, x => caseSense ? x == value : x = value)
-}
-
-/**
- * Searches a collection for the last appearance of a value, or a string for the last appearance of a substring. 
- * @param {`Enum1(value)` or `Enum2(key, value)` or `String`} self A collection or string.
- * @param {`?`} value A value to look for.
- * @param {`bool`} caseSense Whether the search is case-sensitive (False).
- * @returns {`{Key, Value}` or `""`} A key-value pair or `""` if not found.
- * @example
- * ; Find the last index of the value "c":
- * zLastPairOf(["c", "b", "c"], "c").Key ; 3
- * ; Find the last occurence of the world "very":
- * zLastPairOf("a very very very big rock", "very").Key ; 13
- * 
- */
-zLastPairOf(self, value, caseSense := False) {
-    if self is String {
-        pos := InStr(self, value, caseSense, -1)
-        return pos ? zz_Kvp(pos, value) : ""
-    }
-    return zFindLast(self, x => caseSense ? x == value : x = value)
-}
-
-/**
- * Gets the value at a certain key (or index) from a collection, string, or enumerable.
- * @param {`Enum1(val)` or `Enum2(key, val)` or `String`} self A collection, enumerable, or string.
- * @param {Number or String} key The key or index which to get.
+ * Gets the value at a key or index.
+ * @param {Collection or String} self An array, map, or string.
+ * @param {Number or String} key The key or index to get.
  * @example
  * ; Gets a character at an index from a string:
  * zAt("hello", 2) ; "e"
@@ -116,13 +78,14 @@ zAt(self, key) {
     if zIsIndexed(self, 1) {
         return self[key]
     }
-    if zIsEnumerable(self, 1) {
+    if zIsCollection(self) {
         zExpectArg(key, "key").toBeIntLike()
-        for x in self {
+        for k, v in self {
             if A_Index = key {
                 return x
             }
         }
+        throw UnsetItemError(Format("Key or index '{1}' not found."), key)
     }
     zExpectArg(key, "key").fail("to be a string, indexable, or enumerable")
 }

@@ -2,10 +2,9 @@
 #include 90.order.ah2
 #include 1.util\0.index.ah2
 /**
- * Determines if the left value is structurally equal to the right value.
- * @param left The left value.
- * @param right The right value.
- * @param deep If false, only the top-level values are compared. Default is true.
+ * Checks if the left object or value is equal to the right object or value.
+ * @param left The left object or value.
+ * @param right The right object or value.
  * @param caseSense If true, comparisons are case-sensitive. Default is false.
  * @param noCoerce If true, numbers aren't coerced into strings. Default is false.
  * @example
@@ -30,40 +29,6 @@
  * zEqual(1, "1", , True) ; False
  * 
  */
-zEqual(left, right, caseSense := False, coerce := True) {
-    if not deep {
-        if not coerce and not Type(left) = Type(right) {
-            return False
-        }
-        return caseSense ? left == right : left = right
-    }
-    return zz_obj.equal(left, right, caseSense, coerce)
-}
-
-/**
- * Returns True if the left collection or string starts with the right collection or string.
- * @param {`Enum` or `String`} left The left value. 
- * @param {`Enum` or `String`} right The right value.
- * 
- */
-zStartsWith(left, right, caseSense := False) {
-    if left is String {
-        return zz_str.startsWith(left, right, caseSense)
-    }
-    zExpectArg(left, "left").toBeArrayLike()
-    zExpectArg(right, "right").toBeArrayLike()
-    leftSeq := left.__Enum(1)
-    rightSeq := right.__Enum(1)
-    while rightSeq(&right) {
-        if not leftSeq(&left) {
-            return False
-        }
-        if not caseSense {
-            right := zz_str.lower(right)
-            left := zz_str.lower(left)
-        }
-        if right != left {
-            return False
-        }
-    }
+zEqual(left, right, caseSense := False, noCoerce := False) {
+    return zz_obj.equal(left, right, caseSense, noCoerce)
 }

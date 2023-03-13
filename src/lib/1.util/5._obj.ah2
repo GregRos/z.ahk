@@ -52,9 +52,9 @@ class zz_obj {
     }
 
 
-    static equal(a, b, caseSense := False, coerce := False) {
+    static equal(a, b, caseSense := False, noCoerce := False) {
         if not (IsObject(a) and IsObject(b)) {
-            if not coerce and Type(a) != Type(b) {
+            if noCoerce and Type(a) != Type(b) {
                 return False
             }
             return caseSense ? a == b : a = b
@@ -73,7 +73,7 @@ class zz_obj {
                 if not b.HasProp(A_Index) or not a.HasProp(A_Index) {
                     return a.HasProp(A_Index) == b.HasProp(A_Index)
                 }
-                if not zz_obj.equal(a[A_Index], b[A_Index], caseSense, coerce) {
+                if not zz_obj.equal(a[A_Index], b[A_Index], caseSense, noCoerce) {
                     return False
                 }
             }
@@ -85,7 +85,7 @@ class zz_obj {
             }
 
             for key, value in a {
-                if not zz_obj.equal(value, b[key], caseSense, coerce) {
+                if not zz_obj.equal(value, b[key], caseSense, noCoerce) {
                     return False
                 }
             }
@@ -95,7 +95,7 @@ class zz_obj {
             return False
         }
         for key, value in ObjOwnProps(a) {
-            if not b.HasProp(key) or not zz_obj.equal(a.%key%, b.%key%, caseSense, coerce) {
+            if not b.HasProp(key) or not zz_obj.equal(a.%key%, b.%key%, caseSense, noCoerce) {
                 return False
             }
         }
